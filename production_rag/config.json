@@ -1,0 +1,43 @@
+{
+  "model_info": {
+    "embedding_model": "BAAI/bge-base-en-v1.5",
+    "embedding_dimensions": 768,
+    "llm_model": "phi3",
+    "llm_size": "3.8B",
+    "search_strategy": "mmr",
+    "hybrid_search": false
+  },
+  "performance_metrics": {
+    "load_time_seconds": 3.84,
+    "avg_query_time_seconds": 3.68,
+    "performance_score": 3.71,
+    "success_rate_percent": 100.0,
+    "benchmark_date": "2026-01-10"
+  },
+  "optimization_details": {
+    "selected_from": "24 tested configurations",
+    "ranking": "1st place",
+    "key_advantages": [
+      "Fastest overall response time",
+      "Best balance of load time and query performance",
+      "CPU-optimized for production deployment",
+      "100% success rate on test queries"
+    ]
+  },
+  "hardware_requirements": {
+    "gpu_required": false,
+    "min_ram_gb": 8,
+    "storage_gb": 2,
+    "cpu_cores": 4
+  },
+  "dependencies": {
+    "ollama_model": "phi3",
+    "python_version": ">=3.8",
+    "key_packages": [
+      "langchain>=0.1.0",
+      "langchain-chroma>=0.1.0",
+      "langchain-ollama>=0.1.0",
+      "sentence-transformers>=2.3.0"
+    ]
+  }
+}

@@ -8,6 +8,7 @@ import SettingsPage from "./SettingsPage";
 import PastScans from "./PastScans";
 import UserManagement from "./UserManagement";
 import HeartbeatPage from "./HeartbeatPage";
+import TroubleshootPage from "./TroubleshootPage";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -22,6 +23,8 @@ const Index = () => {
         return <ManualMode />;
       case "maintenance":
         return <MaintenanceMode />;
+      case "troubleshoot":
+        return <TroubleshootPage />;
       case "settings":
         return <SettingsPage />;
       case "scans":

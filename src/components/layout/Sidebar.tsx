@@ -9,7 +9,8 @@ import {
   Users, 
   Activity,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from "lucide-react";
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ const navItems = [
   { id: "automatic", label: "Automatic Mode", icon: Play },
   { id: "manual", label: "Manual Mode", icon: Hand },
   { id: "maintenance", label: "Maintenance", icon: Wrench },
+  { id: "troubleshoot", label: "Troubleshoot Agent", icon: MessageSquare },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "scans", label: "Past Scans", icon: History },
   { id: "users", label: "User Management", icon: Users },

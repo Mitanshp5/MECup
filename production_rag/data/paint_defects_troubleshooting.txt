@@ -1,0 +1,50 @@
+TROUBLESHOOTING GUIDE – PAINT DEFECT DETECTION MACHINE
+
+PROBLEM: SCRATCH DETECTION TOO FREQUENT
+Possible Causes:
+- Excessive lighting intensity
+- Camera sensitivity set too high
+- Dust particles on painted surface
+
+Solution:
+1. Reduce LED lighting intensity by 10–15%.
+2. Adjust camera sensitivity in the control panel.
+3. Clean the surface before inspection.
+
+--------------------------------------
+
+PROBLEM: BUBBLES NOT DETECTED
+Possible Causes:
+- Low camera resolution setting
+- Improper camera angle
+- Conveyor speed too high
+
+Solution:
+1. Increase camera resolution to HIGH mode.
+2. Adjust camera angle to 90 degrees.
+3. Reduce conveyor speed below 1.0 m/s.
+
+--------------------------------------
+
+PROBLEM: FALSE POSITIVES IN DEFECT DETECTION
+Possible Causes:
+- Reflections from glossy paint
+- Uneven lighting distribution
+
+Solution:
+1. Use diffused lighting.
+2. Recalibrate the lighting system.
+3. Run system calibration cycle.
+
+--------------------------------------
+
+PROBLEM: SYSTEM FAILS TO START
+Possible Causes:
+- Power supply interruption
+- Emergency stop engaged
+- Control unit error
+
+Solution:
+1. Check main power supply.
+2. Release emergency stop button.
+3. Restart control unit.
