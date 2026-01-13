@@ -1,4 +1,4 @@
 npm install i \
-npm run dev\
+npm run electron\
 \
 to Test
