@@ -10,13 +10,13 @@ let mainWindow;
 let pythonProcess = null;
 
 function startPythonBackend() {
-  const ragPath = path.join(__dirname, '../production_rag');
-  const scriptPath = path.join(ragPath, 'fastapi_server.py');
-  
-  console.log('Starting RAG backend server...');
-  
+  const backendPath = path.join(__dirname, '../backend');
+  const scriptPath = path.join(backendPath, 'main.py');
+
+  console.log('Starting Unified Backend Server...');
+
   pythonProcess = spawn('python', [scriptPath], {
-    cwd: ragPath,
+    cwd: backendPath,
     stdio: ['pipe', 'pipe', 'pipe']
   });
 
@@ -56,6 +56,7 @@ function createWindow() {
     },
     autoHideMenuBar: true, // Optional: Hide the default menu bar
   });
+
 
   const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, '../dist/index.html')}`;
 
