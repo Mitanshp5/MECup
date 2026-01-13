@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from "lucide-react";
 
@@ -17,6 +17,17 @@ const SettingsPage = () => {
   });
 
   const [theme, setTheme] = useState("dark");
+
+  // Sync PLC settings from backend on mount
+  useEffect(() => {
+    fetch("http://localhost:5000/plc/status")
+      .then(res => res.json())
+      .then(data => {
+        if (data.ip && data.port) {
+          setPlcSettings(prev => ({ ...prev, ip: data.ip, port: String(data.port) }));
+        }
+      });
+  }, []);
 
   return (
     <div className="h-full overflow-y-auto">

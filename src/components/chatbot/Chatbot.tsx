@@ -15,18 +15,22 @@ interface ChatbotProps {
 }
 
 const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: "Hello! I'm your CON-SOL-E assistant. I can help you with operating the system, troubleshooting issues, or understanding scan results. How can I assist you today?",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    [
+      {
+        id: "1",
+        role: "assistant",
+        content: "Hello! I'm your CON-SOL-E assistant. I can help you with operating the system, troubleshooting issues, or understanding scan results. How can I assist you today?",
+        timestamp: new Date(),
+      },
+    ]
+  );
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -37,17 +41,38 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
+    setError(null);
 
-    // Simulate assistant response
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:5000/api/troubleshoot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: input }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: getAssistantResponse(input),
+        content: data.response,
         timestamp: new Date(),
       };
+
       setMessages((prev) => [...prev, assistantMessage]);
-    }, 1000);
+    } catch (err) {
+      setError("Failed to connect to troubleshooting agent. Please ensure the backend server is running.");
+      console.error("Error:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -112,9 +137,41 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                   }`}
                 >
                   {message.content}
+                  <div className="text-xs opacity-60 mt-2">
+                    {message.timestamp.toLocaleTimeString()}
+                  </div>
                 </div>
               </motion.div>
             ))}
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3"
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-primary/20">
+                  <Bot className="w-4 h-4 text-primary" />
+                </div>
+                <div className="px-4 py-2.5 rounded-lg bg-secondary text-foreground">
+                  <span className="flex items-center gap-2">
+                    <span>Thinking...</span>
+                    <Send className="w-4 h-4 animate-spin" />
+                  </span>
+                </div>
+              </motion.div>
+            )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3 items-start"
+              >
+                <span className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-destructive">
+                  <Bot className="w-4 h-4 text-white" />
+                </span>
+                <div className="text-sm text-destructive">{error}</div>
+              </motion.div>
+            )}
           </div>
 
           {/* Input */}
@@ -140,25 +197,6 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
       )}
     </AnimatePresence>
   );
-};
-
-const getAssistantResponse = (input: string): string => {
-  const lowerInput = input.toLowerCase();
-  
-  if (lowerInput.includes("defect") || lowerInput.includes("detect")) {
-    return "The defect detection system uses advanced computer vision to identify paint anomalies. Common defects include orange peel, dust nibs, runs, and scratches. You can view detected defects in the Automatic Mode panel.";
-  }
-  if (lowerInput.includes("calibrat")) {
-    return "To calibrate the system, go to Maintenance Mode and select 'Camera Calibration'. Ensure the calibration target is clean and properly positioned before starting.";
-  }
-  if (lowerInput.includes("error") || lowerInput.includes("problem")) {
-    return "I can help troubleshoot issues. Please check the Heartbeat panel for system status indicators. Red indicators show components that need attention. What specific error are you seeing?";
-  }
-  if (lowerInput.includes("scan") || lowerInput.includes("start")) {
-    return "To start a scan, ensure the vehicle is properly positioned, then switch to Automatic Mode and click 'Start Scan'. The gantry will automatically traverse the vehicle surface.";
-  }
-  
-  return "I understand you need help with the CON-SOL-E system. Could you provide more details about what you're trying to accomplish? I can assist with scans, calibration, troubleshooting, and system operation.";
 };
 
 export default Chatbot;
