@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, User } from "lucide-react";
 
@@ -28,6 +28,37 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading, error]);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/health");
+        if (response.ok) {
+          const data = await response.json();
+          setIsOnline(data.agent_loaded);
+        } else {
+          setIsOnline(false);
+        }
+      } catch (err) {
+        setIsOnline(false);
+      }
+    };
+
+    checkStatus();
+    // Poll every 10 seconds to detect status changes relatively quickly
+    const interval = setInterval(checkStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -93,9 +124,9 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground text-sm">AI Assistant</h3>
-                <p className="text-xs text-success flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                  Online
+                <p className={`text-xs flex items-center gap-1 ${isOnline ? "text-success" : "text-muted-foreground"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-success" : "bg-muted-foreground"}`} />
+                  {isOnline ? "Online" : "Offline"}
                 </p>
               </div>
             </div>
@@ -117,11 +148,10 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                 className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.role === "user" 
-                      ? "bg-secondary" 
-                      : "bg-primary/20"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === "user"
+                    ? "bg-secondary"
+                    : "bg-primary/20"
+                    }`}
                 >
                   {message.role === "user" ? (
                     <User className="w-4 h-4 text-foreground" />
@@ -130,11 +160,10 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                   )}
                 </div>
                 <div
-                  className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-foreground"
-                  }`}
+                  className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${message.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground"
+                    }`}
                 >
                   {message.content}
                   <div className="text-xs opacity-60 mt-2">
@@ -172,6 +201,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                 <div className="text-sm text-destructive">{error}</div>
               </motion.div>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}

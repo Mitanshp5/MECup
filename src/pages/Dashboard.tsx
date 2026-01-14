@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera, Environment } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { Play, Settings, Activity, History } from "lucide-react";
 
@@ -13,30 +13,30 @@ const MachineModel = () => {
       {/* Base platform */}
       <mesh position={[0, -1.5, 0]}>
         <boxGeometry args={[4, 0.2, 3]} />
-        <meshStandardMaterial color="#1a1f2e" metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
       </mesh>
-      
+
       {/* Gantry rails */}
       <mesh position={[-1.8, -0.5, 0]}>
         <boxGeometry args={[0.1, 2, 0.1]} />
-        <meshStandardMaterial color="#2a3441" metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
       </mesh>
       <mesh position={[1.8, -0.5, 0]}>
         <boxGeometry args={[0.1, 2, 0.1]} />
-        <meshStandardMaterial color="#2a3441" metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
       </mesh>
-      
+
       {/* Gantry crossbar */}
       <mesh position={[0, 0.5, 0]}>
         <boxGeometry args={[3.8, 0.15, 0.15]} />
-        <meshStandardMaterial color="#3a4555" metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color="#3a4555" metalness={0.3} roughness={0.6} />
       </mesh>
-      
+
       {/* Camera head */}
       <group position={[0, 0.5, 0]}>
         <mesh position={[0, -0.3, 0.2]}>
           <boxGeometry args={[0.4, 0.5, 0.3]} />
-          <meshStandardMaterial color="#0d1117" metalness={0.7} roughness={0.4} />
+          <meshStandardMaterial color="#0d1117" metalness={0.3} roughness={0.7} />
         </mesh>
         {/* Camera lens */}
         <mesh position={[0, -0.4, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
@@ -49,13 +49,13 @@ const MachineModel = () => {
           <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={0.8} />
         </mesh>
       </group>
-      
+
       {/* Control box */}
       <mesh position={[2.3, -0.8, 1]}>
         <boxGeometry args={[0.5, 1.2, 0.4]} />
-        <meshStandardMaterial color="#1a1f2e" metalness={0.6} roughness={0.4} />
+        <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
       </mesh>
-      
+
       {/* Status lights on control box */}
       <mesh position={[2.05, -0.4, 1.05]}>
         <sphereGeometry args={[0.04, 16, 16]} />
@@ -107,12 +107,12 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           <h3 className="text-sm font-medium text-muted-foreground mb-1">MACHINE VIEW</h3>
           <p className="text-xs text-muted-foreground font-mono">CON-SOL-E 5.0 Gantry System</p>
         </div>
-        
+
         <Canvas className="w-full h-full">
           <PerspectiveCamera makeDefault position={[4, 2, 4]} />
-          <OrbitControls 
-            enablePan={false} 
-            minDistance={3} 
+          <OrbitControls
+            enablePan={false}
+            minDistance={3}
             maxDistance={10}
             autoRotate
             autoRotateSpeed={0.5}
@@ -121,7 +121,6 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           <directionalLight position={[5, 5, 5]} intensity={1} />
           <pointLight position={[-3, 3, -3]} intensity={0.5} color="#00d4ff" />
           <MachineModel />
-          <Environment preset="night" />
         </Canvas>
 
         {/* System status overlay */}
@@ -147,14 +146,14 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
       {/* Right: Quick stats and actions */}
       <div className="col-span-4 space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <StatCard 
+          <StatCard
             title="Scans Today"
             value="24"
             subtitle="3 defects found"
             icon={History}
             onClick={() => onPageChange("scans")}
           />
-          <StatCard 
+          <StatCard
             title="Uptime"
             value="99.2%"
             subtitle="Last 30 days"
@@ -167,14 +166,14 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         <div className="industrial-panel p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">QUICK ACTIONS</h3>
           <div className="space-y-2">
-            <button 
+            <button
               onClick={() => onPageChange("automatic")}
               className="w-full flex items-center gap-3 px-4 py-3 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
             >
               <Play className="w-5 h-5" />
               <span className="font-medium">Start New Scan</span>
             </button>
-            <button 
+            <button
               onClick={() => onPageChange("manual")}
               className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors"
             >
@@ -196,10 +195,9 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3 text-sm">
                 <span className="font-mono text-muted-foreground text-xs w-12">{item.time}</span>
-                <span className={`status-indicator ${
-                  item.status === "success" ? "status-ok" : 
+                <span className={`status-indicator ${item.status === "success" ? "status-ok" :
                   item.status === "warning" ? "status-warning" : "bg-primary"
-                }`} />
+                  }`} />
                 <span className="text-foreground">{item.event}</span>
               </div>
             ))}
