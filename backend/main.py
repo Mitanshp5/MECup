@@ -40,6 +40,9 @@ app.add_middleware(
 # Include Routers
 app.include_router(rag_router, tags=["RAG"])
 
+from plc.endpoints import router as plc_router
+app.include_router(plc_router, tags=["PLC"])
+
 @app.get("/")
 async def root():
     return {"message": "MECup Backend is running"}
@@ -49,4 +52,4 @@ if __name__ == "__main__":
     print("Starting Unified Backend API Server")
     print("=" * 60)
     # Use the same port as before or a new one? User didn't specify, but 5000 was used.
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=5001)

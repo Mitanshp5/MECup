@@ -4,8 +4,8 @@ import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from 
 
 const SettingsPage = () => {
   const [plcSettings, setPlcSettings] = useState({
-    ip: "192.168.1.100",
-    port: "502",
+    ip: "169.254.180.21",
+    port: "5000",
     timeout: "5000",
   });
 
@@ -20,14 +20,42 @@ const SettingsPage = () => {
 
   // Sync PLC settings from backend on mount
   useEffect(() => {
-    fetch("http://localhost:5000/plc/status")
+    fetch("http://localhost:5001/plc/status")
       .then(res => res.json())
       .then(data => {
+        console.log("Fetched PLC Settings:", data);
         if (data.ip && data.port) {
           setPlcSettings(prev => ({ ...prev, ip: data.ip, port: String(data.port) }));
         }
-      });
+      })
+      .catch(err => console.error("Failed to fetch PLC settings:", err));
   }, []);
+
+  const handleSave = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/plc/connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ip: plcSettings.ip,
+          port: parseInt(plcSettings.port), // Ensure port is an integer
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.connected) {
+        alert("Settings saved and PLC connected successfully!");
+      } else {
+        alert("Settings saved but failed to connect to PLC: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      alert("Failed to save settings. Check console for details.");
+    }
+  };
 
   return (
     <div className="h-full overflow-y-auto">
@@ -156,11 +184,10 @@ const SettingsPage = () => {
               <button
                 key={t}
                 onClick={() => setTheme(t)}
-                className={`flex-1 py-3 rounded-md font-medium capitalize transition-colors ${
-                  theme === t
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-foreground hover:bg-secondary/80"
-                }`}
+                className={`flex-1 py-3 rounded-md font-medium capitalize transition-colors ${theme === t
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-foreground hover:bg-secondary/80"
+                  }`}
               >
                 {t}
               </button>
@@ -170,31 +197,34 @@ const SettingsPage = () => {
 
         {/* Other Settings */}
         <div className="grid grid-cols-2 gap-6">
-          <SettingsCard 
-            icon={Monitor} 
-            title="Display" 
+          <SettingsCard
+            icon={Monitor}
+            title="Display"
             description="Screen brightness and orientation"
           />
-          <SettingsCard 
-            icon={Shield} 
-            title="Security" 
+          <SettingsCard
+            icon={Shield}
+            title="Security"
             description="Access control and permissions"
           />
-          <SettingsCard 
-            icon={Bell} 
-            title="Notifications" 
+          <SettingsCard
+            icon={Bell}
+            title="Notifications"
             description="Alert preferences and sounds"
           />
-          <SettingsCard 
-            icon={Database} 
-            title="Data Management" 
+          <SettingsCard
+            icon={Database}
+            title="Data Management"
             description="Storage and backup options"
           />
         </div>
 
         {/* Save Button */}
         <div className="flex justify-end">
-          <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+          <button
+            onClick={handleSave}
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
             <Save className="w-5 h-5" />
             Save Changes
           </button>

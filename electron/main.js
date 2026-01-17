@@ -21,26 +21,26 @@ function startPythonBackend() {
   });
 
   pythonProcess.stdout.on('data', (data) => {
-    console.log(`[RAG Server] ${data.toString().trim()}`);
+    console.log(`[Python Server] ${data.toString().trim()}`);
   });
 
   pythonProcess.stderr.on('data', (data) => {
-    console.error(`[RAG Server Error] ${data.toString().trim()}`);
+    console.error(`[Python Server Error] ${data.toString().trim()}`);
   });
 
   pythonProcess.on('close', (code) => {
-    console.log(`RAG server exited with code ${code}`);
+    console.log(`Python server exited with code ${code}`);
     pythonProcess = null;
   });
 
   pythonProcess.on('error', (err) => {
-    console.error('Failed to start RAG server:', err);
+    console.error('Failed to start Python server:', err);
   });
 }
 
 function stopPythonBackend() {
   if (pythonProcess) {
-    console.log('Stopping RAG backend server...');
+    console.log('Stopping Python backend server...');
     pythonProcess.kill();
     pythonProcess = null;
   }
