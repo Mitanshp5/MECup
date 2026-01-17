@@ -1,8 +1,10 @@
-# ...existing code...
 import threading
 import time
-import struct
+import socket
+# Import the library directly
+import rk_mcprotocol as mc
 from .settings import save_plc_settings, load_plc_settings
+
 # Store last known connection status
 plc_status = {
     "ip": None,
@@ -13,37 +15,59 @@ plc_status = {
 }
 
 def poll_plc(ip, port, interval=2):
-    """Background polling to verify PLC connection status by reading D0."""
+    """Background polling to verify PLC connection status by reading X0."""
     global plc_status
     sock = None
     while True:
         try:
-            # Only reconnect if not already connected
+            # Reconnect if socket is closed or lost
             if sock is None:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.settimeout(2)
-                sock.connect((ip, port))
-            # Read D0 using MC Protocol (simple binary request)
-            # This is a minimal MC Protocol request for FX5U, adjust as needed for your PLC
-            mc_read_d0 = b'\x50\x00\x00\xff\x03\xff\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-            sock.send(mc_read_d0)
-            resp = sock.recv(1024)
-            if resp:
-                plc_status.update({
-                    "ip": ip,
-                    "port": port,
-                    "connected": True,
-                    "last_checked": time.time(),
-                    "error": None
-                })
-            else:
-                plc_status.update({
-                    "ip": ip,
-                    "port": port,
-                    "connected": False,
-                    "last_checked": time.time(),
-                    "error": "No response from PLC"
-                })
+                try:
+                    print(f"[PLC POLL] Attempting to connect to {ip}:{port}...")
+                    sock = mc.open_socket(ip, port)
+                    print(f"[PLC POLL] Socket opened successfully.")
+                except Exception as e:
+                    print(f"[PLC POLL] Connection failed: {e}")
+                    # Connection failed
+                    plc_status.update({
+                        "ip": ip,
+                        "port": port,
+                        "connected": False,
+                        "last_checked": time.time(),
+                        "error": str(e)
+                    })
+                    time.sleep(interval)
+                    continue
+
+            # Check connection by reading X0
+            try:
+                # read_bit returns a list [val] if successful
+                resp = mc.read_bit(sock, "X0", 1)
+                
+                # Check for error responses which might be returned as strings or specific error objects by the library
+                # Based on user sample, we assume list means success
+                if isinstance(resp, list):
+                    # Only log transition to avoid spam
+                    if not plc_status["connected"]:
+                        print(f"[PLC POLL] Connection verified/restored.")
+                        
+                    plc_status.update({
+                        "ip": ip,
+                        "port": port,
+                        "connected": True,
+                        "last_checked": time.time(),
+                        "error": None
+                    })
+                else:
+                    print(f"[PLC POLL] Unexpected response format: {resp}")
+                    # Verification failed
+                    raise Exception(f"Unexpected response: {resp}")
+
+            except Exception as e:
+                print(f"[PLC POLL] Read failed: {e}")
+                # Read failed, mark as disconnected and close socket to force reconnect
+                raise e
+
         except Exception as e:
             plc_status.update({
                 "ip": ip,
@@ -57,11 +81,12 @@ def poll_plc(ip, port, interval=2):
                     sock.close()
                 except:
                     pass
-                sock = None
+            sock = None
+            
         time.sleep(interval)
+
 from fastapi import APIRouter
 from pydantic import BaseModel
-import socket
 
 router = APIRouter()
 
@@ -71,30 +96,39 @@ class PLCConnectRequest(BaseModel):
 
 @router.post("/plc/connect")
 async def plc_connect(req: PLCConnectRequest):
-    """Check PLC connectivity by attempting TCP connection and save settings."""
+    """Check PLC connectivity by attempting TCP connection using rk_mcprotocol and save settings."""
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(2)
-        s.connect((req.ip, req.port))
+        # First attempt a quick connection check
+        s = mc.open_socket(req.ip, req.port)
+        # Try a dummy read to ensure it's a valid PLC talking MC protocol
+        mc.read_bit(s, "X0", 1)
         s.close()
+        
         # Save settings
         save_plc_settings(req.ip, req.port)
+        
         # Start polling thread if not already started or if IP/port changed
         global plc_status
         if plc_status["ip"] != req.ip or plc_status["port"] != req.port:
             plc_status["ip"] = req.ip
             plc_status["port"] = req.port
+            # In a real app we might want to stop the old thread, but for now we just start a new one
+            # The proper way would be to have a single thread that reads params from the global dict
+            # For simplicity, we'll assume one active PLC connection at a time.
             polling_thread = threading.Thread(target=poll_plc, args=(req.ip, req.port), daemon=True)
             polling_thread.start()
+            
         plc_status["connected"] = True
         plc_status["last_checked"] = time.time()
         plc_status["error"] = None
         return {"connected": True}
     except Exception as e:
+        print(f"[PLC CONNECT ERROR] Endpoint exception: {e}")
         plc_status["connected"] = False
         plc_status["last_checked"] = time.time()
         plc_status["error"] = str(e)
         return {"connected": False, "error": str(e)}
+
 # On startup, load last PLC settings and start polling if available
 settings = load_plc_settings()
 if settings and settings.get("ip") and settings.get("port"):

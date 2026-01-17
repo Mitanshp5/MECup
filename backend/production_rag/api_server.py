@@ -55,9 +55,9 @@ if __name__ == '__main__':
     print("="*60)
     print("Starting Troubleshooting Agent API Server")
     print("="*60)
-    print("Server will run on: http://localhost:5000")
+    print("Server will run on: http://localhost:5001")
     print("API endpoint: POST /api/troubleshoot")
     print("Health check: GET /api/health")
     print("="*60 + "\n")
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5001, debug=False)

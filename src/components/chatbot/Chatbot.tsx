@@ -42,7 +42,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/health");
+        const response = await fetch("http://localhost:5001/api/health");
         if (response.ok) {
           const data = await response.json();
           setIsOnline(data.agent_loaded);
@@ -76,7 +76,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/troubleshoot", {
+      const response = await fetch("http://localhost:5001/api/troubleshoot", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

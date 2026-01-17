@@ -26,10 +26,12 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen }: HeaderProps) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("http://localhost:5000/plc/status");
+        const res = await fetch("http://localhost:5001/plc/status");
         const data = await res.json();
+        console.log("PLC Status Poll:", data);
         setPlcStatus(data);
       } catch {
+        console.warn("PLC Status Poll Failed");
         setPlcStatus({ connected: false, error: "No backend" });
       }
     }, 2000);
@@ -72,11 +74,10 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen }: HeaderProps) => {
         {/* Chatbot toggle */}
         <button
           onClick={onChatbotToggle}
-          className={`p-2 rounded-md transition-all ${
-            chatbotOpen
-              ? "bg-primary/15 text-primary border border-primary/30"
-              : "hover:bg-secondary text-muted-foreground"
-          }`}
+          className={`p-2 rounded-md transition-all ${chatbotOpen
+            ? "bg-primary/15 text-primary border border-primary/30"
+            : "hover:bg-secondary text-muted-foreground"
+            }`}
         >
           <MessageCircle className="w-5 h-5" />
         </button>
