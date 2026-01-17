@@ -10,16 +10,15 @@ const SettingsPage = () => {
   });
 
   const [cameraSettings, setCameraSettings] = useState({
-    resolution: "4096x2160",
-    fps: "30",
-    exposure: "auto",
-    whiteBalance: "auto",
+    exposure: "5000",
+    gain: "0",
   });
 
   const [theme, setTheme] = useState("dark");
 
-  // Sync PLC settings from backend on mount
+  // Sync settings from backend on mount
   useEffect(() => {
+    // Fetch PLC Settings
     fetch("http://localhost:5001/plc/status")
       .then(res => res.json())
       .then(data => {
@@ -29,27 +28,51 @@ const SettingsPage = () => {
         }
       })
       .catch(err => console.error("Failed to fetch PLC settings:", err));
+
+    // Fetch Camera Settings
+    fetch("http://localhost:5001/camera/settings")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched Camera Settings:", data);
+        setCameraSettings({
+          exposure: String(data.exposure),
+          gain: String(data.gain)
+        });
+      })
+      .catch(err => console.error("Failed to fetch camera settings:", err));
   }, []);
 
   const handleSave = async () => {
     try {
-      const response = await fetch("http://localhost:5001/plc/connect", {
+      // Save PLC Settings
+      const plcResponse = await fetch("http://localhost:5001/plc/connect", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ip: plcSettings.ip,
-          port: parseInt(plcSettings.port), // Ensure port is an integer
+          port: parseInt(plcSettings.port),
         }),
       });
+      const plcData = await plcResponse.json();
 
-      const data = await response.json();
+      // Save Camera Settings
+      const camResponse = await fetch("http://localhost:5001/camera/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exposure: parseFloat(cameraSettings.exposure),
+          gain: parseFloat(cameraSettings.gain)
+        }),
+      });
+      const camData = await camResponse.json();
 
-      if (data.connected) {
-        alert("Settings saved and PLC connected successfully!");
+      if (plcData.connected && camData.success) {
+        alert("Settings saved! PLC Connected. Camera settings applied.");
       } else {
-        alert("Settings saved but failed to connect to PLC: " + (data.error || "Unknown error"));
+        let msg = "Settings saved with warnings:\n";
+        if (!plcData.connected) msg += `- PLC: ${plcData.error || "Failed"}\n`;
+        if (!camData.success) msg += `- Camera: ${camData.message || "Failed"}\n`;
+        alert(msg);
       }
     } catch (error) {
       console.error("Error saving settings:", error);
@@ -117,52 +140,22 @@ const SettingsPage = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Resolution</label>
-              <select
-                value={cameraSettings.resolution}
-                onChange={(e) => setCameraSettings(prev => ({ ...prev, resolution: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="4096x2160">4K (4096x2160)</option>
-                <option value="1920x1080">Full HD (1920x1080)</option>
-                <option value="1280x720">HD (1280x720)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Frame Rate</label>
-              <select
-                value={cameraSettings.fps}
-                onChange={(e) => setCameraSettings(prev => ({ ...prev, fps: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="60">60 FPS</option>
-                <option value="30">30 FPS</option>
-                <option value="15">15 FPS</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Exposure</label>
-              <select
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Exposure Time (µs)</label>
+              <input
+                type="number"
                 value={cameraSettings.exposure}
                 onChange={(e) => setCameraSettings(prev => ({ ...prev, exposure: e.target.value }))}
                 className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="auto">Auto</option>
-                <option value="manual">Manual</option>
-              </select>
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">White Balance</label>
-              <select
-                value={cameraSettings.whiteBalance}
-                onChange={(e) => setCameraSettings(prev => ({ ...prev, whiteBalance: e.target.value }))}
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Gain</label>
+              <input
+                type="number"
+                value={cameraSettings.gain}
+                onChange={(e) => setCameraSettings(prev => ({ ...prev, gain: e.target.value }))}
                 className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="auto">Auto</option>
-                <option value="daylight">Daylight</option>
-                <option value="tungsten">Tungsten</option>
-                <option value="fluorescent">Fluorescent</option>
-              </select>
+              />
             </div>
           </div>
         </div>

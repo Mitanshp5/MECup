@@ -43,6 +43,9 @@ app.include_router(rag_router, tags=["RAG"])
 from plc.endpoints import router as plc_router
 app.include_router(plc_router, tags=["PLC"])
 
+from camera.endpoints import router as camera_router
+app.include_router(camera_router, tags=["Camera"])
+
 @app.get("/")
 async def root():
     return {"message": "MECup Backend is running"}

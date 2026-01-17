@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, Square, Camera, AlertTriangle, CheckCircle } from "lucide-react";
 
@@ -18,10 +18,22 @@ const AutomaticMode = () => {
     { id: "2", type: "Dust Nib", location: "Driver Door", severity: "medium", timestamp: "10:45:31" },
   ]);
 
+  useEffect(() => {
+    // Connect to camera on mount
+    fetch('http://localhost:5001/camera/connect', { method: 'POST' })
+      .catch(err => console.error("Failed to connect camera:", err));
+
+    // Optional: Disconnect on unmount? 
+    // For now, let's keep it connected to avoid frequent reconnections if user switches tabs.
+    // return () => {
+    //   fetch('http://localhost:5001/camera/disconnect', { method: 'POST' });
+    // };
+  }, []);
+
   const handleStartScan = () => {
     setIsScanning(true);
     setScanProgress(0);
-    
+
     // Simulate scan progress
     const interval = setInterval(() => {
       setScanProgress((prev) => {
@@ -53,20 +65,31 @@ const AutomaticMode = () => {
             </div>
           </div>
 
-          {/* Simulated camera view */}
-          <div className="w-full h-full bg-gradient-to-br from-secondary to-background flex items-center justify-center scanline">
-            <div className="text-center">
-              <div className="w-32 h-32 border-2 border-dashed border-primary/30 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Camera className="w-12 h-12 text-primary/50" />
+          {/* Live camera view */}
+          <div className="w-full h-full bg-black relative flex items-center justify-center">
+            <img
+              src="http://localhost:5001/camera/stream"
+              className="w-full h-full object-contain"
+              alt="Live Feed"
+              onError={(e) => {
+                // If stream fails, maybe show a "Connecting..." or "No Signal" placeholder
+                // For now, let's keep it simple or fallback to a placeholder color
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement?.classList.add('bg-secondary');
+              }}
+            />
+            {/* Fallback placeholder if image is hidden/error */}
+            <div className="absolute inset-0 flex items-center justify-center -z-10">
+              <div className="text-center">
+                <Camera className="w-12 h-12 text-muted-foreground/50 mx-auto mb-2" />
+                <p className="text-muted-foreground text-sm">Waiting for live feed...</p>
               </div>
-              <p className="text-muted-foreground text-sm">Camera feed simulation</p>
-              <p className="text-xs text-muted-foreground font-mono mt-1">Resolution: 4096 x 2160</p>
             </div>
           </div>
 
           {/* Scan overlay */}
           {isScanning && (
-            <motion.div 
+            <motion.div
               className="absolute inset-0 pointer-events-none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -87,33 +110,30 @@ const AutomaticMode = () => {
               <button
                 onClick={handleStartScan}
                 disabled={isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                  isScanning 
-                    ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                    : "bg-success text-success-foreground hover:bg-success/90"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${isScanning
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
+                  : "bg-success text-success-foreground hover:bg-success/90"
+                  }`}
               >
                 <Play className="w-5 h-5" />
                 Start Scan
               </button>
               <button
                 disabled={!isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                  !isScanning
-                    ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                    : "bg-warning text-warning-foreground hover:bg-warning/90"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${!isScanning
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
+                  : "bg-warning text-warning-foreground hover:bg-warning/90"
+                  }`}
               >
                 <Pause className="w-5 h-5" />
                 Pause
               </button>
               <button
                 disabled={!isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                  !isScanning
-                    ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                    : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${!isScanning
+                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
+                  : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  }`}
               >
                 <Square className="w-5 h-5" />
                 Stop
@@ -126,7 +146,7 @@ const AutomaticMode = () => {
                 <p className="font-mono text-lg text-foreground">{scanProgress}%</p>
               </div>
               <div className="w-48 h-2 bg-secondary rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-gradient-to-r from-primary to-success"
                   style={{ width: `${scanProgress}%` }}
                 />
@@ -155,16 +175,14 @@ const AutomaticMode = () => {
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className={`w-4 h-4 ${
-                    defect.severity === "high" ? "text-destructive" :
+                  <AlertTriangle className={`w-4 h-4 ${defect.severity === "high" ? "text-destructive" :
                     defect.severity === "medium" ? "text-warning" : "text-muted-foreground"
-                  }`} />
+                    }`} />
                   <span className="font-medium text-foreground text-sm">{defect.type}</span>
                 </div>
-                <span className={`px-2 py-0.5 text-xs rounded ${
-                  defect.severity === "high" ? "bg-destructive/20 text-destructive" :
+                <span className={`px-2 py-0.5 text-xs rounded ${defect.severity === "high" ? "bg-destructive/20 text-destructive" :
                   defect.severity === "medium" ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"
-                }`}>
+                  }`}>
                   {defect.severity.toUpperCase()}
                 </span>
               </div>
