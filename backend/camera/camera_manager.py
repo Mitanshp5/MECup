@@ -18,12 +18,26 @@ try:
     from MvCameraControl_class import *
     from CameraParams_header import *
     from MvErrorDefine_const import *
+    SDK_AVAILABLE = True
 except ImportError as e:
     print(f"Error importing MVS SDK: {e}")
+    SDK_AVAILABLE = False
     # Define dummy classes to prevent crash if SDK is missing during development
     class MvCamera: pass
     class MV_CC_DEVICE_INFO_LIST: pass
     class MV_FRAME_OUT_INFO_EX: pass
+    class MV_FRAME_OUT: pass
+    
+    # Define dummy constants
+    MV_GIGE_DEVICE = 0
+    MV_USB_DEVICE = 0
+    MV_GENTL_CAMERALINK_DEVICE = 0
+    MV_GENTL_CXP_DEVICE = 0
+    MV_GENTL_XOF_DEVICE = 0
+    MV_OK = 0
+    MV_SAVE_IAMGE_TYPE_BMP = 0
+    PixelType_Gvsp_Mono8 = 0
+    PixelType_Gvsp_RGB8_Packed = 0
 
 class CameraManager:
     def __init__(self):

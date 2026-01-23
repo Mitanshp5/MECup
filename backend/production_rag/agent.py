@@ -5,6 +5,7 @@ Best Performance: bge-base embeddings + phi3 LLM
 
 from typing import TypedDict, List
 import os
+import re
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -115,18 +116,27 @@ User's Issue: {state['query']}
 Reference Information:
 {context_text}
 
-Provide a CONCISE response (maximum 5-6 sentences).
+IMPORTANT: Format your response as HTML with the following structure:
 
-If relevant information is found:
-- Briefly identify the issue
-- List 3-4 specific troubleshooting steps
-- Keep each step to one short sentence
+<div class="troubleshoot-response">
+  <div class="issue-section">
+    <strong>Issue Identified:</strong>
+    <p>[Brief description of the issue]</p>
+  </div>
+  <div class="steps-section">
+    <strong>Troubleshooting Steps:</strong>
+    <ol>
+      <li>[First step - one sentence]</li>
+      <li>[Second step - one sentence]</li>
+      <li>[Third step - one sentence]</li>
+      <li>[Fourth step if needed]</li>
+    </ol>
+  </div>
+</div>
 
-If not relevant:
-- Say you don't have specific information about this issue
-- Suggest consulting the manual or support
+Keep each step concise (one sentence). If information is not relevant, say you don't have specific information and suggest consulting the manual.
 
-Be direct and concise. No lengthy explanations."""
+ONLY return the HTML, no other text."""
             
             response = self.llm.invoke(prompt)
             return {"response": response}
@@ -139,10 +149,24 @@ Be direct and concise. No lengthy explanations."""
         
         self.agent = graph.compile()
     
+    def _clean_html_response(self, response: str) -> str:
+        """Remove markdown code blocks from HTML response"""
+        # Remove ```html and ``` markers
+        response = response.strip()
+        if response.startswith("```html"):
+            response = response[7:]  # Remove ```html
+        elif response.startswith("```"):
+            response = response[3:]  # Remove ```
+        if response.endswith("```"):
+            response = response[:-3]  # Remove trailing ```
+        return response.strip()
+    
     def query(self, question: str) -> str:
         """Query the agent"""
         result = self.agent.invoke({"query": question})
-        return result["response"]
+        raw_response = result["response"]
+        cleaned_response = self._clean_html_response(raw_response)
+        return cleaned_response
 
 # Singleton instance
 _agent_instance = None
