@@ -5,6 +5,7 @@ Best Performance: bge-base embeddings + phi3 LLM
 
 from typing import TypedDict, List
 import os
+import re
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -115,18 +116,24 @@ User's Issue: {state['query']}
 Reference Information:
 {context_text}
 
-Provide a CONCISE response (maximum 5-6 sentences).
+IMPORTANT FORMATTING RULES:
+1. Start with "Issue Identified:" followed by a brief description
+2. Add a blank line
+3. Then write "Troubleshooting Steps:" 
+4. List each step on a NEW LINE starting with a number (1., 2., 3., etc.)
+5. Keep each step to ONE short sentence
+6. Use proper line breaks between sections
 
-If relevant information is found:
-- Briefly identify the issue
-- List 3-4 specific troubleshooting steps
-- Keep each step to one short sentence
+Example format:
+Issue Identified: [brief description]
 
-If not relevant:
-- Say you don't have specific information about this issue
-- Suggest consulting the manual or support
+Troubleshooting Steps:
+1. [First step]
+2. [Second step]
+3. [Third step]
+4. [Fourth step if needed]
 
-Be direct and concise. No lengthy explanations."""
+If information is not relevant, say you don't have specific information and suggest consulting the manual."""
             
             response = self.llm.invoke(prompt)
             return {"response": response}
@@ -139,10 +146,43 @@ Be direct and concise. No lengthy explanations."""
         
         self.agent = graph.compile()
     
+    def _format_response(self, response: str) -> str:
+        """Format the response with proper line breaks and structure"""
+        # Find "Issue Identified:" and add line break after the first sentence
+        if "Issue Identified:" in response:
+            # Split at "Issue Identified:"
+            parts = response.split("Issue Identified:", 1)
+            if len(parts) == 2:
+                issue_and_rest = parts[1]
+                
+                # Find where "Troubleshooting Steps:" starts
+                if "Troubleshooting Steps:" in issue_and_rest:
+                    issue_part, steps_part = issue_and_rest.split("Troubleshooting Steps:", 1)
+                    
+                    # Format the issue part (trim and add line break)
+                    issue_text = issue_part.strip()
+                    
+                    # Format the steps part - add line breaks before each number
+                    steps_text = steps_part.strip()
+                    # Add line break before each numbered step
+                    steps_text = re.sub(r'\s*(\d+\.)', r'\n\1', steps_text)
+                    
+                    # Reconstruct the response
+                    formatted = f"Issue Identified: {issue_text}\n\nTroubleshooting Steps:{steps_text}"
+                    return formatted.strip()
+        
+        # If no standard format found, just add line breaks before numbered items
+        response = re.sub(r'\s+(\d+\.)', r'\n\1', response)
+        response = re.sub(r'\n{3,}', '\n\n', response)
+        
+        return response.strip()
+    
     def query(self, question: str) -> str:
         """Query the agent"""
         result = self.agent.invoke({"query": question})
-        return result["response"]
+        raw_response = result["response"]
+        formatted_response = self._format_response(raw_response)
+        return formatted_response
 
 # Singleton instance
 _agent_instance = None
