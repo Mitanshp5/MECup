@@ -193,3 +193,43 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(220 15% 35%);
 }
+
+/* Assistant message HTML styling */
+.assistant-message .troubleshoot-response {
+  @apply space-y-3;
+}
+
+.assistant-message .issue-section {
+  @apply flex items-start gap-2 pb-3 border-b border-border/50;
+}
+
+.assistant-message .issue-section strong {
+  @apply text-amber-400 font-semibold text-sm block mb-1;
+}
+
+.assistant-message .issue-section p {
+  @apply text-foreground/90 text-sm leading-relaxed;
+}
+
+.assistant-message .steps-section {
+  @apply pt-2;
+}
+
+.assistant-message .steps-section strong {
+  @apply text-emerald-400 font-semibold text-sm block mb-2;
+}
+
+.assistant-message .steps-section ol {
+  @apply space-y-2 ml-0 list-none;
+}
+
+.assistant-message .steps-section li {
+  @apply text-foreground/90 text-sm leading-relaxed pl-6 relative;
+}
+
+.assistant-message .steps-section li::before {
+  content: counter(list-item);
+  @apply absolute left-0 top-0 w-5 h-5 flex items-center justify-center;
+  @apply bg-primary/20 text-primary text-xs font-mono rounded;
+  @apply font-semibold;
+}

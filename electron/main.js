@@ -52,15 +52,26 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false, // For simple migration. Security headers recommended for prod.
+      contextIsolation: false,
+      webSecurity: false,
+      cache: false,
     },
-    autoHideMenuBar: true, // Optional: Hide the default menu bar
+    autoHideMenuBar: true,
   });
-
 
   const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, '../dist/index.html')}`;
 
   mainWindow.loadURL(startUrl);
+
+  // Open DevTools in development mode
+  if (process.env.ELECTRON_START_URL) {
+    mainWindow.webContents.openDevTools();
+  }
+
+  // Force reload to clear any cached content
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.session.clearCache();
+  });
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -70,6 +81,7 @@ function createWindow() {
 app.on('ready', () => {
   startPythonBackend();
   createWindow();
+  mainWindow.webContents.session.clearCache();
 });
 
 app.on('window-all-closed', function () {
