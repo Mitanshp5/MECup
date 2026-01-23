@@ -55,7 +55,6 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
     };
 
     checkStatus();
-    // Poll every 10 seconds to detect status changes relatively quickly
     const interval = setInterval(checkStatus, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -96,7 +95,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
         content: data.response,
         timestamp: new Date(),
       };
-
+      
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       setError("Failed to connect to troubleshooting agent. Please ensure the backend server is running.");
@@ -160,13 +159,20 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                   )}
                 </div>
                 <div
-                  className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-foreground"
+                  className={`max-w-[85%] rounded-lg text-sm ${message.role === "user"
+                    ? "bg-primary text-primary-foreground px-4 py-2.5"
+                    : "bg-secondary/80 text-foreground px-4 py-3 border border-border/50"
                     }`}
                 >
-                  {message.content}
-                  <div className="text-xs opacity-60 mt-2">
+                  {message.role === "assistant" ? (
+                    <div 
+                      className="assistant-message"
+                      dangerouslySetInnerHTML={{ __html: message.content }}
+                    />
+                  ) : (
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  )}
+                  <div className={`text-xs mt-2 ${message.role === "user" ? "opacity-60" : "text-muted-foreground"}`}>
                     {message.timestamp.toLocaleTimeString()}
                   </div>
                 </div>

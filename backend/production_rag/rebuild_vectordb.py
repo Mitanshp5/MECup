@@ -9,7 +9,7 @@ from pathlib import Path
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
 
 SCRIPT_DIR = Path(__file__).parent
 DATA_DIR = SCRIPT_DIR / "data"
@@ -46,6 +46,11 @@ def rebuild_database():
     for file_path in DATA_DIR.glob("*.md"):
         print(f"   Loading: {file_path.name}")
         loader = TextLoader(str(file_path), encoding='utf-8')
+        documents.extend(loader.load())
+    
+    for file_path in DATA_DIR.glob("*.pdf"):
+        print(f"   Loading: {file_path.name}")
+        loader = PyPDFLoader(str(file_path))
         documents.extend(loader.load())
     
     print(f"\n   Total documents loaded: {len(documents)}")

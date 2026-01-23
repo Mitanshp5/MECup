@@ -43,8 +43,13 @@ app.include_router(rag_router, tags=["RAG"])
 from plc.endpoints import router as plc_router
 app.include_router(plc_router, tags=["PLC"])
 
-from camera.endpoints import router as camera_router
-app.include_router(camera_router, tags=["Camera"])
+try:
+    from camera.endpoints import router as camera_router
+    app.include_router(camera_router, tags=["Camera"])
+    print("[Backend] Camera module loaded successfully")
+except Exception as e:
+    print(f"[Backend] Camera module not available: {e}")
+    print("[Backend] Continuing without camera support...")
 
 @app.get("/")
 async def root():
