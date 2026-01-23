@@ -116,24 +116,27 @@ User's Issue: {state['query']}
 Reference Information:
 {context_text}
 
-IMPORTANT FORMATTING RULES:
-1. Start with "Issue Identified:" followed by a brief description
-2. Add a blank line
-3. Then write "Troubleshooting Steps:" 
-4. List each step on a NEW LINE starting with a number (1., 2., 3., etc.)
-5. Keep each step to ONE short sentence
-6. Use proper line breaks between sections
+IMPORTANT: Format your response as HTML with the following structure:
 
-Example format:
-Issue Identified: [brief description]
+<div class="troubleshoot-response">
+  <div class="issue-section">
+    <strong>Issue Identified:</strong>
+    <p>[Brief description of the issue]</p>
+  </div>
+  <div class="steps-section">
+    <strong>Troubleshooting Steps:</strong>
+    <ol>
+      <li>[First step - one sentence]</li>
+      <li>[Second step - one sentence]</li>
+      <li>[Third step - one sentence]</li>
+      <li>[Fourth step if needed]</li>
+    </ol>
+  </div>
+</div>
 
-Troubleshooting Steps:
-1. [First step]
-2. [Second step]
-3. [Third step]
-4. [Fourth step if needed]
+Keep each step concise (one sentence). If information is not relevant, say you don't have specific information and suggest consulting the manual.
 
-If information is not relevant, say you don't have specific information and suggest consulting the manual."""
+ONLY return the HTML, no other text."""
             
             response = self.llm.invoke(prompt)
             return {"response": response}
@@ -146,43 +149,24 @@ If information is not relevant, say you don't have specific information and sugg
         
         self.agent = graph.compile()
     
-    def _format_response(self, response: str) -> str:
-        """Format the response with proper line breaks and structure"""
-        # Find "Issue Identified:" and add line break after the first sentence
-        if "Issue Identified:" in response:
-            # Split at "Issue Identified:"
-            parts = response.split("Issue Identified:", 1)
-            if len(parts) == 2:
-                issue_and_rest = parts[1]
-                
-                # Find where "Troubleshooting Steps:" starts
-                if "Troubleshooting Steps:" in issue_and_rest:
-                    issue_part, steps_part = issue_and_rest.split("Troubleshooting Steps:", 1)
-                    
-                    # Format the issue part (trim and add line break)
-                    issue_text = issue_part.strip()
-                    
-                    # Format the steps part - add line breaks before each number
-                    steps_text = steps_part.strip()
-                    # Add line break before each numbered step
-                    steps_text = re.sub(r'\s*(\d+\.)', r'\n\1', steps_text)
-                    
-                    # Reconstruct the response
-                    formatted = f"Issue Identified: {issue_text}\n\nTroubleshooting Steps:{steps_text}"
-                    return formatted.strip()
-        
-        # If no standard format found, just add line breaks before numbered items
-        response = re.sub(r'\s+(\d+\.)', r'\n\1', response)
-        response = re.sub(r'\n{3,}', '\n\n', response)
-        
+    def _clean_html_response(self, response: str) -> str:
+        """Remove markdown code blocks from HTML response"""
+        # Remove ```html and ``` markers
+        response = response.strip()
+        if response.startswith("```html"):
+            response = response[7:]  # Remove ```html
+        elif response.startswith("```"):
+            response = response[3:]  # Remove ```
+        if response.endswith("```"):
+            response = response[:-3]  # Remove trailing ```
         return response.strip()
     
     def query(self, question: str) -> str:
         """Query the agent"""
         result = self.agent.invoke({"query": question})
         raw_response = result["response"]
-        formatted_response = self._format_response(raw_response)
-        return formatted_response
+        cleaned_response = self._clean_html_response(raw_response)
+        return cleaned_response
 
 # Singleton instance
 _agent_instance = None
