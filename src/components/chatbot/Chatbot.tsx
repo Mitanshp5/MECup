@@ -1,6 +1,60 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Bot, User } from "lucide-react";
+import { X, Send, Bot, User, AlertCircle, CheckCircle2 } from "lucide-react";
+
+// Helper function to format assistant messages with proper structure
+const formatAssistantMessage = (content: string) => {
+  // Check if it contains "Issue Identified:" pattern
+  if (content.includes("Issue Identified:") && content.includes("Troubleshooting Steps:")) {
+    const parts = content.split("Troubleshooting Steps:");
+    const issuePart = parts[0].replace("Issue Identified:", "").trim();
+    const stepsPart = parts[1] || "";
+    
+    // Extract numbered steps using regex
+    const stepsMatch = stepsPart.match(/\d+\.\s*[^\d]+/g) || [];
+    const steps = stepsMatch.map(step => step.trim());
+    
+    return (
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <span className="font-semibold text-amber-400">Issue Identified</span>
+            <p className="mt-1 text-foreground/90">{issuePart}</p>
+          </div>
+        </div>
+        
+        <div className="border-t border-border/50 pt-3">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="font-semibold text-emerald-400">Troubleshooting Steps</span>
+          </div>
+          <ol className="space-y-2 ml-6">
+            {steps.map((step, index) => {
+              // Remove the leading number from the step
+              const stepText = step.replace(/^\d+\.\s*/, "");
+              return (
+                <li key={index} className="flex gap-2">
+                  <span className="font-mono text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <span className="text-foreground/90">{stepText}</span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    );
+  }
+  
+  // For regular messages, preserve line breaks
+  return (
+    <div className="whitespace-pre-wrap">
+      {content}
+    </div>
+  );
+};
 
 interface ChatMessage {
   id: string;
@@ -160,13 +214,16 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                   )}
                 </div>
                 <div
-                  className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-foreground"
+                  className={`max-w-[85%] rounded-lg text-sm ${message.role === "user"
+                    ? "bg-primary text-primary-foreground px-4 py-2.5"
+                    : "bg-secondary/80 text-foreground px-4 py-3 border border-border/50"
                     }`}
                 >
-                  {message.content}
-                  <div className="text-xs opacity-60 mt-2">
+                  {message.role === "assistant" 
+                    ? formatAssistantMessage(message.content)
+                    : message.content
+                  }
+                  <div className={`text-xs mt-2 ${message.role === "user" ? "opacity-60" : "text-muted-foreground"}`}>
                     {message.timestamp.toLocaleTimeString()}
                   </div>
                 </div>
