@@ -1,9 +1,18 @@
 import threading
 import time
 import socket
+import datetime
+import os
 # Import the library directly
 import rk_mcprotocol as mc
 from .settings import save_plc_settings, load_plc_settings
+# Import camera manager for triggering captures
+# Use relative import based on package structure
+try:
+    from ..camera.camera_manager import camera_manager
+except ImportError:
+    # If running as script, might need adjustment, but inside package structure this should work
+    pass
 
 # Store last known connection status
 plc_status = {
@@ -14,10 +23,12 @@ plc_status = {
     "error": None
 }
 
-def poll_plc(ip, port, interval=2):
-    """Background polling to verify PLC connection status by reading X0."""
+def poll_plc(ip, port, interval=0.1): # Reduced interval for faster response
+    """Background polling to verify PLC connection status by reading X0 and monitoring Y2 for trigger."""
     global plc_status
     sock = None
+    last_y2 = 0
+    
     while True:
         try:
             # Reconnect if socket is closed or lost
@@ -36,16 +47,15 @@ def poll_plc(ip, port, interval=2):
                         "last_checked": time.time(),
                         "error": str(e)
                     })
-                    time.sleep(interval)
+                    time.sleep(2) # Wait longer between reconnections
                     continue
 
-            # Check connection by reading X0
+            # Check connection by reading X0 and Y2
             try:
-                # read_bit returns a list [val] if successful
+                # Read X0 for status check
                 resp = mc.read_bit(sock, "X0", 1)
                 
-                # Check for error responses which might be returned as strings or specific error objects by the library
-                # Based on user sample, we assume list means success
+                # Check for error responses
                 if isinstance(resp, list):
                     # Only log transition to avoid spam
                     if not plc_status["connected"]:
@@ -58,6 +68,36 @@ def poll_plc(ip, port, interval=2):
                         "last_checked": time.time(),
                         "error": None
                     })
+                    
+                    # POLL Y2 FOR TRIGGER
+                    # We do this only if connected
+                    resp_y2 = mc.read_bit(sock, "Y2", 1)
+                    if isinstance(resp_y2, list) and len(resp_y2) > 0:
+                        current_y2 = resp_y2[0]
+                        
+                        # Detect Rising Edge (0 -> 1)
+                        if current_y2 == 1 and last_y2 == 0:
+                            print(f"[PLC POLL] Y2 Rising Edge Detected! Triggering Capture.")
+                            
+                            # Generate filename
+                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                            # Save in a 'captured_images' folder in the backend root
+                            # Assuming this file is in backend/plc/
+                            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                            save_dir = os.path.join(backend_dir, "captured_images")
+                            filepath = os.path.join(save_dir, f"capture_{timestamp}.jpg")
+                            
+                            # Trigger Save
+                            try:
+                                if camera_manager.save_current_frame(filepath):
+                                    print(f"[PLC POLL] Image saved successfully: {filepath}")
+                                else:
+                                    print(f"[PLC POLL] Failed to save image. (Is camera running?)")
+                            except Exception as cam_err:
+                                print(f"[PLC POLL] Camera trigger error: {cam_err}")
+                                
+                        last_y2 = current_y2
+                        
                 else:
                     print(f"[PLC POLL] Unexpected response format: {resp}")
                     # Verification failed

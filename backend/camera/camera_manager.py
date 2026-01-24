@@ -7,37 +7,72 @@ import ctypes
 from ctypes import *
 
 # Add MVS SDK to path
+# Add MVS SDK to path
 if platform.system() == 'Windows':
+    # Try environment variable first
     mv_env = os.getenv('MVCAM_COMMON_RUNENV')
     if mv_env:
         sys.path.append(os.path.join(mv_env, "Samples", "Python", "MvImport"))
-    else:
-        print("Error: MVCAM_COMMON_RUNENV environment variable not set. Camera SDK might not be installed.")
+    
+    # Also add the local MVSPython directory which is likely where the user has the SDK files
+    # Based on file structure: c:\MyStuff\VS\MECup\MVSPython\MvImport
+    # Assuming this file is in c:\MyStuff\VS\MECup\backend\camera\
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    mvs_python_path = os.path.join(project_root, "MVSPython", "MvImport")
+    if os.path.exists(mvs_python_path):
+        sys.path.append(mvs_python_path)
 
 try:
     from MvCameraControl_class import *
     from CameraParams_header import *
     from MvErrorDefine_const import *
     SDK_AVAILABLE = True
+    print("[Camera Manager] MVS SDK loaded successfully")
 except ImportError as e:
-    print(f"Error importing MVS SDK: {e}")
+    print(f"[Camera Manager] Error importing MVS SDK: {e}")
     SDK_AVAILABLE = False
     # Define dummy classes to prevent crash if SDK is missing during development
-    class MvCamera: pass
-    class MV_CC_DEVICE_INFO_LIST: pass
+    class MvCamera: 
+        def MV_CC_CreateHandle(self, *args): return 0
+        def MV_CC_OpenDevice(self, *args): return 0
+        def MV_CC_StartGrabbing(self): return 0
+        def MV_CC_StopGrabbing(self): return 0
+        def MV_CC_CloseDevice(self): return 0
+        def MV_CC_DestroyHandle(self): return 0
+        def MV_CC_EnumDevices(self, *args): return 0
+        def MV_CC_GetOptimalPacketSize(self): return 0
+        def MV_CC_SetIntValue(self, *args): return 0
+        def MV_CC_GetIntValue(self, *args): return 0
+        def MV_CC_GetFloatValue(self, *args): return 0
+        def MV_CC_SetFloatValue(self, *args): return 0
+        def MV_CC_SetEnumValue(self, *args): return 0
+        def MV_CC_GetImageBuffer(self, *args): return -1
+        def MV_CC_FreeImageBuffer(self, *args): return 0
+        def MV_CC_SaveImageEx2(self, *args): return -1
+
+    class MV_CC_DEVICE_INFO_LIST: 
+        nDeviceNum = 0
+        pDeviceInfo = []
     class MV_FRAME_OUT_INFO_EX: pass
-    class MV_FRAME_OUT: pass
+    class MV_FRAME_OUT: 
+        stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        pBufAddr = None
+    class MVCC_INTVALUE: nCurValue = 0
+    class MVCC_FLOATVALUE: fCurValue = 0
+    class MV_SAVE_IMAGE_PARAM_EX: pass
     
     # Define dummy constants
-    MV_GIGE_DEVICE = 0
-    MV_USB_DEVICE = 0
-    MV_GENTL_CAMERALINK_DEVICE = 0
-    MV_GENTL_CXP_DEVICE = 0
-    MV_GENTL_XOF_DEVICE = 0
+    MV_GIGE_DEVICE = 1
+    MV_USB_DEVICE = 2
+    MV_GENTL_CAMERALINK_DEVICE = 4
+    MV_GENTL_CXP_DEVICE = 8
+    MV_GENTL_XOF_DEVICE = 16
     MV_OK = 0
-    MV_SAVE_IAMGE_TYPE_BMP = 0
-    PixelType_Gvsp_Mono8 = 0
-    PixelType_Gvsp_RGB8_Packed = 0
+    MV_ACCESS_Exclusive = 1
+    MV_Image_Jpeg = 2
+    MV_EXPOSURE_AUTO_MODE_OFF = 0
+    MV_GAIN_MODE_OFF = 0
+
 
 class CameraManager:
     def __init__(self):
@@ -249,6 +284,21 @@ class CameraManager:
         if ret == 0:
             return stFloatParam.fCurValue
         return 0
+
+    def save_current_frame(self, filepath):
+        """Saves the latest frame to the specified filepath."""
+        with self.lock:
+            if self.current_frame:
+                try:
+                    # Make sure directory exists
+                    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                    with open(filepath, 'wb') as f:
+                        f.write(self.current_frame)
+                    return True
+                except Exception as e:
+                    print(f"Failed to save image: {e}")
+                    return False
+        return False
 
 # Global instance
 camera_manager = CameraManager()
