@@ -7,11 +7,7 @@ def test_agent():
     agent = get_agent()
     
     test_cases = [
-        "what can u assist me in",
-        "help me",
-        "Camera is not detecting defects properly",
-        "Error code E101",
-        "The machine is not working"
+        "how do i control servo amplifiers with plc?",
     ]
     
     print("\n" + "="*70)

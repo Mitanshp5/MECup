@@ -69,7 +69,7 @@ const AutomaticMode = () => {
           <div className="w-full h-full bg-black relative flex items-center justify-center">
             <img
               src="http://localhost:5001/camera/stream"
-              className="w-full h-full object-contain"
+              className="max-w-full max-h-full aspect-[4/3] object-contain"
               alt="Live Feed"
               onError={(e) => {
                 // If stream fails, maybe show a "Connecting..." or "No Signal" placeholder
