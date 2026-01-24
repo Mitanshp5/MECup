@@ -23,7 +23,7 @@ plc_status = {
     "error": None
 }
 
-def poll_plc(ip, port, interval=0.1): # Reduced interval for faster response
+def poll_plc(ip, port, interval=0.01): # Reduced interval for faster response
     """Background polling to verify PLC connection status by reading X0 and monitoring Y2 for trigger."""
     global plc_status
     sock = None
@@ -91,6 +91,9 @@ def poll_plc(ip, port, interval=0.1): # Reduced interval for faster response
                             try:
                                 if camera_manager.save_current_frame(filepath):
                                     print(f"[PLC POLL] Image saved successfully: {filepath}")
+                                    mc.write_bit(sock, "M40", 1)
+                                    time.sleep(0.1) 
+                                    mc.write_bit(sock, "M40", 0)  
                                 else:
                                     print(f"[PLC POLL] Failed to save image. (Is camera running?)")
                             except Exception as cam_err:
