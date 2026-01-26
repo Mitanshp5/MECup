@@ -7,12 +7,19 @@ import os
 import rk_mcprotocol as mc
 from .settings import save_plc_settings, load_plc_settings
 # Import camera manager for triggering captures
-# Use relative import based on package structure
+# Import camera manager for triggering captures
 try:
-    from ..camera.camera_manager import camera_manager
+    # Try absolute import (if running from backend root)
+    from camera.camera_manager import camera_manager
+    print("[PLC] Successfully imported camera_manager from camera package")
 except ImportError:
-    # If running as script, might need adjustment, but inside package structure this should work
-    pass
+    try:
+        # Try relative import (fallback)
+        from ..camera.camera_manager import camera_manager
+        print("[PLC] Successfully imported camera_manager from relative path")
+    except ImportError as e:
+        print(f"[PLC] Warning: Could not import camera_manager: {e}")
+        camera_manager = None
 
 # Store last known connection status
 plc_status = {
@@ -87,17 +94,26 @@ def poll_plc(ip, port, interval=0.01): # Reduced interval for faster response
                             save_dir = os.path.join(backend_dir, "captured_images")
                             filepath = os.path.join(save_dir, f"capture_{timestamp}.jpg")
                             
-                            # Trigger Save
+                        # Trigger Save
+                        if camera_manager:
                             try:
                                 if camera_manager.save_current_frame(filepath):
                                     print(f"[PLC POLL] Image saved successfully: {filepath}")
-                                    mc.write_bit(sock, "M40", 1)
-                                    time.sleep(0.1) 
-                                    mc.write_bit(sock, "M40", 0)  
+                                    time.sleep(1)
+                                    # Send feedback to PLC
+                                    try:
+                                        # User confirmed list format is correct: [1]*1
+                                        mc.write_bit(sock, "M77", [1]*1) 
+                                        print(f"[PLC POLL] Sent M77 feedback (ON)")
+                                    except Exception as write_err:
+                                        print(f"[PLC POLL] Failed to write M77 feedback: {write_err}")
+
                                 else:
-                                    print(f"[PLC POLL] Failed to save image. (Is camera running?)")
+                                    print(f"[PLC POLL] Failed to save image. Camera returned False.")
                             except Exception as cam_err:
                                 print(f"[PLC POLL] Camera trigger error: {cam_err}")
+                        else:
+                            print(f"[PLC POLL] Camera manager not available. Cannot save image.")
                                 
                                 
                         last_y2 = current_y2
@@ -138,6 +154,38 @@ class PLCConnectRequest(BaseModel):
     ip: str
     port: int
     timeout: int = 5000  # Default 5000ms
+
+class PLCWriteRequest(BaseModel):
+    device: str
+    value: int
+    
+@router.post("/plc/write")
+async def plc_write(req: PLCWriteRequest):
+    """Write a value to a PLC device."""
+    global plc_status
+    ip = plc_status["ip"]
+    port = plc_status["port"]
+    
+    if not ip or not port:
+        return {"success": False, "error": "PLC settings not configured"}
+        
+    try:
+        sock = mc.open_socket(ip, port)
+        if req.value == 1:
+            # We assume bit device for now based on request M5
+            mc.write_bit(sock, req.device, 1)
+        else:
+            mc.write_bit(sock, req.device, 0)
+        
+        # If we want to simulate a momentary button (press and release), we might handle that in frontend or here with separate calls.
+        # User asked to "turn on m5", implying setting it to 1. 
+        # Usually scan start is a trigger. 
+        
+        sock.close()
+        return {"success": True}
+    except Exception as e:
+         print(f"[PLC WRITE ERROR] {e}")
+         return {"success": False, "error": str(e)}
 
 @router.post("/plc/connect")
 async def plc_connect(req: PLCConnectRequest):
