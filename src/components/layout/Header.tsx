@@ -28,11 +28,16 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen }: HeaderProps) => {
       try {
         const res = await fetch("http://localhost:5001/plc/status");
         const data = await res.json();
-        console.log("PLC Status Poll:", data);
-        setPlcStatus(data);
-      } catch {
-        console.warn("PLC Status Poll Failed");
+        // console.log("PLC Status Poll:", data);
+        if (data.connected && data.error === null) {
+          setPlcStatus({ connected: true });
+        } else {
+          setPlcStatus({ connected: false });
+          // Only log error if strictly necessary, avoiding spam
+        }
+      } catch (err) {
         setPlcStatus({ connected: false, error: "No backend" });
+        // console.warn("PLC Status Poll Failed");
       }
     }, 2000);
     return () => clearInterval(interval);

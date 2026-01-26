@@ -11,6 +11,7 @@ router = APIRouter()
 class CameraSettings(BaseModel):
     exposure: float
     gain: float
+    auto_exposure: bool = False
 
 @router.post("/camera/connect")
 async def connect_camera():
@@ -22,7 +23,9 @@ async def connect_camera():
     if camera_manager.open_device(0):
         # Apply saved settings
         settings = load_camera_settings()
-        camera_manager.set_exposure(settings['exposure'])
+        camera_manager.set_exposure_mode(settings['auto_exposure'])
+        if not settings['auto_exposure']:
+            camera_manager.set_exposure(settings['exposure'])
         camera_manager.set_gain(settings['gain'])
         
         # Start grabbing
@@ -49,7 +52,8 @@ async def get_settings():
         # Get live values
         return {
             "exposure": camera_manager.get_exposure(),
-            "gain": camera_manager.get_gain()
+            "gain": camera_manager.get_gain(),
+            "auto_exposure": camera_manager.get_exposure_mode_status()
         }
     else:
         # Return saved values
@@ -58,11 +62,13 @@ async def get_settings():
 @router.post("/camera/settings")
 async def update_settings(settings: CameraSettings):
     # Save to file
-    save_camera_settings(settings.exposure, settings.gain)
+    save_camera_settings(settings.exposure, settings.gain, settings.auto_exposure)
     
     # Apply if camera is open
     if camera_manager.is_open:
-        camera_manager.set_exposure(settings.exposure)
+        camera_manager.set_exposure_mode(settings.auto_exposure)
+        if not settings.auto_exposure:
+             camera_manager.set_exposure(settings.exposure)
         camera_manager.set_gain(settings.gain)
         return {"success": True, "message": "Settings applied and saved"}
     
