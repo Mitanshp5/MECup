@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Play, Pause, Square, Camera, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface Defect {
@@ -12,7 +13,7 @@ interface Defect {
 
 const AutomaticMode = () => {
   const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
+  // const [scanProgress, setScanProgress] = useState(0); // Removed simulation
   const [defects, setDefects] = useState<Defect[]>([
     { id: "1", type: "Orange Peel", location: "Front Hood - Left", severity: "low", timestamp: "10:45:23" },
     { id: "2", type: "Dust Nib", location: "Driver Door", severity: "medium", timestamp: "10:45:31" },
@@ -30,21 +31,33 @@ const AutomaticMode = () => {
     // };
   }, []);
 
-  const handleStartScan = () => {
-    setIsScanning(true);
-    setScanProgress(0);
-
-    // Simulate scan progress
-    const interval = setInterval(() => {
-      setScanProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsScanning(false);
-          return 100;
-        }
-        return prev + 2;
+  const handleStartScan = async () => {
+    try {
+      // Trigger PLC M5
+      const res = await fetch("http://localhost:5001/plc/write", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device: "M5", value: 1 }),
       });
-    }, 200);
+      const data = await res.json();
+
+      if (data.success) {
+        setIsScanning(true);
+        toast.success("Scan Started", { description: "PLC M5 set to ON" });
+      } else {
+        toast.error("Failed to start scan", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Start scan error:", e);
+      toast.error("Failed to start scan", { description: "Network error" });
+    }
+  };
+
+  const handleStopScan = async () => {
+    // Optional: Logic to stop scan / turn off M5? 
+    // User only asked for start, but stop button is there.
+    setIsScanning(false);
+    toast.info("Scan Stopped");
   };
 
   return (
@@ -87,18 +100,14 @@ const AutomaticMode = () => {
             </div>
           </div>
 
-          {/* Scan overlay */}
+          {/* Scan overlay - Kept visual indicator of active scan but removed progress bar */}
           {isScanning && (
             <motion.div
               className="absolute inset-0 pointer-events-none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <motion.div
-                className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
-                animate={{ top: ["0%", "100%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              />
+              <div className="absolute inset-0 border-2 border-primary/50 animate-pulse" />
             </motion.div>
           )}
         </div>
@@ -140,18 +149,8 @@ const AutomaticMode = () => {
               </button>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Progress</p>
-                <p className="font-mono text-lg text-foreground">{scanProgress}%</p>
-              </div>
-              <div className="w-48 h-2 bg-secondary rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-primary to-success"
-                  style={{ width: `${scanProgress}%` }}
-                />
-              </div>
-            </div>
+            {/* Progress bar removed as requested */}
+            {/* <div className="flex items-center gap-6"> ... </div> */}
           </div>
         </div>
       </div>
