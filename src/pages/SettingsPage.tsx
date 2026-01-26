@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from "lucide-react";
+import { toast } from "sonner";
 
 const SettingsPage = () => {
   const [plcSettings, setPlcSettings] = useState({
@@ -12,6 +13,7 @@ const SettingsPage = () => {
   const [cameraSettings, setCameraSettings] = useState({
     exposure: "5000",
     gain: "0",
+    auto_exposure: false,
   });
 
   const [theme, setTheme] = useState("dark");
@@ -36,7 +38,8 @@ const SettingsPage = () => {
         console.log("Fetched Camera Settings:", data);
         setCameraSettings({
           exposure: String(data.exposure),
-          gain: String(data.gain)
+          gain: String(data.gain),
+          auto_exposure: data.auto_exposure || false,
         });
       })
       .catch(err => console.error("Failed to fetch camera settings:", err));
@@ -44,39 +47,66 @@ const SettingsPage = () => {
 
   const handleSave = async () => {
     try {
-      // Save PLC Settings
-      const plcResponse = await fetch("http://localhost:5001/plc/connect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip: plcSettings.ip,
-          port: parseInt(plcSettings.port),
-        }),
-      });
-      const plcData = await plcResponse.json();
+      // Create promises for both saves
+      const plcPromise = (async () => {
+        try {
+          const res = await fetch("http://localhost:5001/plc/connect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ip: plcSettings.ip,
+              port: parseInt(plcSettings.port),
+              timeout: parseInt(plcSettings.timeout)
+            }),
+          });
+          const data = await res.json();
+          return { type: 'plc', success: data.connected, data, error: data.error };
+        } catch (e) {
+          console.error("PLC save error:", e);
+          return { type: 'plc', success: false, error: "Network error" };
+        }
+      })();
 
-      // Save Camera Settings
-      const camResponse = await fetch("http://localhost:5001/camera/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exposure: parseFloat(cameraSettings.exposure),
-          gain: parseFloat(cameraSettings.gain)
-        }),
-      });
-      const camData = await camResponse.json();
+      const camPromise = (async () => {
+        try {
+          const res = await fetch("http://localhost:5001/camera/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              exposure: parseFloat(cameraSettings.exposure),
+              gain: parseFloat(cameraSettings.gain),
+              auto_exposure: cameraSettings.auto_exposure
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            return { type: 'camera', success: data.success, data, message: data.message };
+          }
+          return { type: 'camera', success: true, message: "Camera module offline" }; // Treat as success
+        } catch (e) {
+          console.error("Camera save error:", e);
+          return { type: 'camera', success: true, message: "Camera unreachable" }; // Treat as success
+        }
+      })();
 
-      if (plcData.connected && camData.success) {
-        alert("Settings saved! PLC Connected. Camera settings applied.");
+      // Wait for both
+      const [plcResult, camResult] = await Promise.all([plcPromise, camPromise]);
+
+      if (plcResult.success) {
+        toast.success("Settings Saved & Connected", {
+          description: `PLC Connected. ${camResult.message || ""}`
+        });
       } else {
-        let msg = "Settings saved with warnings:\n";
-        if (!plcData.connected) msg += `- PLC: ${plcData.error || "Failed"}\n`;
-        if (!camData.success) msg += `- Camera: ${camData.message || "Failed"}\n`;
-        alert(msg);
+        toast.info("Settings Saved (PLC Offline)", {
+          description: `Details: ${plcResult.error || "Connection failed"}. ${camResult.message || ""}`,
+          duration: 5000
+        });
       }
     } catch (error) {
       console.error("Error saving settings:", error);
-      alert("Failed to save settings. Check console for details.");
+      toast.error("Failed to save settings", {
+        description: "Check console for details."
+      });
     }
   };
 
@@ -139,13 +169,25 @@ const SettingsPage = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 mb-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={cameraSettings.auto_exposure}
+                  onChange={(e) => setCameraSettings(prev => ({ ...prev, auto_exposure: e.target.checked }))}
+                  className="w-4 h-4 text-primary bg-secondary border-border rounded focus:ring-primary"
+                />
+                <span className="text-sm font-medium text-foreground">Auto Exposure Mode</span>
+              </label>
+            </div>
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Exposure Time (µs)</label>
+              <label className={`block text-sm font-medium mb-2 ${cameraSettings.auto_exposure ? "text-muted-foreground/50" : "text-muted-foreground"}`}>Exposure Time (µs)</label>
               <input
                 type="number"
                 value={cameraSettings.exposure}
+                disabled={cameraSettings.auto_exposure}
                 onChange={(e) => setCameraSettings(prev => ({ ...prev, exposure: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={`w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary ${cameraSettings.auto_exposure ? "opacity-50 cursor-not-allowed" : ""}`}
               />
             </div>
             <div>

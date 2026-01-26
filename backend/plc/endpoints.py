@@ -99,6 +99,7 @@ def poll_plc(ip, port, interval=0.01): # Reduced interval for faster response
                             except Exception as cam_err:
                                 print(f"[PLC POLL] Camera trigger error: {cam_err}")
                                 
+                                
                         last_y2 = current_y2
                         
                 else:
@@ -136,12 +137,24 @@ router = APIRouter()
 class PLCConnectRequest(BaseModel):
     ip: str
     port: int
+    timeout: int = 5000  # Default 5000ms
 
 @router.post("/plc/connect")
 async def plc_connect(req: PLCConnectRequest):
     """Check PLC connectivity by attempting TCP connection using rk_mcprotocol and save settings."""
     try:
         # First attempt a quick connection check
+        # rk_mcprotocol doesn't expose timeout in open_socket easily if it's just wrapping socket.create_connection
+        # But we can try to set default socket timeout temporarily or inspect library.
+        # Assuming we can't easily change library internals, we can try a raw socket check first with timeout.
+        
+        # Raw socket check for speed
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(req.timeout / 1000.0)
+        sock.connect((req.ip, req.port))
+        sock.close()
+
+        # If raw check passes, try protocol check (fast)
         s = mc.open_socket(req.ip, req.port)
         # Try a dummy read to ensure it's a valid PLC talking MC protocol
         mc.read_bit(s, "X0", 1)

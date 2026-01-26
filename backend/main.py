@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 # Add production_rag to python path so imports within it work
 # Assuming main.py is in backend/ and production_rag is in backend/production_rag
-sys.path.append(os.path.join(os.path.dirname(__file__), 'production_rag'))
+# sys.path.append(os.path.join(os.path.dirname(__file__), 'production_rag'))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,13 +13,14 @@ import uvicorn
 # Import the router or app from the module. 
 # We'll need to refactor fastapi_server.py to export a router or we can mount its app.
 # For better structure, let's refactor fastapi_server.py to export a router.
-from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
+# from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Call the RAG lifespan
-    async with rag_lifespan(app):
-        yield
+    # async with rag_lifespan(app):
+    #     yield
+    yield
 
 app = FastAPI(
     title="Unified Backend API",
@@ -38,7 +39,7 @@ app.add_middleware(
 )
 
 # Include Routers
-app.include_router(rag_router, tags=["RAG"])
+# app.include_router(rag_router, tags=["RAG"])
 
 from plc.endpoints import router as plc_router
 app.include_router(plc_router, tags=["PLC"])
@@ -54,6 +55,10 @@ except Exception as e:
 @app.get("/")
 async def root():
     return {"message": "MECup Backend is running"}
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     print("=" * 60)
