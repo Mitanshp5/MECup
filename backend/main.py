@@ -10,16 +10,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-# Import the router or app from the module. 
-# We'll need to refactor fastapi_server.py to export a router or we can mount its app.
-# For better structure, let's refactor fastapi_server.py to export a router.
 # from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Call the RAG lifespan
-    # async with rag_lifespan(app):
-    #     yield
     yield
 
 app = FastAPI(

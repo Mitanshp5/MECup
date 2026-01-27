@@ -75,10 +75,10 @@ def poll_plc_thread():
     
     while True:
         try:
-            # 1. status check (read X0)
+            # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
             
-            # 2. Check Y2 Trigger
+            # Check Y2 Trigger
             resp_y2 = manager.read_bit("Y2", 1)
             if resp_y2 and len(resp_y2) > 0:
                 current_y2 = resp_y2[0]
@@ -87,7 +87,6 @@ def poll_plc_thread():
                 if current_y2 == 1 and last_y2 == 0:
                     print(f"[PLC POLL] Y2 Rising Edge! Triggering Capture.")
                     
-                    # Generate filename
                     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     save_dir = os.path.join(backend_dir, "captured_images")
@@ -98,7 +97,7 @@ def poll_plc_thread():
                         try:
                             if camera_manager.save_current_frame(filepath):
                                 print(f"[PLC POLL] Image saved: {filepath}")
-                                time.sleep(10) # Wait as per original logic
+                                time.sleep(10)
                                 
                                 # Feedback M77
                                 try:
@@ -115,12 +114,9 @@ def poll_plc_thread():
                 
                 last_y2 = current_y2
                 
-        except Exception as e:
-            # Manager handles connection state, we just log and wait
-            # If disconnect happens, manager.connected will be false until reconnect
-            # print(f"[PLC POLL] Loop error: {e}") 
-            # (Maybe reduce log spam in real app)
-            time.sleep(1) # wait before retry
+        except Exception:
+            # Logging suppressed for cleanliness
+            time.sleep(1)
             
         time.sleep(0.01)
 
