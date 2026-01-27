@@ -60,9 +60,6 @@ const ManualMode = () => {
     }
   };
 
-  // Keep handleJog for local state simulation if desired, or replace. 
-  // For now, we'll replace the button onClick handlers.
-
   const handleHome = () => {
     setPosition({ x: 0, y: 0, z: 0 });
   };
@@ -79,7 +76,7 @@ const ManualMode = () => {
             <div>
               <h3 className="text-xl font-bold text-destructive">PLC DISCONNECTED</h3>
               <p className="text-muted-foreground mt-2">Manual controls are disabled.</p>
-              <p className="text-xs text-muted-foreground mt-1">Please check connection in Home/Settings.</p>
+              <p className="text-xs text-muted-foreground mt-1">Please check connection in Settings.</p>
             </div>
           </div>
         </div>
