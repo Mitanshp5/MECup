@@ -7,7 +7,7 @@ def test_agent():
     agent = get_agent()
     
     test_cases = [
-        "how do i control servo amplifiers with plc?",
+        "What is error code : 1A68H [FX5-SSC-S]?",
     ]
     
     print("\n" + "="*70)

@@ -1,25 +1,90 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap } from "lucide-react";
 
 const ManualMode = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
-  const [speed, setSpeed] = useState(50);
+  const [speeds, setSpeeds] = useState({ x: 50, y: 50, z: 50 });
   const [jogDistance, setJogDistance] = useState(10);
+  const [plcConnected, setPlcConnected] = useState(false);
 
-  const handleJog = (axis: "x" | "y" | "z", direction: 1 | -1) => {
-    setPosition(prev => ({
-      ...prev,
-      [axis]: Math.round((prev[axis] + (jogDistance * direction)) * 100) / 100
-    }));
+  // Poll PLC connection status
+  useEffect(() => {
+    const checkPlc = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/plc/status');
+        const data = await res.json();
+        setPlcConnected(data.connected);
+      } catch (e) {
+        setPlcConnected(false);
+      }
+    };
+
+    checkPlc();
+    const interval = setInterval(checkPlc, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const [servoEnabled, setServoEnabled] = useState(false);
+
+  const handleServoToggle = async () => {
+    try {
+      const newState = !servoEnabled;
+      // Optimistic update
+      setServoEnabled(newState);
+      await fetch('http://localhost:5001/servo/enable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enable: newState })
+      });
+    } catch (error) {
+      console.error("Failed to toggle servo:", error);
+      // Revert on error
+      setServoEnabled(!servoEnabled);
+    }
   };
+
+  const handleMove = async (command: string) => {
+    if (!servoEnabled) {
+      alert("Please Enable Servo First!");
+      return;
+    }
+    try {
+      await fetch('http://localhost:5001/servo/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command })
+      });
+    } catch (error) {
+      alert("Move Failed: " + error);
+    }
+  };
+
+  // Keep handleJog for local state simulation if desired, or replace. 
+  // For now, we'll replace the button onClick handlers.
 
   const handleHome = () => {
     setPosition({ x: 0, y: 0, z: 0 });
   };
 
   return (
-    <div className="h-full grid grid-cols-12 gap-6">
+    <div className="h-full grid grid-cols-12 gap-6 relative">
+      {/* Blocking Overlay */}
+      {!plcConnected && (
+        <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg border border-destructive/50">
+          <div className="text-center space-y-4 p-8 bg-card border border-destructive rounded-xl shadow-lg">
+            <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto animate-pulse">
+              <Zap className="h-6 w-6 text-destructive" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-destructive">PLC DISCONNECTED</h3>
+              <p className="text-muted-foreground mt-2">Manual controls are disabled.</p>
+              <p className="text-xs text-muted-foreground mt-1">Please check connection in Home/Settings.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Control Panel */}
       <div className="col-span-8 space-y-6">
         {/* Position Display */}
@@ -41,25 +106,26 @@ const ManualMode = () => {
         {/* Jog Controls */}
         <div className="industrial-panel p-6">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">JOG CONTROLS</h3>
-          
+
           <div className="grid grid-cols-2 gap-8">
             {/* XY Control */}
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">X/Y AXIS</p>
               <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
                 <div />
-                <JogButton icon={ArrowUp} onClick={() => handleJog("y", 1)} label="Y+" />
+                <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_12.5")} label="Y+ (12.5mm)" />
                 <div />
-                <JogButton icon={ArrowLeft} onClick={() => handleJog("x", -1)} label="X-" />
+                <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_17")} label="X- (17mm)" />
                 <button
-                  onClick={handleHome}
+                  onClick={() => handleMove("x_home")}
                   className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
+                  title="X Home (M300)"
                 >
                   <Home className="w-5 h-5 mx-auto" />
                 </button>
-                <JogButton icon={ArrowRight} onClick={() => handleJog("x", 1)} label="X+" />
+                <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_17")} label="X+ (17mm)" />
                 <div />
-                <JogButton icon={ArrowDown} onClick={() => handleJog("y", -1)} label="Y-" />
+                <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_12.5")} label="Y- (12.5mm)" />
                 <div />
               </div>
             </div>
@@ -68,11 +134,9 @@ const ManualMode = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">Z AXIS</p>
               <div className="flex flex-col gap-2 items-center">
-                <JogButton icon={ArrowUp} onClick={() => handleJog("z", 1)} label="Z+" />
-                <div className="h-20 w-16 bg-secondary rounded-md flex items-center justify-center border border-border">
-                  <span className="font-mono text-lg text-foreground">{position.z.toFixed(1)}</span>
-                </div>
-                <JogButton icon={ArrowDown} onClick={() => handleJog("z", -1)} label="Z-" />
+                <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_5")} label="Z+ (5mm)" />
+                <div className="h-8" />
+                <JogButton icon={ArrowDown} onClick={() => handleMove("z_down_5")} label="Z- (5mm)" />
               </div>
             </div>
           </div>
@@ -82,20 +146,74 @@ const ManualMode = () => {
         <div className="grid grid-cols-2 gap-6">
           <div className="industrial-panel p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-muted-foreground">JOG SPEED</h3>
-              <span className="font-mono text-primary">{speed}%</span>
+              <h3 className="text-sm font-medium text-muted-foreground">AXIS SPEEDS</h3>
             </div>
-            <input
-              type="range"
-              min={1}
-              max={100}
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full accent-primary"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>Slow</span>
-              <span>Fast</span>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                {/* X Axis */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold">X</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    max={50000}
+                    value={speeds.x}
+                    onChange={(e) => setSpeeds(prev => ({ ...prev, x: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
+                    className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                  />
+                </div>
+                {/* Y Axis */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold">Y</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    max={50000}
+                    value={speeds.y}
+                    onChange={(e) => setSpeeds(prev => ({ ...prev, y: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
+                    className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                  />
+                </div>
+                {/* Z Axis */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold">Z</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    max={50000}
+                    value={speeds.z}
+                    onChange={(e) => setSpeeds(prev => ({ ...prev, z: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
+                    className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  fetch('http://localhost:5001/servo/speeds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(speeds)
+                  })
+                    .then(async res => {
+                      if (!res.ok) {
+                        const err = await res.json();
+                        alert(err.detail || "Failed to set speeds");
+                      } else {
+                        alert("Speeds Set Successfully");
+                      }
+                    })
+                    .catch(err => alert("Connection Error: " + err));
+                }}
+                className="w-full py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors mt-2"
+              >
+                SET SPEEDS
+              </button>
             </div>
           </div>
 
@@ -106,11 +224,10 @@ const ManualMode = () => {
                 <button
                   key={dist}
                   onClick={() => setJogDistance(dist)}
-                  className={`flex-1 py-2 rounded-md text-sm font-mono transition-colors ${
-                    jogDistance === dist
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-foreground hover:bg-secondary/80"
-                  }`}
+                  className={`flex-1 py-2 rounded-md text-sm font-mono transition-colors ${jogDistance === dist
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground hover:bg-secondary/80"
+                    }`}
                 >
                   {dist}mm
                 </button>
@@ -126,33 +243,46 @@ const ManualMode = () => {
         <div className="industrial-panel p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">QUICK ACTIONS</h3>
           <div className="space-y-2">
-            <button 
+            <button
               onClick={handleHome}
               className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors"
             >
               <Home className="w-5 h-5" />
               <span className="font-medium">Home All Axes</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors">
-              <RotateCcw className="w-5 h-5" />
-              <span className="font-medium">Reset Position</span>
-            </button>
+            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-md border border-border">
+              <span className="text-sm font-medium">Sync Y</span>
+              <span className="h-3 w-3 rounded-full bg-slate-700" title="Sync Y Status" />
+            </div>
+            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-md border border-border">
+              <span className="text-sm font-medium">Home Position Return</span>
+              <span className="h-3 w-3 rounded-full bg-slate-700" title="Flag Status (M70)" />
+            </div>
           </div>
         </div>
 
         {/* Servo Status */}
         <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">SERVO STATUS</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">SERVO CONTROL</h3>
+            <button
+              onClick={handleServoToggle}
+              className={`px-3 py-1 rounded text-xs font-bold transition-all ${servoEnabled ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground"}`}
+            >
+              {servoEnabled ? "ON" : "OFF"}
+            </button>
+          </div>
+
           <div className="space-y-3">
-            {["X-Axis Servo", "Y-Axis Servo", "Z-Axis Servo"].map((servo, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
-                <div className="flex items-center gap-3">
-                  <Zap className="w-4 h-4 text-success" />
-                  <span className="text-sm text-foreground">{servo}</span>
-                </div>
-                <span className="text-xs font-medium text-success">ENABLED</span>
+            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
+              <div className="flex items-center gap-3">
+                <Zap className={`w-4 h-4 ${servoEnabled ? "text-success" : "text-destructive"}`} />
+                <span className="text-sm text-foreground">Main Power (M0)</span>
               </div>
-            ))}
+              <span className={`text-xs font-medium ${servoEnabled ? "text-success" : "text-destructive"}`}>
+                {servoEnabled ? "ENABLED" : "DISABLED"}
+              </span>
+            </div>
           </div>
         </div>
 
