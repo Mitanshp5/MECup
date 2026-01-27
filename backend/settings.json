@@ -3,5 +3,5 @@
     "camera_gain": 0.0,
     "plc_ip": "192.168.1.30",
     "plc_port": 5000,
-    "camera_auto_exposure": false
+    "camera_auto_exposure": true
 }
