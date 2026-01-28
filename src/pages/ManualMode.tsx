@@ -116,7 +116,7 @@ const ManualMode = () => {
                 <button
                   onClick={() => handleMove("x_home")}
                   className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
-                  title="X Home (M300)"
+                  title="X Home"
                 >
                   <Home className="w-5 h-5 mx-auto" />
                 </button>

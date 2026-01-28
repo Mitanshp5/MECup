@@ -72,36 +72,39 @@ def poll_plc_thread():
     """Background polling using the shared manager."""
     print("[PLC POLL] Thread started.")
     last_y2 = 0
-    
+    last_y7 = 0
+    count = 826
+    # county=0
     while True:
         try:
             # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
             
             # Check Y2 Trigger
-            resp_y2 = manager.read_bit("Y2", 1)
-            if resp_y2 and len(resp_y2) > 0:
-                current_y2 = resp_y2[0]
+            resp_y = manager.read_bit("Y2", 6)
+            if resp_y and len(resp_y) > 0:
+                current_y2 = resp_y[0]
+                current_y7 = resp_y[5]
                 
                 # Rising Edge (0 -> 1)
-                if current_y2 == 1 and last_y2 == 0:
-                    print(f"[PLC POLL] Y2 Rising Edge! Triggering Capture.")
+                if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
+                    print(f"[PLC POLL] Y2/ Y7 Rising Edge! Triggering Capture.")
                     
-                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     save_dir = os.path.join(backend_dir, "captured_images")
                     os.makedirs(save_dir, exist_ok=True)
-                    filepath = os.path.join(save_dir, f"capture_{timestamp}.jpg")
+                    filepath = os.path.join(save_dir, f"grid_{count}.jpg")
                     
                     if camera_manager:
                         try:
                             if camera_manager.save_current_frame(filepath):
                                 print(f"[PLC POLL] Image saved: {filepath}")
-                                time.sleep(10)
                                 
                                 # Feedback M77
                                 try:
+                                    time.sleep(2)
                                     manager.write_bit("M77", [1])
+                                    count += 1
                                     print(f"[PLC POLL] Sent M77 feedback (ON)")
                                 except Exception as we:
                                     print(f"[PLC POLL] Failed to write M77: {we}")
@@ -113,12 +116,14 @@ def poll_plc_thread():
                         print(f"[PLC POLL] No camera manager.")
                 
                 last_y2 = current_y2
+                last_y7 = current_y7
+                
                 
         except Exception:
             # Logging suppressed for cleanliness
             time.sleep(1)
             
-        time.sleep(0.01)
+        time.sleep(0.05)
 
 # ------------- Startup Logic -------------
 
