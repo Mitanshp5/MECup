@@ -148,6 +148,10 @@ class CameraManager:
                 print(f"Warning: Get Packet Size fail! ret: {hex(nPacketSize)}")
 
         self.is_open = True
+        
+        # Configure exposure settings on connection
+        self._configure_exposure_on_connect()
+        
         return True
 
     def start_grabbing(self):
@@ -345,6 +349,51 @@ class CameraManager:
         if ret == 0:
             return stFloatParam.fCurValue
         return 0
+
+    def get_exposure_range(self):
+        """Returns (min, max, current) exposure time values."""
+        if not self.is_open: 
+            return (0, 0, 0)
+        stFloatParam = MVCC_FLOATVALUE()
+        memset(byref(stFloatParam), 0, sizeof(MVCC_FLOATVALUE))
+        ret = self.cam.MV_CC_GetFloatValue("ExposureTime", stFloatParam)
+        if ret == 0:
+            return (stFloatParam.fMin, stFloatParam.fMax, stFloatParam.fCurValue)
+        return (0, 0, 0)
+
+    def _configure_exposure_on_connect(self):
+        """Internal: Configure exposure settings on device open."""
+        if not self.is_open:
+            return False
+        try:
+            # Get exposure range from camera
+            min_exp, max_exp, cur_exp = self.get_exposure_range()
+            
+            if max_exp > 0:
+                # Set AutoExposureTimeUpperLimit to maximum to increase auto-exposure range
+                ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeUpperLimit", float(max_exp))
+                if ret == 0:
+                    print(f"[Camera Manager] AutoExposureTimeUpperLimit set to: {max_exp} µs")
+                else:
+                    print(f"[Camera Manager] Failed to set AutoExposureTimeUpperLimit: {hex(ret)}")
+                
+                # Optionally set lower limit to minimum
+                ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeLowerLimit", float(min_exp))
+                if ret == 0:
+                    print(f"[Camera Manager] AutoExposureTimeLowerLimit set to: {min_exp} µs")
+                else:
+                    print(f"[Camera Manager] Failed to set AutoExposureTimeLowerLimit: {hex(ret)}")
+            
+            # Enable auto exposure (continuous mode)
+            ret = self.cam.MV_CC_SetEnumValue("ExposureAuto", MV_EXPOSURE_AUTO_MODE_CONTINUOUS)
+            if ret == 0:
+                print(f"[Camera Manager] Auto exposure enabled")
+                return True
+            else:
+                print(f"[Camera Manager] Failed to enable auto exposure: {hex(ret)}")
+        except Exception as e:
+            print(f"[Camera Manager] Error configuring exposure: {e}")
+        return False
 
     def get_gain(self):
         if not self.is_open: return 0

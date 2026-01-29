@@ -87,7 +87,6 @@ def poll_plc_thread():
             resp = manager.read_bit("X0", 1)
             m5_status=manager.read_bit("M5",1)  
             while m5_status[0]==1:
-                
                 if not start:
                     start=1
                     time.sleep(2)
@@ -122,11 +121,7 @@ def poll_plc_thread():
                                     # Feedback M77
                                     try:
                                         time.sleep(2)
-                                        while True:
-                                            manager.write_bit("M77", [1])
-                                            time.sleep(0.02)
-                                            if manager.read_bit("M77", 1)[0]:
-                                                break
+                                        manager.write_bit("M77", [1])
                                         count += 1
                                         print(f"[PLC POLL] Sent M77 feedback (ON)")
                                     except Exception as we:
