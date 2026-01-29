@@ -73,7 +73,7 @@ def poll_plc_thread():
     print("[PLC POLL] Thread started.")
     last_y2 = 0
     last_y7 = 0
-    last_m101 = 0
+    last_m101 = 1
     count = 1
     county=1
 
