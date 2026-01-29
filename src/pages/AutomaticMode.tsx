@@ -13,7 +13,7 @@ interface Defect {
 
 const AutomaticMode = () => {
   const [isScanning, setIsScanning] = useState(false);
-  // const [scanProgress, setScanProgress] = useState(0); // Removed simulation
+  const [gridTriggered, setGridTriggered] = useState(false);
   const [defects, setDefects] = useState<Defect[]>([
     { id: "1", type: "Orange Peel", location: "Front Hood - Left", severity: "low", timestamp: "10:45:23" },
     { id: "2", type: "Dust Nib", location: "Driver Door", severity: "medium", timestamp: "10:45:31" },
@@ -24,11 +24,28 @@ const AutomaticMode = () => {
     fetch('http://localhost:5001/camera/connect', { method: 'POST' })
       .catch(err => console.error("Failed to connect camera:", err));
 
-    // Optional: Disconnect on unmount? 
-    // For now, let's keep it connected to avoid frequent reconnections if user switches tabs.
-    // return () => {
-    //   fetch('http://localhost:5001/camera/disconnect', { method: 'POST' });
-    // };
+    // Sync scan state from PLC on mount and periodically
+    const syncScanState = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/plc/control-status');
+        const data = await res.json();
+        if (data.m5 !== null && data.m5 !== undefined) {
+          const plcScanning = data.m5 === 1;
+          setIsScanning(plcScanning);
+          // If M5 is off, also reset grid state
+          if (!plcScanning) {
+            setGridTriggered(false);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to sync scan state:", err);
+      }
+    };
+
+    syncScanState();
+    const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleStartScan = async () => {
@@ -61,6 +78,7 @@ const AutomaticMode = () => {
 
       if (data.success) {
         setIsScanning(false);
+        setGridTriggered(false); // Reset grid state on stop
         toast.info("Scan Stopped", { description: "M5 set to OFF" });
       } else {
         toast.error("Failed to stop scan", { description: data.error || "PLC Error" });
@@ -68,6 +86,7 @@ const AutomaticMode = () => {
     } catch (e) {
       console.error("Stop scan error:", e);
       setIsScanning(false);
+      setGridTriggered(false); // Reset grid state on stop
       toast.error("Failed to stop scan", { description: "Network error" });
     }
   };
@@ -77,6 +96,7 @@ const AutomaticMode = () => {
       const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
       const data = await res.json();
       if (data.success) {
+        setGridTriggered(true);
         toast.success("Grid One Triggered", { description: "M4 set to ON" });
       } else {
         toast.error("Grid One Failed", { description: data.error || "PLC Error" });
@@ -189,8 +209,8 @@ const AutomaticMode = () => {
               onClick={handleStartScan}
               disabled={isScanning}
               className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
-                  ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                  : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
                 }`}
             >
               <Play className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
@@ -200,36 +220,47 @@ const AutomaticMode = () => {
 
             {/* Grid One */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: (!isScanning || gridTriggered) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isScanning || gridTriggered) ? 1 : 0.98 }}
               onClick={handleGridOne}
-              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
+              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${(!isScanning || gridTriggered)
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
+                }`}
             >
-              <CheckCircle className="w-7 h-7 drop-shadow-md" />
+              <CheckCircle className={`w-7 h-7 ${(!isScanning || gridTriggered) ? '' : 'drop-shadow-md'}`} />
               <span className="text-sm font-bold tracking-wide">GRID</span>
               <span className="text-[10px] opacity-80 font-mono">M4 ON</span>
             </motion.button>
 
             {/* Cycle Reset */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isScanning ? 1 : 1.02 }}
+              whileTap={{ scale: isScanning ? 1 : 0.98 }}
               onClick={handleCycleReset}
-              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 border border-amber-400/30"
+              disabled={isScanning}
+              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 border border-amber-400/30"
+                }`}
             >
-              <RotateCcw className="w-7 h-7 drop-shadow-md" />
+              <RotateCcw className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
               <span className="text-sm font-bold tracking-wide">RESET</span>
               <span className="text-[10px] opacity-80 font-mono">M120 ON</span>
             </motion.button>
 
             {/* Homing */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isScanning ? 1 : 1.02 }}
+              whileTap={{ scale: isScanning ? 1 : 0.98 }}
               onClick={handleHomingStart}
-              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:from-slate-500 hover:to-slate-600 border border-slate-500/30"
+              disabled={isScanning}
+              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:from-slate-500 hover:to-slate-600 border border-slate-500/30"
+                }`}
             >
-              <Home className="w-7 h-7 drop-shadow-md" />
+              <Home className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
               <span className="text-sm font-bold tracking-wide">HOME</span>
               <span className="text-[10px] opacity-80 font-mono">X6 ON</span>
             </motion.button>
@@ -241,8 +272,8 @@ const AutomaticMode = () => {
               onClick={handleStopScan}
               disabled={!isScanning}
               className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${!isScanning
-                  ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                  : "bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-400 hover:to-red-500 border-2 border-red-400 ring-2 ring-red-500/30"
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-400 hover:to-red-500 border-2 border-red-400 ring-2 ring-red-500/30"
                 }`}
             >
               <Square className={`w-7 h-7 ${isScanning ? 'drop-shadow-md' : ''}`} />
