@@ -238,23 +238,60 @@ const ManualMode = () => {
       <div className="col-span-4 space-y-4">
         {/* Quick Actions */}
         <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">QUICK ACTIONS</h3>
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">PLC CONTROLS</h3>
           <div className="space-y-2">
             <button
-              onClick={handleHome}
+              onClick={async () => {
+                try {
+                  const res = await fetch("http://localhost:5001/plc/scan-start", { method: "POST" });
+                  const data = await res.json();
+                  alert(data.success ? "Scan Started (M5 ON)" : data.error);
+                } catch (e) { alert("Network Error"); }
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-success/10 border border-success/30 rounded-md text-success hover:bg-success/20 transition-colors"
+            >
+              <Zap className="w-5 h-5" />
+              <span className="font-medium">Scan Start (M5)</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
+                  const data = await res.json();
+                  alert(data.success ? "Grid One Triggered (M4 ON)" : data.error);
+                } catch (e) { alert("Network Error"); }
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
+            >
+              <RotateCcw className="w-5 h-5" />
+              <span className="font-medium">Grid One (M4)</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("http://localhost:5001/plc/cycle-reset", { method: "POST" });
+                  const data = await res.json();
+                  alert(data.success ? "Cycle Reset (M120 ON)" : data.error);
+                } catch (e) { alert("Network Error"); }
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-warning/10 border border-warning/30 rounded-md text-warning hover:bg-warning/20 transition-colors"
+            >
+              <RotateCcw className="w-5 h-5" />
+              <span className="font-medium">Cycle Reset (M120)</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("http://localhost:5001/plc/homing-start", { method: "POST" });
+                  const data = await res.json();
+                  alert(data.success ? "Homing Started (X6 ON)" : data.error);
+                } catch (e) { alert("Network Error"); }
+              }}
               className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors"
             >
               <Home className="w-5 h-5" />
-              <span className="font-medium">Home All Axes</span>
+              <span className="font-medium">Homing Start (X6)</span>
             </button>
-            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-md border border-border">
-              <span className="text-sm font-medium">Sync Y</span>
-              <span className="h-3 w-3 rounded-full bg-slate-700" title="Sync Y Status" />
-            </div>
-            <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-md border border-border">
-              <span className="text-sm font-medium">Home Position Return</span>
-              <span className="h-3 w-3 rounded-full bg-slate-700" title="Flag Status (M70)" />
-            </div>
           </div>
         </div>
 
