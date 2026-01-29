@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Play, Pause, Square, Camera, AlertTriangle, CheckCircle } from "lucide-react";
+import { Play, Pause, Square, Camera, AlertTriangle, CheckCircle, RotateCcw, Home } from "lucide-react";
 
 interface Defect {
   id: string;
@@ -33,17 +33,14 @@ const AutomaticMode = () => {
 
   const handleStartScan = async () => {
     try {
-      // Trigger PLC M5
-      const res = await fetch("http://localhost:5001/plc/write", {
+      const res = await fetch("http://localhost:5001/plc/scan-start", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device: "M5", value: 1 }),
       });
       const data = await res.json();
 
       if (data.success) {
         setIsScanning(true);
-        toast.success("Scan Started", { description: "PLC M5 set to ON" });
+        toast.success("Scan Started", { description: "M5 set to ON" });
       } else {
         toast.error("Failed to start scan", { description: data.error || "PLC Error" });
       }
@@ -54,10 +51,70 @@ const AutomaticMode = () => {
   };
 
   const handleStopScan = async () => {
-    // Optional: Logic to stop scan / turn off M5? 
-    // User only asked for start, but stop button is there.
-    setIsScanning(false);
-    toast.info("Scan Stopped");
+    try {
+      const res = await fetch("http://localhost:5001/plc/write", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device: "M5", value: 0 }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setIsScanning(false);
+        toast.info("Scan Stopped", { description: "M5 set to OFF" });
+      } else {
+        toast.error("Failed to stop scan", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Stop scan error:", e);
+      setIsScanning(false);
+      toast.error("Failed to stop scan", { description: "Network error" });
+    }
+  };
+
+  const handleGridOne = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Grid One Triggered", { description: "M4 set to ON" });
+      } else {
+        toast.error("Grid One Failed", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Grid One error:", e);
+      toast.error("Grid One Failed", { description: "Network error" });
+    }
+  };
+
+  const handleCycleReset = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/plc/cycle-reset", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Cycle Reset", { description: "M120 set to ON" });
+      } else {
+        toast.error("Cycle Reset Failed", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Cycle Reset error:", e);
+      toast.error("Cycle Reset Failed", { description: "Network error" });
+    }
+  };
+
+  const handleHomingStart = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/plc/homing-start", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Homing Started", { description: "X6 set to ON" });
+      } else {
+        toast.error("Homing Failed", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Homing error:", e);
+      toast.error("Homing Failed", { description: "Network error" });
+    }
   };
 
   return (
@@ -112,45 +169,86 @@ const AutomaticMode = () => {
           )}
         </div>
 
-        {/* Controls */}
-        <div className="industrial-panel p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleStartScan}
-                disabled={isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${isScanning
-                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                  : "bg-success text-success-foreground hover:bg-success/90"
-                  }`}
-              >
-                <Play className="w-5 h-5" />
-                Start Scan
-              </button>
-              <button
-                disabled={!isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${!isScanning
-                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                  : "bg-warning text-warning-foreground hover:bg-warning/90"
-                  }`}
-              >
-                <Pause className="w-5 h-5" />
-                Pause
-              </button>
-              <button
-                disabled={!isScanning}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${!isScanning
-                  ? "bg-secondary text-muted-foreground cursor-not-allowed"
-                  : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  }`}
-              >
-                <Square className="w-5 h-5" />
-                Stop
-              </button>
+        {/* Enhanced Control Panel */}
+        <div className="industrial-panel p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Machine Controls</h3>
+            <div className="flex items-center gap-2">
+              <span className={`w-2.5 h-2.5 rounded-full ${isScanning ? 'bg-success animate-pulse' : 'bg-muted-foreground/30'}`} />
+              <span className="text-xs text-muted-foreground font-mono">
+                {isScanning ? 'SCANNING' : 'IDLE'}
+              </span>
             </div>
+          </div>
 
-            {/* Progress bar removed as requested */}
-            {/* <div className="flex items-center gap-6"> ... </div> */}
+          <div className="grid grid-cols-5 gap-3">
+            {/* Start Scan - Primary Action */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleStartScan}
+              disabled={isScanning}
+              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                  ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                  : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
+                }`}
+            >
+              <Play className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
+              <span className="text-sm font-bold tracking-wide">START</span>
+              <span className="text-[10px] opacity-80 font-mono">M5 ON</span>
+            </motion.button>
+
+            {/* Grid One */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGridOne}
+              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
+            >
+              <CheckCircle className="w-7 h-7 drop-shadow-md" />
+              <span className="text-sm font-bold tracking-wide">GRID</span>
+              <span className="text-[10px] opacity-80 font-mono">M4 ON</span>
+            </motion.button>
+
+            {/* Cycle Reset */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCycleReset}
+              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 border border-amber-400/30"
+            >
+              <RotateCcw className="w-7 h-7 drop-shadow-md" />
+              <span className="text-sm font-bold tracking-wide">RESET</span>
+              <span className="text-[10px] opacity-80 font-mono">M120 ON</span>
+            </motion.button>
+
+            {/* Homing */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleHomingStart}
+              className="relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:from-slate-500 hover:to-slate-600 border border-slate-500/30"
+            >
+              <Home className="w-7 h-7 drop-shadow-md" />
+              <span className="text-sm font-bold tracking-wide">HOME</span>
+              <span className="text-[10px] opacity-80 font-mono">X6 ON</span>
+            </motion.button>
+
+            {/* Stop - Emergency Style */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleStopScan}
+              disabled={!isScanning}
+              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${!isScanning
+                  ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                  : "bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-400 hover:to-red-500 border-2 border-red-400 ring-2 ring-red-500/30"
+                }`}
+            >
+              <Square className={`w-7 h-7 ${isScanning ? 'drop-shadow-md' : ''}`} />
+              <span className="text-sm font-bold tracking-wide">STOP</span>
+              <span className="text-[10px] opacity-80 font-mono">M5 OFF</span>
+            </motion.button>
           </div>
         </div>
       </div>

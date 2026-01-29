@@ -2,11 +2,15 @@ import threading
 import time
 import datetime
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Dict
 from .settings import save_plc_settings, load_plc_settings
 from .connection import PLCManager
+try:
+    from auth import security, models
+except ImportError:
+    from ..auth import security, models
 
 # ------------- camera imports -------------
 camera_manager = None
@@ -81,54 +85,61 @@ def poll_plc_thread():
         try:
             # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
-            if not start:
-                m5_status=manager.read_bit("M5",1)
-                if m5_status[0]==1:
-                    manager.write_bit("M77",[1])
-                start=1
+            m5_status=manager.read_bit("M5",1)  
+            while m5_status[0]==1:
+                
+                if not start:
+                    start=1
+                    time.sleep(2)
+                    manager.write_bit("M77", [1])
+                    time.sleep(0.02)
+                    manager.write_bit("M77", [0])
 
-            
-            # Check Y2 Trigger
-            resp_y = manager.read_bit("Y2", 6)
-            if resp_y and len(resp_y) > 0:
-                current_y2 = resp_y[0]
-                current_y7 = resp_y[5]
-                
-                # Rising Edge (0 -> 1)
-                if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
-                    print(f"[PLC POLL] Y2/ Y7 Rising Edge! Triggering Capture.")
-                    current_m101= manager.read_bit("M101",1)
-                    if last_m101!=current_m101[0]:
-                        county+=1
-                        count=1
-                        last_m101=current_m101[0]
-                    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    save_dir = os.path.join(backend_dir, "captured_images")
-                    os.makedirs(save_dir, exist_ok=True)
-                    filepath = os.path.join(save_dir, f"grid_{county}_{count}.jpg")
+                # Check Y2 Trigger
+                resp_y = manager.read_bit("Y2", 6)
+                if resp_y and len(resp_y) > 0:
+                    current_y2 = resp_y[0]
+                    current_y7 = resp_y[5]
                     
-                    if camera_manager:
-                        try:
-                            if camera_manager.save_current_frame(filepath):
-                                print(f"[PLC POLL] Image saved: {filepath}")
-                                
-                                # Feedback M77
-                                try:
-                                    time.sleep(2)
-                                    manager.write_bit("M77", [1])
-                                    count += 1
-                                    print(f"[PLC POLL] Sent M77 feedback (ON)")
-                                except Exception as we:
-                                    print(f"[PLC POLL] Failed to write M77: {we}")
-                            else:
-                                print(f"[PLC POLL] Camera returned False.")
-                        except Exception as ce:
-                            print(f"[PLC POLL] Camera error: {ce}")
-                    else:
-                        print(f"[PLC POLL] No camera manager.")
-                
-                last_y2 = current_y2
-                last_y7 = current_y7
+                    # Rising Edge (0 -> 1)
+                    if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
+                        print(f"[PLC POLL] Y2/ Y7 Rising Edge! Triggering Capture.")
+                        current_m101= manager.read_bit("M101",1)
+                        if last_m101!=current_m101[0]:
+                            county+=1
+                            count=1
+                            last_m101=current_m101[0]
+                        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                        save_dir = os.path.join(backend_dir, "captured_images")
+                        os.makedirs(save_dir, exist_ok=True)
+                        filepath = os.path.join(save_dir, f"grid_{county}_{count}.jpg")
+                        
+                        if camera_manager:
+                            try:
+                                if camera_manager.save_current_frame(filepath):
+                                    print(f"[PLC POLL] Image saved: {filepath}")
+                                    
+                                    # Feedback M77
+                                    try:
+                                        time.sleep(2)
+                                        while True:
+                                            manager.write_bit("M77", [1])
+                                            time.sleep(0.02)
+                                            if manager.read_bit("M77", 1)[0]:
+                                                break
+                                        count += 1
+                                        print(f"[PLC POLL] Sent M77 feedback (ON)")
+                                    except Exception as we:
+                                        print(f"[PLC POLL] Failed to write M77: {we}")
+                                else:
+                                    print(f"[PLC POLL] Camera returned False.")
+                            except Exception as ce:
+                                print(f"[PLC POLL] Camera error: {ce}")
+                        else:
+                            print(f"[PLC POLL] No camera manager.")
+                    
+                    last_y2 = current_y2
+                    last_y7 = current_y7
                 
                 
         except Exception:
@@ -143,11 +154,12 @@ def start_polling():
     t = threading.Thread(target=poll_plc_thread, daemon=True)
     t.start()
 
-# Load settings on import
+# Load settings on import and start polling if configured
 settings = load_plc_settings()
 if settings and settings.get("ip") and settings.get("port"):
     manager.configure(settings["ip"], settings["port"])
     start_polling()
+
 
 # ------------- General PLC Endpoints -------------
 
@@ -160,7 +172,7 @@ async def get_plc_status():
 async def plc_connect(req: PLCConnectRequest):
     """Save settings and restart/configure manager."""
     try:
-        # Save settings
+        # Save settings to JSON file
         save_plc_settings(req.ip, req.port)
         
         # Configure manager (forces reconnect)
@@ -185,6 +197,71 @@ async def plc_write(req: PLCWriteRequest):
         return {"success": True}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+# ------------- Control Endpoints -------------
+
+@router.post("/plc/scan-start")
+async def scan_start():
+    """Start scan by setting M5 to ON."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        manager.write_bit("M5", [1])
+        return {"success": True, "message": "Scan Started (M5 ON)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/grid-one")
+async def grid_one():
+    """Trigger Grid One by setting M4 to ON."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        manager.write_bit("M4", [1])
+        return {"success": True, "message": "Grid One Triggered (M4 ON)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/cycle-reset")
+async def cycle_reset():
+    """Reset cycle by setting M120 to ON."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        manager.write_bit("M120", [1])
+        return {"success": True, "message": "Cycle Reset (M120 ON)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/homing-start")
+async def homing_start():
+    """Start homing sequence by setting X6 to ON."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        manager.write_bit("X6", [1])
+        return {"success": True, "message": "Homing Started (X6 ON)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.get("/plc/control-status")
+async def get_control_status():
+    """Read current status of control bits M5, M4, M120, X6."""
+    if not manager.connected:
+        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "x6": None}
+    try:
+        m5 = manager.read_bit("M5", 1)
+        m4 = manager.read_bit("M4", 1)
+        m120 = manager.read_bit("M120", 1)
+        x6 = manager.read_bit("X6", 1)
+        return {
+            "m5": m5[0] if m5 else None,
+            "m4": m4[0] if m4 else None,
+            "m120": m120[0] if m120 else None,
+            "x6": x6[0] if x6 else None
+        }
+    except Exception as e:
+        return {"error": str(e), "m5": None, "m4": None, "m120": None, "x6": None}
 
 # ------------- Servo Endpoints (Merged) -------------
 
