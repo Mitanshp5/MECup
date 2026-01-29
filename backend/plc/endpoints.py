@@ -81,6 +81,11 @@ def poll_plc_thread():
         try:
             # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
+            if county==1 and count==1:
+                m5_status=manager.read_bit("M5",1)
+                if m5_status[0]==1:
+                    manager.write_bit("M77",[1])
+
             
             # Check Y2 Trigger
             resp_y = manager.read_bit("Y2", 6)
