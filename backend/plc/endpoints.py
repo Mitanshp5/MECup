@@ -73,8 +73,10 @@ def poll_plc_thread():
     print("[PLC POLL] Thread started.")
     last_y2 = 0
     last_y7 = 0
-    count = 826
-    # county=0
+    last_m101 = 0
+    count = 1
+    county=1
+
     while True:
         try:
             # Status check (Heartbeat)
@@ -89,11 +91,15 @@ def poll_plc_thread():
                 # Rising Edge (0 -> 1)
                 if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
                     print(f"[PLC POLL] Y2/ Y7 Rising Edge! Triggering Capture.")
-                    
+                    current_m101= manager.read_bit("M101",1)
+                    if last_m101!=current_m101[0]:
+                        county+=1
+                        count=1
+                        last_m101=current_m101[0]
                     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     save_dir = os.path.join(backend_dir, "captured_images")
                     os.makedirs(save_dir, exist_ok=True)
-                    filepath = os.path.join(save_dir, f"grid_{count}.jpg")
+                    filepath = os.path.join(save_dir, f"grid_{county}_{count}.jpg")
                     
                     if camera_manager:
                         try:
@@ -123,7 +129,7 @@ def poll_plc_thread():
             # Logging suppressed for cleanliness
             time.sleep(1)
             
-        time.sleep(0.05)
+        time.sleep(0.075)
 
 # ------------- Startup Logic -------------
 
