@@ -10,3 +10,11 @@ langgraph
 openvino>=2024.0.0
 pillow>=10.0.0
 numpy>=1.24.0
+
+# For CUDA inference (RTX GPUs)
+# Standard version (RTX 40 series and older):
+# onnxruntime-gpu>=1.17.0
+#
+# For RTX 50 series (Blackwell/sm_120), install nightly:
+# pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+onnxruntime-gpu
