@@ -28,3 +28,9 @@ __pycache__/
 vectordb/
 MVSPython/
 captured_images/
+result_images/
+
+# Large model files
+backend/inference/openvino_model/
+*.bin
+*.blob
