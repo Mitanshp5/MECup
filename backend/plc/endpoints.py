@@ -2,15 +2,11 @@ import threading
 import time
 import datetime
 import os
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict
 from .settings import save_plc_settings, load_plc_settings
 from .connection import PLCManager
-try:
-    from auth import security, models
-except ImportError:
-    from ..auth import security, models
 
 # ------------- camera imports -------------
 camera_manager = None
