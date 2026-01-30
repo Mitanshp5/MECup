@@ -12,10 +12,9 @@ interface SystemUser {
 }
 
 const mockUsers: SystemUser[] = [
-  { id: "1", name: "John Smith", email: "john.smith@example.com", role: "admin", status: "active", lastLogin: "2024-01-12 10:45" },
-  { id: "2", name: "Jane Doe", email: "jane.doe@example.com", role: "operator", status: "active", lastLogin: "2024-01-12 09:32" },
-  { id: "3", name: "Mike Wilson", email: "mike.wilson@example.com", role: "operator", status: "active", lastLogin: "2024-01-11 16:22" },
-  { id: "4", name: "Sarah Johnson", email: "sarah.johnson@example.com", role: "viewer", status: "inactive", lastLogin: "2024-01-05 14:10" },
+  { id: "1", name: "Admin", email: "admin@example.com", role: "admin", status: "active", lastLogin: "2025-01-12 10:45" },
+  { id: "2", name: "Operator", email: "operator@example.com", role: "operator", status: "active", lastLogin: "2025-01-12 09:32" },
+  { id: "3", name: "Viewer", email: "viewer@example.com", role: "viewer", status: "active", lastLogin: "2025-01-11 16:22" },
 ];
 
 const UserManagement = () => {
@@ -48,7 +47,7 @@ const UserManagement = () => {
               Add User
             </button>
           </div>
-          
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -84,15 +83,13 @@ const UserManagement = () => {
                   <span className={`px-3 py-1 text-xs font-medium rounded border capitalize ${getRoleBadge(user.role)}`}>
                     {user.role}
                   </span>
-                  <span className={`flex items-center gap-1.5 text-xs ${
-                    user.status === "active" ? "text-success" : "text-muted-foreground"
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full ${
-                      user.status === "active" ? "bg-success" : "bg-muted-foreground"
-                    }`} />
+                  <span className={`flex items-center gap-1.5 text-xs ${user.status === "active" ? "text-success" : "text-muted-foreground"
+                    }`}>
+                    <span className={`w-2 h-2 rounded-full ${user.status === "active" ? "bg-success" : "bg-muted-foreground"
+                      }`} />
                     {user.status}
                   </span>
-                  
+
                   <div className="flex items-center gap-1">
                     <button className="p-2 hover:bg-secondary rounded-md transition-colors">
                       <Edit2 className="w-4 h-4 text-muted-foreground" />
@@ -103,7 +100,7 @@ const UserManagement = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-3 pt-3 border-t border-border/50 flex items-center text-xs text-muted-foreground">
                 <span>Last login: {user.lastLogin}</span>
               </div>
@@ -117,19 +114,19 @@ const UserManagement = () => {
         <div className="industrial-panel p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">ROLES & PERMISSIONS</h3>
           <div className="space-y-3">
-            <RoleCard 
+            <RoleCard
               role="Admin"
               description="Full system access, user management, settings"
               count={users.filter(u => u.role === "admin").length}
               color="primary"
             />
-            <RoleCard 
+            <RoleCard
               role="Operator"
               description="Run scans, manual control, view reports"
               count={users.filter(u => u.role === "operator").length}
               color="success"
             />
-            <RoleCard 
+            <RoleCard
               role="Viewer"
               description="View-only access to reports and history"
               count={users.filter(u => u.role === "viewer").length}

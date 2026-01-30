@@ -1,23 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Play, Pause, Square, Camera, AlertTriangle, CheckCircle, RotateCcw, Home } from "lucide-react";
+import { Play, Square, Camera, AlertTriangle, CheckCircle, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
 
 interface Defect {
   id: string;
   type: string;
   location: string;
-  severity: "low" | "medium" | "high";
   timestamp: string;
+  imageUrl?: string;
+}
+
+interface InferenceResult {
+  success: boolean;
+  inference_time_ms: number;
+  defects: {
+    type: string;
+    class_id: number;
+    pixel_count: number;
+    area_ratio: number;
+    severity: string;
+  }[];
+  mask_url: string | null;
+  overlay_url: string | null;
+  message: string | null;
 }
 
 const AutomaticMode = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
-  const [defects, setDefects] = useState<Defect[]>([
-    { id: "1", type: "Orange Peel", location: "Front Hood - Left", severity: "low", timestamp: "10:45:23" },
-    { id: "2", type: "Dust Nib", location: "Driver Door", severity: "medium", timestamp: "10:45:31" },
-  ]);
+  const [defects, setDefects] = useState<Defect[]>([]);
+  const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
+  const [selectedDefectImage, setSelectedDefectImage] = useState<string | null>(null);
+  const [isInferencing, setIsInferencing] = useState(false);
+  const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
 
   useEffect(() => {
     // Connect to camera on mount
@@ -44,6 +60,58 @@ const AutomaticMode = () => {
 
     syncScanState();
     const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Mock inference mode - run inference on captured images every 5 seconds
+  useEffect(() => {
+    const runMockInference = async () => {
+      try {
+        // Trigger mock inference
+        const res = await fetch('http://localhost:5001/inference/mock-run', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+          setLastInferenceTime(data.inference_time_ms);
+
+          // Set result image
+          if (data.overlay_url) {
+            setResultImageUrl(`http://localhost:5001${data.overlay_url}`);
+          }
+
+          // Add defects
+          if (data.defects && data.defects.length > 0) {
+            const timestamp = new Date().toLocaleTimeString();
+            const imageUrl = data.overlay_url ? `http://localhost:5001${data.overlay_url}` : undefined;
+            const newDefects: Defect[] = data.defects.map((d: { type: string }, idx: number) => ({
+              id: `${Date.now()}-${idx}`,
+              type: d.type,
+              location: `Area ${idx + 1}`,
+              timestamp,
+              imageUrl,
+            }));
+
+            setDefects(prev => [...newDefects, ...prev].slice(0, 50));
+            toast.success(`${newDefects.length} Defect(s) Found`, {
+              description: `Image: ${data.source_image} | ${data.inference_time_ms.toFixed(1)}ms`
+            });
+          } else {
+            toast.info("No Defects", {
+              description: `Image: ${data.source_image} | ${data.inference_time_ms.toFixed(1)}ms`
+            });
+          }
+        }
+      } catch (err) {
+        // Silent fail for mock inference
+      }
+    };
+
+    // Run mock inference every 5 seconds
+    const interval = setInterval(runMockInference, 5000);
+
+    // Run once on mount
+    runMockInference();
 
     return () => clearInterval(interval);
   }, []);
@@ -137,207 +205,283 @@ const AutomaticMode = () => {
     }
   };
 
-  return (
-    <div className="h-full grid grid-cols-12 gap-6">
-      {/* Camera Feed */}
-      <div className="col-span-8 space-y-4">
-        <div className="industrial-panel h-[60%] relative overflow-hidden">
-          <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded border border-border">
-              <Camera className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium text-foreground">LIVE FEED</span>
-              {isScanning && (
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-                  <span className="text-xs text-destructive font-mono">REC</span>
-                </span>
-              )}
-            </div>
-          </div>
+  const handleRunInference = useCallback(async () => {
+    if (isInferencing) return;
+    setIsInferencing(true);
+    try {
+      const res = await fetch("http://localhost:5001/inference/run", { method: "POST" });
+      const data: InferenceResult = await res.json();
 
-          {/* Live camera view */}
-          <div className="w-full h-full bg-black relative flex items-center justify-center">
-            <img
-              src="http://localhost:5001/camera/stream"
-              className="max-w-full max-h-full aspect-[4/3] object-contain"
-              alt="Live Feed"
-              onError={(e) => {
-                // If stream fails, maybe show a "Connecting..." or "No Signal" placeholder
-                // For now, let's keep it simple or fallback to a placeholder color
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement?.classList.add('bg-secondary');
-              }}
-            />
-            {/* Fallback placeholder if image is hidden/error */}
+      if (data.success) {
+        setLastInferenceTime(data.inference_time_ms);
+
+        const imageUrl = data.overlay_url
+          ? `http://localhost:5001${data.overlay_url}?t=${Date.now()}`
+          : null;
+
+        if (imageUrl) {
+          setResultImageUrl(imageUrl);
+        }
+
+        const timestamp = new Date().toLocaleTimeString();
+        const newDefects: Defect[] = data.defects.map((d, idx) => ({
+          id: `${Date.now()}-${idx}`,
+          type: d.type,
+          location: `Area ${idx + 1}`,
+          timestamp,
+          imageUrl: imageUrl || undefined,
+        }));
+
+        if (newDefects.length > 0) {
+          setDefects(prev => [...newDefects, ...prev].slice(0, 50));
+          toast.success(`${newDefects.length} Defect(s) Found`, {
+            description: `Inference: ${data.inference_time_ms.toFixed(1)}ms`
+          });
+        } else {
+          toast.success("No Defects", { description: `Inference: ${data.inference_time_ms.toFixed(1)}ms` });
+        }
+      } else {
+        toast.error("Inference Failed", { description: data.message || "Unknown error" });
+      }
+    } catch (e) {
+      console.error("Inference error:", e);
+      toast.error("Inference Failed", { description: "Network error" });
+    } finally {
+      setIsInferencing(false);
+    }
+  }, [isInferencing]);
+
+  return (
+    <div className="h-full grid grid-cols-12 gap-4">
+      {/* Left Section: Camera Feed + Controls */}
+      <div className="col-span-8 flex flex-col gap-3 h-full">
+        {/* Top row: Camera + Start/Stop buttons */}
+        <div className="flex-1 flex gap-3 min-h-0">
+          {/* Camera Feed - 4:3 aspect ratio */}
+          <div className="flex-1 industrial-panel relative overflow-hidden bg-black">
+            <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded border border-border">
+                <Camera className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-foreground">LIVE FEED</span>
+                {isScanning && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                    <span className="text-xs text-destructive font-mono">REC</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* 4:3 aspect ratio container */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full h-full max-w-full max-h-full" style={{ aspectRatio: '4/3' }}>
+                <img
+                  src="http://localhost:5001/camera/stream"
+                  className="w-full h-full object-contain"
+                  alt="Live Feed"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement?.classList.add('bg-secondary');
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Fallback placeholder */}
             <div className="absolute inset-0 flex items-center justify-center -z-10">
               <div className="text-center">
                 <Camera className="w-12 h-12 text-muted-foreground/50 mx-auto mb-2" />
                 <p className="text-muted-foreground text-sm">Waiting for live feed...</p>
               </div>
             </div>
+
+            {/* Scan overlay */}
+            {isScanning && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="absolute inset-0 border-2 border-primary/50 animate-pulse" />
+              </motion.div>
+            )}
           </div>
 
-          {/* Scan overlay - Kept visual indicator of active scan but removed progress bar */}
-          {isScanning && (
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="absolute inset-0 border-2 border-primary/50 animate-pulse" />
-            </motion.div>
-          )}
-        </div>
-
-        {/* Enhanced Control Panel */}
-        <div className="industrial-panel p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Machine Controls</h3>
-            <div className="flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${isScanning ? 'bg-success animate-pulse' : 'bg-muted-foreground/30'}`} />
-              <span className="text-xs text-muted-foreground font-mono">
-                {isScanning ? 'SCANNING' : 'IDLE'}
+          {/* Start/Stop Buttons - Vertical on right of camera */}
+          <div className="w-20 flex flex-col gap-2">
+            {/* Status indicator */}
+            <div className="industrial-panel p-2 flex items-center justify-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isScanning ? 'bg-success animate-pulse' : 'bg-muted-foreground/30'}`} />
+              <span className="text-[10px] text-muted-foreground font-mono">
+                {isScanning ? 'SCAN' : 'IDLE'}
               </span>
             </div>
-          </div>
 
-          <div className="grid grid-cols-5 gap-3">
-            {/* Start Scan - Primary Action */}
+            {/* Start */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleStartScan}
               disabled={isScanning}
-              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
+              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${isScanning
                 ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
                 : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
                 }`}
             >
-              <Play className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
-              <span className="text-sm font-bold tracking-wide">START</span>
-              <span className="text-[10px] opacity-80 font-mono">M5 ON</span>
+              <Play className={`w-6 h-6 ${isScanning ? '' : 'drop-shadow-md'}`} />
+              <span className="text-xs font-bold">START</span>
             </motion.button>
 
-            {/* Grid One */}
-            <motion.button
-              whileHover={{ scale: (!isScanning || gridTriggered) ? 1 : 1.02 }}
-              whileTap={{ scale: (!isScanning || gridTriggered) ? 1 : 0.98 }}
-              onClick={handleGridOne}
-              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${(!isScanning || gridTriggered)
-                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                : "bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
-                }`}
-            >
-              <CheckCircle className={`w-7 h-7 ${(!isScanning || gridTriggered) ? '' : 'drop-shadow-md'}`} />
-              <span className="text-sm font-bold tracking-wide">GRID</span>
-              <span className="text-[10px] opacity-80 font-mono">M4 ON</span>
-            </motion.button>
-
-            {/* Cycle Reset */}
-            <motion.button
-              whileHover={{ scale: isScanning ? 1 : 1.02 }}
-              whileTap={{ scale: isScanning ? 1 : 0.98 }}
-              onClick={handleCycleReset}
-              disabled={isScanning}
-              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
-                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                : "bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 border border-amber-400/30"
-                }`}
-            >
-              <RotateCcw className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
-              <span className="text-sm font-bold tracking-wide">RESET</span>
-              <span className="text-[10px] opacity-80 font-mono">M120 ON</span>
-            </motion.button>
-
-            {/* Homing */}
-            <motion.button
-              whileHover={{ scale: isScanning ? 1 : 1.02 }}
-              whileTap={{ scale: isScanning ? 1 : 0.98 }}
-              onClick={handleHomingStart}
-              disabled={isScanning}
-              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${isScanning
-                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                : "bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:from-slate-500 hover:to-slate-600 border border-slate-500/30"
-                }`}
-            >
-              <Home className={`w-7 h-7 ${isScanning ? '' : 'drop-shadow-md'}`} />
-              <span className="text-sm font-bold tracking-wide">HOME</span>
-              <span className="text-[10px] opacity-80 font-mono">X6 ON</span>
-            </motion.button>
-
-            {/* Stop - Emergency Style */}
+            {/* Stop */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleStopScan}
               disabled={!isScanning}
-              className={`relative flex flex-col items-center justify-center gap-2 p-5 rounded-lg font-medium transition-all shadow-lg ${!isScanning
+              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${!isScanning
                 ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
                 : "bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-400 hover:to-red-500 border-2 border-red-400 ring-2 ring-red-500/30"
                 }`}
             >
-              <Square className={`w-7 h-7 ${isScanning ? 'drop-shadow-md' : ''}`} />
-              <span className="text-sm font-bold tracking-wide">STOP</span>
-              <span className="text-[10px] opacity-80 font-mono">M5 OFF</span>
+              <Square className={`w-6 h-6 ${isScanning ? 'drop-shadow-md' : ''}`} />
+              <span className="text-xs font-bold">STOP</span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Bottom row: Grid, Reset, Home buttons */}
+        <div className="industrial-panel p-3">
+          <div className="grid grid-cols-3 gap-3">
+            {/* Grid */}
+            <motion.button
+              whileHover={{ scale: (isScanning || gridTriggered) ? 1 : 1.02 }}
+              whileTap={{ scale: (isScanning || gridTriggered) ? 1 : 0.98 }}
+              onClick={handleGridOne}
+              disabled={isScanning || gridTriggered}
+              className={`flex flex-col items-center justify-center gap-1 p-3 rounded-lg font-medium transition-all shadow-lg ${(isScanning || gridTriggered)
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
+                }`}
+            >
+              <CheckCircle className={`w-5 h-5 ${(isScanning || gridTriggered) ? '' : 'drop-shadow-md'}`} />
+              <span className="text-xs font-bold">GRID</span>
+            </motion.button>
+
+            {/* Reset */}
+            <motion.button
+              whileHover={{ scale: isScanning ? 1 : 1.02 }}
+              whileTap={{ scale: isScanning ? 1 : 0.98 }}
+              onClick={handleCycleReset}
+              disabled={isScanning}
+              className={`flex flex-col items-center justify-center gap-1 p-3 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 border border-amber-400/30"
+                }`}
+            >
+              <RotateCcw className={`w-5 h-5 ${isScanning ? '' : 'drop-shadow-md'}`} />
+              <span className="text-xs font-bold">RESET</span>
+            </motion.button>
+
+            {/* Home */}
+            <motion.button
+              whileHover={{ scale: isScanning ? 1 : 1.02 }}
+              whileTap={{ scale: isScanning ? 1 : 0.98 }}
+              onClick={handleHomingStart}
+              disabled={isScanning}
+              className={`flex flex-col items-center justify-center gap-1 p-3 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : "bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:from-slate-500 hover:to-slate-600 border border-slate-500/30"
+                }`}
+            >
+              <Home className={`w-5 h-5 ${isScanning ? '' : 'drop-shadow-md'}`} />
+              <span className="text-xs font-bold">HOME</span>
             </motion.button>
           </div>
         </div>
       </div>
 
+
       {/* Defect Panel */}
-      <div className="col-span-4 industrial-panel p-4 flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-muted-foreground">DETECTED DEFECTS</h3>
+      <div className="col-span-4 industrial-panel p-4 flex flex-col overflow-hidden">
+        {/* Result Image Placeholder */}
+        <div className="mb-4 flex-shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">RESULT IMAGE</h3>
+            {lastInferenceTime && (
+              <span className="text-xs text-success font-mono">{lastInferenceTime.toFixed(1)}ms</span>
+            )}
+          </div>
+          <div className="aspect-[4/3] bg-black rounded-lg border border-border overflow-hidden flex items-center justify-center">
+            {resultImageUrl ? (
+              <img
+                src={resultImageUrl}
+                className="w-full h-full object-contain"
+                alt="Inference Result"
+              />
+            ) : (
+              <div className="text-center">
+                <ImageIcon className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Defects List Header */}
+        <div className="flex items-center justify-between mb-3 flex-shrink-0">
+          <h3 className="text-sm font-medium text-muted-foreground">DEFECTS FOUND</h3>
           <span className="px-2 py-1 bg-destructive/10 text-destructive text-xs font-medium rounded">
-            {defects.length} Found
+            {defects.length}
           </span>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-3">
+        {/* Scrollable Defects List */}
+        <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
           {defects.map((defect) => (
-            <motion.div
+            <motion.button
               key={defect.id}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="p-3 bg-secondary/50 rounded-md border border-border"
+              onClick={() => defect.imageUrl && setSelectedDefectImage(defect.imageUrl)}
+              disabled={!defect.imageUrl}
+              className={`w-full text-left p-2 rounded-md border transition-all flex items-center gap-2 ${defect.imageUrl
+                ? "bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50 cursor-pointer"
+                : "bg-secondary/30 border-border/50 cursor-default"
+                }`}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className={`w-4 h-4 ${defect.severity === "high" ? "text-destructive" :
-                    defect.severity === "medium" ? "text-warning" : "text-muted-foreground"
-                    }`} />
-                  <span className="font-medium text-foreground text-sm">{defect.type}</span>
-                </div>
-                <span className={`px-2 py-0.5 text-xs rounded ${defect.severity === "high" ? "bg-destructive/20 text-destructive" :
-                  defect.severity === "medium" ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"
-                  }`}>
-                  {defect.severity.toUpperCase()}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">{defect.location}</p>
-              <p className="text-xs text-muted-foreground font-mono mt-1">{defect.timestamp}</p>
-            </motion.div>
+              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-destructive" />
+              <span className="text-sm text-foreground truncate">{defect.type}</span>
+              {defect.imageUrl && (
+                <ImageIcon className="w-3 h-3 text-muted-foreground ml-auto flex-shrink-0" />
+              )}
+            </motion.button>
           ))}
-        </div>
-
-        {/* Summary */}
-        <div className="mt-4 pt-4 border-t border-border">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2 bg-destructive/10 rounded">
-              <p className="text-lg font-bold text-destructive font-mono">0</p>
-              <p className="text-xs text-muted-foreground">High</p>
-            </div>
-            <div className="p-2 bg-warning/10 rounded">
-              <p className="text-lg font-bold text-warning font-mono">1</p>
-              <p className="text-xs text-muted-foreground">Medium</p>
-            </div>
-            <div className="p-2 bg-muted rounded">
-              <p className="text-lg font-bold text-muted-foreground font-mono">1</p>
-              <p className="text-xs text-muted-foreground">Low</p>
-            </div>
-          </div>
+          {defects.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-4">No defects detected</p>
+          )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedDefectImage && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-8"
+          onClick={() => setSelectedDefectImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setSelectedDefectImage(null)}
+              className="absolute -top-10 right-0 p-2 text-white hover:text-primary transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={selectedDefectImage}
+              className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              alt="Defect Image"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -16,15 +16,34 @@ except ImportError:
 camera_manager = None
 try:
     from camera.camera_manager import camera_manager
-    print("[PLC] Successfully imported camera_manager from camera package")
 except ImportError:
     try:
         from ..camera.camera_manager import camera_manager
-        print("[PLC] Successfully imported camera_manager from relative path")
-    except ImportError as e:
-        print(f"[PLC] Warning: Could not import camera_manager: {e}")
-except Exception as e:
-    print(f"[PLC] Unexpected error importing camera_manager: {e}")
+    except ImportError:
+        pass
+except Exception:
+    pass
+
+# ------------- inference imports -------------
+get_predictor = None
+try:
+    from inference.inference_service import get_predictor
+except ImportError:
+    try:
+        from ..inference.inference_service import get_predictor
+    except ImportError:
+        pass
+except Exception:
+    pass
+
+# Store last inference result for frontend polling
+last_inference_result = {
+    "filepath": None,
+    "overlay_path": None,
+    "defects": [],
+    "inference_time_ms": 0,
+    "timestamp": None
+}
 
 # ------------- Global / Manager -------------
 router = APIRouter()
@@ -74,7 +93,6 @@ MOTION_COMMANDS = {
 
 def poll_plc_thread():
     """Background polling using the shared manager."""
-    print("[PLC POLL] Thread started.")
     last_y2 = 0
     last_y7 = 0
     last_m101 = 1
@@ -86,14 +104,7 @@ def poll_plc_thread():
             # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
             m5_status=manager.read_bit("M5",1)  
-            while m5_status[0]==1:
-                if not start:
-                    start=1
-                    time.sleep(2)
-                    manager.write_bit("M77", [1])
-                    time.sleep(0.02)
-                    manager.write_bit("M77", [0])
-
+            if m5_status[0]==1:
                 # Check Y2 Trigger
                 resp_y = manager.read_bit("Y2", 6)
                 if resp_y and len(resp_y) > 0:
@@ -102,7 +113,6 @@ def poll_plc_thread():
                     
                     # Rising Edge (0 -> 1)
                     if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
-                        print(f"[PLC POLL] Y2/ Y7 Rising Edge! Triggering Capture.")
                         current_m101= manager.read_bit("M101",1)
                         if last_m101!=current_m101[0]:
                             county+=1
@@ -116,22 +126,37 @@ def poll_plc_thread():
                         if camera_manager:
                             try:
                                 if camera_manager.save_current_frame(filepath):
-                                    print(f"[PLC POLL] Image saved: {filepath}")
+                                    # Run inference on captured image
+                                    if get_predictor is not None:
+                                        try:
+                                            predictor = get_predictor()
+                                            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                                            result_dir = os.path.join(backend_dir, "result_images")
+                                            mask_path, overlay_path, inference_time, defects = predictor.predict_and_save(
+                                                filepath, result_dir, save_overlay=True
+                                            )
+                                            
+                                            # Update global result for frontend polling
+                                            global last_inference_result
+                                            last_inference_result = {
+                                                "filepath": filepath,
+                                                "overlay_path": overlay_path,
+                                                "defects": defects,
+                                                "inference_time_ms": inference_time,
+                                                "timestamp": datetime.datetime.now().isoformat()
+                                            }
+                                        except Exception:
+                                            pass
                                     
                                     # Feedback M77
                                     try:
                                         time.sleep(2)
                                         manager.write_bit("M77", [1])
                                         count += 1
-                                        print(f"[PLC POLL] Sent M77 feedback (ON)")
-                                    except Exception as we:
-                                        print(f"[PLC POLL] Failed to write M77: {we}")
-                                else:
-                                    print(f"[PLC POLL] Camera returned False.")
-                            except Exception as ce:
-                                print(f"[PLC POLL] Camera error: {ce}")
-                        else:
-                            print(f"[PLC POLL] No camera manager.")
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
                     
                     last_y2 = current_y2
                     last_y7 = current_y7
@@ -202,6 +227,12 @@ async def scan_start():
         return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M5", [1])
+        time.sleep(1)
+        manager.write_bit("M77", [1])
+        time.sleep(0.1)
+        manager.write_bit("M77", [0])
+        count=1
+        county=1
         return {"success": True, "message": "Scan Started (M5 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -257,6 +288,28 @@ async def get_control_status():
         }
     except Exception as e:
         return {"error": str(e), "m5": None, "m4": None, "m120": None, "x6": None}
+
+@router.get("/plc/latest-inference")
+async def get_latest_inference():
+    """Get the latest automatic inference result from PLC-triggered capture."""
+    if last_inference_result["timestamp"] is None:
+        return {"has_result": False}
+    
+    # Generate URL for overlay
+    overlay_url = None
+    if last_inference_result["overlay_path"]:
+        from pathlib import Path
+        overlay_filename = Path(last_inference_result["overlay_path"]).name
+        overlay_url = f"/inference/result/{overlay_filename}"
+    
+    return {
+        "has_result": True,
+        "filepath": last_inference_result["filepath"],
+        "overlay_url": overlay_url,
+        "defects": last_inference_result["defects"],
+        "inference_time_ms": last_inference_result["inference_time_ms"],
+        "timestamp": last_inference_result["timestamp"]
+    }
 
 # ------------- Servo Endpoints (Merged) -------------
 
