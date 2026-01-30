@@ -64,15 +64,18 @@ const AutomaticMode = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Mock inference mode - run inference on captured images every 5 seconds
+  // Poll for Y2-triggered inference results from PLC
+  const [lastInferenceTimestamp, setLastInferenceTimestamp] = useState<string | null>(null);
+
   useEffect(() => {
-    const runMockInference = async () => {
+    const pollLatestInference = async () => {
       try {
-        // Trigger mock inference
-        const res = await fetch('http://localhost:5001/inference/mock-run', { method: 'POST' });
+        const res = await fetch('http://localhost:5001/plc/latest-inference');
         const data = await res.json();
 
-        if (data.success) {
+        if (data.has_result && data.timestamp !== lastInferenceTimestamp) {
+          // New result available
+          setLastInferenceTimestamp(data.timestamp);
           setLastInferenceTime(data.inference_time_ms);
 
           // Set result image
@@ -94,27 +97,20 @@ const AutomaticMode = () => {
 
             setDefects(prev => [...newDefects, ...prev].slice(0, 50));
             toast.success(`${newDefects.length} Defect(s) Found`, {
-              description: `Image: ${data.source_image} | ${data.inference_time_ms.toFixed(1)}ms`
-            });
-          } else {
-            toast.info("No Defects", {
-              description: `Image: ${data.source_image} | ${data.inference_time_ms.toFixed(1)}ms`
+              description: `Inference: ${data.inference_time_ms.toFixed(1)}ms`
             });
           }
         }
       } catch (err) {
-        // Silent fail for mock inference
+        // Silent fail for polling
       }
     };
 
-    // Run mock inference every 5 seconds
-    const interval = setInterval(runMockInference, 5000);
-
-    // Run once on mount
-    runMockInference();
+    // Poll every 500ms for responsive updates
+    const interval = setInterval(pollLatestInference, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [lastInferenceTimestamp]);
 
   const handleStartScan = async () => {
     try {
