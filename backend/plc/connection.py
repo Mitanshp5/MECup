@@ -105,6 +105,16 @@ class PLCManager:
                 self.disconnect()
                 raise e
 
+    def read_sign_dword(self, device, count=1):
+        with self._socket_lock:
+            if not self.connect():
+                raise Exception(f"PLC disconnected: {self.last_error}")
+            try:
+                return mc.read_sign_dword(self._sock, device, count)
+            except Exception as e:
+                self.disconnect()
+                raise e
+
     def get_status(self):
         return {
             "ip": self.ip,

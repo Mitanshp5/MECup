@@ -1,20 +1,30 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap, Lightbulb } from "lucide-react";
 
 const ManualMode = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
   const [speeds, setSpeeds] = useState({ x: 50, y: 50, z: 50 });
   const [jogDistance, setJogDistance] = useState(10);
   const [plcConnected, setPlcConnected] = useState(false);
+  const [lightsOn, setLightsOn] = useState(false);
 
-  // Poll PLC connection status
+  // Poll PLC connection status and read current speeds
   useEffect(() => {
     const checkPlc = async () => {
       try {
         const res = await fetch('http://localhost:5001/plc/status');
         const data = await res.json();
         setPlcConnected(data.connected);
+
+        // Read current servo speeds from PLC
+        if (data.connected) {
+          const speedsRes = await fetch('http://localhost:5001/servo/speeds');
+          const speedsData = await speedsRes.json();
+          if (speedsData.connected) {
+            setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
+          }
+        }
       } catch (e) {
         setPlcConnected(false);
       }
@@ -236,63 +246,65 @@ const ManualMode = () => {
 
       {/* Side Panel */}
       <div className="col-span-4 space-y-4">
-        {/* Quick Actions */}
+        {/* Live Camera View */}
         <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">PLC CONTROLS</h3>
-          <div className="space-y-2">
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("http://localhost:5001/plc/scan-start", { method: "POST" });
-                  const data = await res.json();
-                  alert(data.success ? "Scan Started (M5 ON)" : data.error);
-                } catch (e) { alert("Network Error"); }
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">LIVE CAMERA VIEW</h3>
+          <div className="aspect-[4/3] bg-black rounded-md overflow-hidden border border-border relative">
+            <img
+              src="http://localhost:5001/camera/stream"
+              alt="Camera Stream"
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+                const parent = (e.target as HTMLImageElement).parentElement;
+                if (parent && !parent.querySelector('.offline-overlay')) {
+                  const overlay = document.createElement('div');
+                  overlay.className = 'offline-overlay absolute inset-0 flex flex-col items-center justify-center text-muted-foreground';
+                  overlay.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 opacity-50">
+                      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                      <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                    <span class="text-sm font-medium">Camera Offline</span>
+                  `;
+                  parent.appendChild(overlay);
+                }
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-success/10 border border-success/30 rounded-md text-success hover:bg-success/20 transition-colors"
-            >
-              <Zap className="w-5 h-5" />
-              <span className="font-medium">Scan Start (M5)</span>
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
-                  const data = await res.json();
-                  alert(data.success ? "Grid One Triggered (M4 ON)" : data.error);
-                } catch (e) { alert("Network Error"); }
+              onLoad={(e) => {
+                (e.target as HTMLImageElement).style.display = "block";
+                const parent = (e.target as HTMLImageElement).parentElement;
+                const overlay = parent?.querySelector('.offline-overlay');
+                if (overlay) overlay.remove();
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span className="font-medium">Grid One (M4)</span>
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("http://localhost:5001/plc/cycle-reset", { method: "POST" });
-                  const data = await res.json();
-                  alert(data.success ? "Cycle Reset (M120 ON)" : data.error);
-                } catch (e) { alert("Network Error"); }
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-warning/10 border border-warning/30 rounded-md text-warning hover:bg-warning/20 transition-colors"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span className="font-medium">Cycle Reset (M120)</span>
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("http://localhost:5001/plc/homing-start", { method: "POST" });
-                  const data = await res.json();
-                  alert(data.success ? "Homing Started (X6 ON)" : data.error);
-                } catch (e) { alert("Network Error"); }
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors"
-            >
-              <Home className="w-5 h-5" />
-              <span className="font-medium">Homing Start (X6)</span>
-            </button>
+            />
           </div>
+        </div>
+
+        {/* Lights Control */}
+        <div className="industrial-panel p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">LIGHT CONTROL</h3>
+          <button
+            onClick={async () => {
+              const newState = !lightsOn;
+              try {
+                await fetch("http://localhost:5001/plc/write", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ device: "Y1", value: newState ? 1 : 0 })
+                });
+                setLightsOn(newState);
+              } catch (e) {
+                console.error("Failed to toggle lights:", e);
+              }
+            }}
+            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-all ${lightsOn
+              ? "bg-warning text-warning-foreground border-2 border-warning shadow-lg"
+              : "bg-secondary text-foreground border border-border hover:bg-secondary/80"
+              }`}
+          >
+            <Lightbulb className={`w-4 h-4 ${lightsOn ? "fill-current" : ""}`} />
+            <span>{lightsOn ? "LIGHTS OFF" : "LIGHTS ON"}</span>
+          </button>
         </div>
 
         {/* Servo Status */}

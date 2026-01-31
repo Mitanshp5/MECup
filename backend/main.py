@@ -11,8 +11,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+# from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # async with rag_lifespan(app):
+    #     yield
     yield
 
 app = FastAPI(
@@ -44,6 +48,12 @@ except Exception:
 try:
     from inference.endpoints import router as inference_router
     app.include_router(inference_router, tags=["Inference"])
+except Exception:
+    pass
+
+try:
+    app.include_router(rag_router, tags=["RAG"])
+    
 except Exception:
     pass
 

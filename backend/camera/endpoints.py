@@ -59,6 +59,13 @@ async def get_settings():
         # Return saved values
         return load_camera_settings()
 
+@router.get("/camera/fps")
+async def get_fps():
+    """Get the current camera frame rate."""
+    if camera_manager.is_open:
+        return {"fps": camera_manager.get_fps(), "is_open": True}
+    return {"fps": 0, "is_open": False}
+
 @router.post("/camera/settings")
 async def update_settings(settings: CameraSettings):
     # Save to file

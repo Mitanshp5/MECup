@@ -41,9 +41,28 @@ last_inference_result = {
     "timestamp": None
 }
 
+# Event log for recent events
+recent_events = []
+MAX_EVENTS = 50
+
+def add_event(event: str, event_type: str = "info"):
+    """Add an event to the recent events list."""
+    global recent_events
+    recent_events.insert(0, {
+        "time": datetime.datetime.now().strftime("%H:%M:%S"),
+        "event": event,
+        "type": event_type  # success, warning, error, info
+    })
+    # Keep only last MAX_EVENTS
+    if len(recent_events) > MAX_EVENTS:
+        recent_events = recent_events[:MAX_EVENTS]
+
 # ------------- Global / Manager -------------
 router = APIRouter()
 manager = PLCManager()
+
+# Batch folder for current scan session
+current_batch_folder = None
 
 # ------------- Models -------------
 
@@ -114,8 +133,18 @@ def poll_plc_thread():
                             county+=1
                             count=1
                             last_m101=current_m101[0]
+                        global current_batch_folder
                         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                        save_dir = os.path.join(backend_dir, "captured_images")
+                        
+                        # Use batch folder if set, otherwise create one
+                        if current_batch_folder:
+                            save_dir = current_batch_folder
+                        else:
+                            # Fallback: create new batch folder
+                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                            save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
+                            current_batch_folder = save_dir
+                        
                         os.makedirs(save_dir, exist_ok=True)
                         filepath = os.path.join(save_dir, f"grid_{county}_{count}.jpg")
                         
@@ -126,8 +155,9 @@ def poll_plc_thread():
                                     if get_predictor is not None:
                                         try:
                                             predictor = get_predictor()
-                                            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                                            result_dir = os.path.join(backend_dir, "result_images")
+                                            # Store results in 'results' subfolder of current batch
+                                            result_dir = os.path.join(save_dir, "results")
+                                            os.makedirs(result_dir, exist_ok=True)
                                             mask_path, overlay_path, inference_time, defects = predictor.predict_and_save(
                                                 filepath, result_dir, save_overlay=True
                                             )
@@ -141,6 +171,7 @@ def poll_plc_thread():
                                                 "inference_time_ms": inference_time,
                                                 "timestamp": datetime.datetime.now().isoformat()
                                             }
+                                            
                                         except Exception:
                                             pass
                                     
@@ -196,11 +227,19 @@ async def plc_connect(req: PLCConnectRequest):
         
         # Determine status
         if manager.connect():
+            add_event(f"PLC connected ({req.ip}:{req.port})", "success")
             return {"connected": True}
         else:
+            add_event(f"PLC connection failed: {manager.last_error}", "error")
             return {"connected": False, "error": manager.last_error}
     except Exception as e:
+        add_event(f"PLC connection error: {str(e)}", "error")
         return {"connected": False, "error": str(e)}
+
+@router.get("/events")
+async def get_events():
+    """Get recent system events."""
+    return {"events": recent_events[:20]}
 
 @router.post("/plc/write")
 async def plc_write(req: PLCWriteRequest):
@@ -218,18 +257,25 @@ async def plc_write(req: PLCWriteRequest):
 
 @router.post("/plc/scan-start")
 async def scan_start():
-    """Start scan by setting M5 to ON."""
+    """Start scan by setting M5 to ON and creating a new batch folder."""
+    global current_batch_folder
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
+        # Create new batch folder with timestamp if not already set
+        if not current_batch_folder:
+            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            current_batch_folder = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
+            os.makedirs(current_batch_folder, exist_ok=True)
+        
         manager.write_bit("M5", [1])
         time.sleep(1)
         manager.write_bit("M77", [1])
         time.sleep(0.1)
         manager.write_bit("M77", [0])
-        count=1
-        county=1
-        return {"success": True, "message": "Scan Started (M5 ON)"}
+        add_event("Scan started", "success")
+        return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -246,12 +292,16 @@ async def grid_one():
 
 @router.post("/plc/cycle-reset")
 async def cycle_reset():
-    """Reset cycle by setting M120 to ON."""
+    """Reset cycle by setting M120 to ON and clearing batch folder."""
+    global current_batch_folder
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M120", [1])
-        return {"success": True, "message": "Cycle Reset (M120 ON)"}
+        # Clear batch folder so new scan creates a new folder
+        current_batch_folder = None
+        add_event("Cycle reset completed", "info")
+        return {"success": True, "message": "Cycle Reset (M120 ON) - Batch cleared"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -262,6 +312,7 @@ async def homing_start():
         return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("X6", [1])
+        add_event("Homing sequence started", "info")
         return {"success": True, "message": "Homing Started (X6 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -284,6 +335,30 @@ async def get_control_status():
         }
     except Exception as e:
         return {"error": str(e), "m5": None, "m4": None, "m120": None, "x6": None}
+
+@router.get("/plc/heartbeat")
+async def get_heartbeat():
+    """Get PLC heartbeat status for system health monitoring."""
+    if not manager.connected:
+        return {
+            "connected": False,
+            "y1": None,
+            "error": "PLC Not Connected"
+        }
+    try:
+        # Read Y1 for LED lights status
+        y1_status = manager.read_bit("Y1", 1)
+        return {
+            "connected": True,
+            "y1": y1_status[0] if y1_status else None,
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "connected": False,
+            "y1": None,
+            "error": str(e)
+        }
 
 @router.get("/plc/latest-inference")
 async def get_latest_inference():
@@ -322,6 +397,24 @@ async def set_servo_speeds(speeds: ServoSpeedRequest) -> Dict[str, str]:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/servo/speeds")
+async def get_servo_speeds():
+    """Read current servo speeds from PLC registers D0 (Y), D2 (X), D4 (Z)."""
+    if not manager.connected:
+        return {"connected": False, "x": 0, "y": 0, "z": 0}
+    try:
+        y_speed = manager.read_sign_dword("D0", 1)
+        x_speed = manager.read_sign_dword("D2", 1)
+        z_speed = manager.read_sign_dword("D4", 1)
+        return {
+            "connected": True,
+            "x": x_speed[0] if x_speed else 0,
+            "y": y_speed[0] if y_speed else 0,
+            "z": z_speed[0] if z_speed else 0
+        }
+    except Exception as e:
+        return {"connected": False, "x": 0, "y": 0, "z": 0, "error": str(e)}
+
 @router.post("/servo/enable")
 async def enable_servo(req: ServoEnableRequest) -> Dict[str, str]:
     if not manager.connected:
@@ -349,3 +442,180 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
         return {"status": "success", "message": f"Triggered {req.command}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ------------- Scan History Endpoints -------------
+
+@router.get("/scans/list")
+async def list_scans():
+    """List all past scan folders from captured_images directory."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    captured_dir = os.path.join(backend_dir, "captured_images")
+    
+    if not os.path.exists(captured_dir):
+        return {"scans": []}
+    
+    scans = []
+    for folder_name in os.listdir(captured_dir):
+        folder_path = os.path.join(captured_dir, folder_name)
+        if os.path.isdir(folder_path) and folder_name.startswith("scan_"):
+            # Parse timestamp from folder name (scan_YYYYMMDD_HHMMSS)
+            try:
+                timestamp_str = folder_name.replace("scan_", "")
+                dt = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+                date_str = dt.strftime("%Y-%m-%d")
+                time_str = dt.strftime("%H:%M:%S")
+            except:
+                date_str = "Unknown"
+                time_str = "Unknown"
+            
+            # Count images and defects
+            image_count = len([f for f in os.listdir(folder_path) if f.endswith(".jpg")])
+            results_dir = os.path.join(folder_path, "results")
+            defect_count = 0
+            
+            if os.path.exists(results_dir):
+                import json
+                # Read actual defect counts from metadata JSON files
+                for f in os.listdir(results_dir):
+                    if f.endswith("_meta.json"):
+                        try:
+                            with open(os.path.join(results_dir, f), 'r') as jf:
+                                meta = json.load(jf)
+                                defect_count += meta.get("defect_count", 0)
+                        except:
+                            pass
+                
+                # Fallback: if no JSON files, count overlay images
+                if defect_count == 0:
+                    overlay_files = [f for f in os.listdir(results_dir) if "_overlay" in f]
+                    defect_count = len(overlay_files)
+            
+            # Fail if defects > images/10
+            threshold = image_count / 10
+            scans.append({
+                "id": folder_name,
+                "folder_path": folder_path,
+                "date": date_str,
+                "time": time_str,
+                "image_count": image_count,
+                "defect_count": defect_count,
+                "status": "fail" if defect_count > threshold else "pass"
+            })
+    
+    # Sort by date (newest first)
+    scans.sort(key=lambda x: x["id"], reverse=True)
+    return {"scans": scans}
+
+@router.get("/scans/{scan_id}")
+async def get_scan_details(scan_id: str):
+    """Get detailed information about a specific scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    folder_path = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(folder_path):
+        raise HTTPException(status_code=404, detail="Scan not found")
+    
+    # Parse timestamp
+    try:
+        timestamp_str = scan_id.replace("scan_", "")
+        dt = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+        date_str = dt.strftime("%Y-%m-%d")
+        time_str = dt.strftime("%H:%M:%S")
+    except:
+        date_str = "Unknown"
+        time_str = "Unknown"
+    
+    # Get all images
+    images = [f for f in os.listdir(folder_path) if f.endswith(".jpg")]
+    images.sort()
+    
+    # Get results and count defects by type
+    results_dir = os.path.join(folder_path, "results")
+    defects = []
+    defect_types = {}
+    total_defect_count = 0
+    
+    if os.path.exists(results_dir):
+        import json
+        for f in os.listdir(results_dir):
+            if f.endswith("_meta.json"):
+                try:
+                    with open(os.path.join(results_dir, f), 'r') as jf:
+                        meta = json.load(jf)
+                        base_name = f.replace("_meta.json", "")
+                        overlay_file = f"{base_name}_overlay.png"
+                        
+                        # Add each defect type from this image
+                        for defect in meta.get("defects", []):
+                            defect_type = defect.get("type", "Unknown")
+                            defect_types[defect_type] = defect_types.get(defect_type, 0) + 1
+                            total_defect_count += 1
+                        
+                        # Add to defects list if has any defects
+                        if meta.get("defect_count", 0) > 0:
+                            defects.append({
+                                "image": meta.get("image", ""),
+                                "overlay": overlay_file,
+                                "overlay_url": f"/scans/{scan_id}/results/{overlay_file}",
+                                "defect_count": meta.get("defect_count", 0),
+                                "defect_details": meta.get("defects", [])
+                            })
+                except:
+                    pass
+        
+        # Fallback for old scans without JSON
+        if total_defect_count == 0:
+            for f in os.listdir(results_dir):
+                if "_overlay" in f and (f.endswith(".jpg") or f.endswith(".png")):
+                    base_name = f.replace("_overlay.jpg", "").replace("_overlay.png", "")
+                    defects.append({
+                        "image": base_name + ".jpg",
+                        "overlay": f,
+                        "overlay_url": f"/scans/{scan_id}/results/{f}",
+                        "defect_count": 1,
+                        "defect_details": []
+                    })
+                    total_defect_count += 1
+    
+    # Fail if defects > images/10
+    image_count = len(images)
+    threshold = image_count / 10
+    
+    return {
+        "id": scan_id,
+        "date": date_str,
+        "time": time_str,
+        "folder_path": folder_path,
+        "image_count": image_count,
+        "images": images,
+        "total_defects": total_defect_count,
+        "defect_types": defect_types,
+        "defects": defects,
+        "status": "fail" if total_defect_count > threshold else "pass"
+    }
+
+from fastapi.responses import FileResponse
+
+@router.get("/scans/{scan_id}/image/{filename}")
+async def get_scan_image(scan_id: str, filename: str):
+    """Get a specific image from a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(backend_dir, "captured_images", scan_id, filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return FileResponse(file_path, media_type="image/jpeg")
+
+@router.get("/scans/{scan_id}/results/{filename}")
+async def get_scan_result(scan_id: str, filename: str):
+    """Get a result image from a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(backend_dir, "captured_images", scan_id, "results", filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Result image not found")
+    
+    media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
+    return FileResponse(file_path, media_type=media_type)
+
