@@ -187,15 +187,15 @@ const MaintenanceMode = () => {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Firmware</span>
-              <span className="font-mono text-foreground">v5.0.12</span>
+              <span className="font-mono text-foreground">v5.0</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Last Calibration</span>
-              <span className="font-mono text-foreground">2024-01-10</span>
+              <span className="font-mono text-foreground">2025-01-10</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Operating Hours</span>
-              <span className="font-mono text-foreground">1,247 hrs</span>
+              <span className="font-mono text-foreground">10 hrs</span>
             </div>
           </div>
         </div>

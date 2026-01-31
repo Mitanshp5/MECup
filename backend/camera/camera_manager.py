@@ -404,6 +404,21 @@ class CameraManager:
             return stFloatParam.fCurValue
         return 0
 
+    def get_fps(self):
+        """Returns the current resulting frame rate from camera."""
+        if not self.is_open: return 0
+        stFloatParam = MVCC_FLOATVALUE()
+        memset(byref(stFloatParam), 0, sizeof(MVCC_FLOATVALUE))
+        # Try ResultingFrameRate first (read-only parameter showing actual FPS)
+        ret = self.cam.MV_CC_GetFloatValue("ResultingFrameRate", stFloatParam)
+        if ret == 0:
+            return round(stFloatParam.fCurValue, 2)
+        # Fallback to AcquisitionFrameRate
+        ret = self.cam.MV_CC_GetFloatValue("AcquisitionFrameRate", stFloatParam)
+        if ret == 0:
+            return round(stFloatParam.fCurValue, 2)
+        return 0
+
     def save_current_frame(self, filepath):
         """Saves the latest frame to the specified filepath."""
         with self.lock:

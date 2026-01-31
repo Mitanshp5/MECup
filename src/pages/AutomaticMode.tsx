@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Play, Square, Camera, AlertTriangle, CheckCircle, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
+import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
 
 interface Defect {
   id: string;
@@ -27,21 +27,28 @@ interface InferenceResult {
 }
 
 const AutomaticMode = () => {
+  const MOCK_MODE = true; // TOGGLE THIS FOR MOCK MODE
+
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
   const [defects, setDefects] = useState<Defect[]>([]);
+  const [totalDefectCount, setTotalDefectCount] = useState(0);
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [selectedDefectImage, setSelectedDefectImage] = useState<string | null>(null);
   const [isInferencing, setIsInferencing] = useState(false);
   const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
 
   useEffect(() => {
-    // Connect to camera on mount
-    fetch('http://localhost:5001/camera/connect', { method: 'POST' })
-      .catch(err => console.error("Failed to connect camera:", err));
+    // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
+    if (!MOCK_MODE) {
+      fetch('http://localhost:5001/camera/connect', { method: 'POST' })
+        .catch(err => console.error("Failed to connect camera:", err));
+    }
 
     // Sync scan state from PLC on mount and periodically
     const syncScanState = async () => {
+      if (MOCK_MODE) return;
+
       try {
         const res = await fetch('http://localhost:5001/plc/control-status');
         const data = await res.json();
@@ -62,15 +69,36 @@ const AutomaticMode = () => {
     const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [MOCK_MODE]);
 
-  // Poll for Y2-triggered inference results from PLC
+  // Mock Mode: Trigger inference periodically when scanning
+  useEffect(() => {
+    if (!MOCK_MODE || !isScanning) return;
+
+    const runMockInference = async () => {
+      try {
+        await fetch('http://localhost:5001/inference/mock-run', { method: 'POST' });
+      } catch (e) {
+        console.error("Mock run error:", e);
+      }
+    };
+
+    const interval = setInterval(runMockInference, 5000); // Trigger every 5 seconds
+    return () => clearInterval(interval);
+  }, [MOCK_MODE, isScanning]);
+
+
+  // Poll for latest inference results (PLC or Mock)
   const [lastInferenceTimestamp, setLastInferenceTimestamp] = useState<string | null>(null);
 
   useEffect(() => {
     const pollLatestInference = async () => {
       try {
-        const res = await fetch('http://localhost:5001/plc/latest-inference');
+        const endpoint = MOCK_MODE
+          ? 'http://localhost:5001/inference/mock-latest'
+          : 'http://localhost:5001/plc/latest-inference';
+
+        const res = await fetch(endpoint);
         const data = await res.json();
 
         if (data.has_result && data.timestamp !== lastInferenceTimestamp) {
@@ -87,17 +115,28 @@ const AutomaticMode = () => {
           if (data.defects && data.defects.length > 0) {
             const timestamp = new Date().toLocaleTimeString();
             const imageUrl = data.overlay_url ? `http://localhost:5001${data.overlay_url}` : undefined;
-            const newDefects: Defect[] = data.defects.map((d: { type: string }, idx: number) => ({
-              id: `${Date.now()}-${idx}`,
-              type: d.type,
-              location: `Area ${idx + 1}`,
+            // Show only one image entry per inference (regardless of defect count/types)
+            const newDefect: Defect = {
+              id: `${Date.now()}`,
+              type: "Defect",
+              location: "Detected",
               timestamp,
               imageUrl,
-            }));
+            };
 
-            setDefects(prev => [...newDefects, ...prev].slice(0, 50));
-            toast.success(`${newDefects.length} Defect(s) Found`, {
-              description: `Inference: ${data.inference_time_ms.toFixed(1)}ms`
+            setDefects(prev => {
+              // Prevent adding duplicate images (compare base URL without query params)
+              const newBaseUrl = imageUrl?.split('?')[0];
+              const prevBaseUrl = prev.length > 0 ? prev[0].imageUrl?.split('?')[0] : null;
+
+              if (newBaseUrl && prevBaseUrl && newBaseUrl === prevBaseUrl) {
+                return prev;
+              }
+              return [newDefect, ...prev].slice(0, 50);
+            });
+            setTotalDefectCount(prev => prev + data.defects.length);
+            toast.success(`${data.defects.length} Defect(s) Found`, {
+              description: `Inference: ${data.inference_time_ms.toFixed(1)}ms (${MOCK_MODE ? 'Mock' : 'Live'})`
             });
           }
         }
@@ -110,9 +149,15 @@ const AutomaticMode = () => {
     const interval = setInterval(pollLatestInference, 500);
 
     return () => clearInterval(interval);
-  }, [lastInferenceTimestamp]);
+  }, [lastInferenceTimestamp, MOCK_MODE]);
 
   const handleStartScan = async () => {
+    if (MOCK_MODE) {
+      setIsScanning(true);
+      toast.success("Mock Scan Started", { description: "Simulating M5 ON" });
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/plc/scan-start", {
         method: "POST",
@@ -132,6 +177,13 @@ const AutomaticMode = () => {
   };
 
   const handleStopScan = async () => {
+    if (MOCK_MODE) {
+      setIsScanning(false);
+      setGridTriggered(false);
+      toast.info("Mock Scan Stopped", { description: "Simulating M5 OFF" });
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/plc/write", {
         method: "POST",
@@ -156,6 +208,12 @@ const AutomaticMode = () => {
   };
 
   const handleGridOne = async () => {
+    if (MOCK_MODE) {
+      setGridTriggered(true);
+      toast.success("Mock Grid One", { description: "Simulated M4 ON" });
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
       const data = await res.json();
@@ -172,6 +230,14 @@ const AutomaticMode = () => {
   };
 
   const handleCycleReset = async () => {
+    if (MOCK_MODE) {
+      setDefects([]);
+      setTotalDefectCount(0);
+      setResultImageUrl(null);
+      toast.success("Mock Cycle Reset", { description: "Cleared results" });
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/plc/cycle-reset", { method: "POST" });
       const data = await res.json();
@@ -187,11 +253,16 @@ const AutomaticMode = () => {
   };
 
   const handleHomingStart = async () => {
+    if (MOCK_MODE) {
+      toast.success("Mock Homing", { description: "Simulated Homing" });
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/plc/homing-start", { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        toast.success("Homing Started", { description: "X6 set to ON" });
+        toast.success("Homing Started", { description: "M1 set to ON" });
       } else {
         toast.error("Homing Failed", { description: data.error || "PLC Error" });
       }
@@ -205,8 +276,9 @@ const AutomaticMode = () => {
     if (isInferencing) return;
     setIsInferencing(true);
     try {
-      const res = await fetch("http://localhost:5001/inference/run", { method: "POST" });
-      const data: InferenceResult = await res.json();
+      const endpoint = MOCK_MODE ? "http://localhost:5001/inference/mock-run" : "http://localhost:5001/inference/run";
+      const res = await fetch(endpoint, { method: "POST" });
+      const data = await res.json();
 
       if (data.success) {
         setLastInferenceTime(data.inference_time_ms);
@@ -220,17 +292,29 @@ const AutomaticMode = () => {
         }
 
         const timestamp = new Date().toLocaleTimeString();
-        const newDefects: Defect[] = data.defects.map((d, idx) => ({
-          id: `${Date.now()}-${idx}`,
-          type: d.type,
-          location: `Area ${idx + 1}`,
-          timestamp,
-          imageUrl: imageUrl || undefined,
-        }));
 
-        if (newDefects.length > 0) {
-          setDefects(prev => [...newDefects, ...prev].slice(0, 50));
-          toast.success(`${newDefects.length} Defect(s) Found`, {
+        if (data.defects && data.defects.length > 0) {
+          // Show only one image entry per inference
+          const newDefect: Defect = {
+            id: `${Date.now()}`,
+            type: "Defect",
+            location: "Detected",
+            timestamp,
+            imageUrl: imageUrl || undefined,
+          };
+
+          setDefects(prev => {
+            // Prevent adding duplicate images (compare base URL without query params)
+            const newBaseUrl = imageUrl?.split('?')[0];
+            const prevBaseUrl = prev.length > 0 ? prev[0].imageUrl?.split('?')[0] : null;
+
+            if (newBaseUrl && prevBaseUrl && newBaseUrl === prevBaseUrl) {
+              return prev;
+            }
+            return [newDefect, ...prev].slice(0, 50);
+          });
+          setTotalDefectCount(prev => prev + data.defects.length);
+          toast.success(`${data.defects.length} Defect(s) Found`, {
             description: `Inference: ${data.inference_time_ms.toFixed(1)}ms`
           });
         } else {
@@ -277,7 +361,23 @@ const AutomaticMode = () => {
                   alt="Live Feed"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement?.classList.add('bg-secondary');
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      parent.classList.add('bg-black/80', 'flex', 'items-center', 'justify-center', 'border', 'border-destructive/30');
+                      // Create offline message element
+                      const offlineMsg = document.createElement('div');
+                      offlineMsg.className = 'flex flex-col items-center text-destructive animate-pulse';
+                      offlineMsg.innerHTML = `
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" class="mb-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="2" x2="22" y1="2" y2="22"></line>
+                          <path d="M7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16"></path>
+                          <path d="M9.5 14.5 12 12l2.5 2.5"></path>
+                          <path d="M16 16v4a2 2 0 0 0 2 2h4"></path>
+                        </svg>
+                        <span class="text-sm font-mono font-bold">CAMERA OFFLINE</span>
+                      `;
+                      parent.appendChild(offlineMsg);
+                    }
                   }}
                 />
               </div>
@@ -359,8 +459,8 @@ const AutomaticMode = () => {
                 : "bg-gradient-to-br from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 border border-sky-400/30"
                 }`}
             >
-              <CheckCircle className={`w-5 h-5 ${(isScanning || gridTriggered) ? '' : 'drop-shadow-md'}`} />
-              <span className="text-xs font-bold">GRID</span>
+              <Grid2x2Check className={`w-5 h-5 ${(isScanning || gridTriggered) ? '' : 'drop-shadow-md'}`} />
+              <span className="text-xs font-bold">GRID ONE</span>
             </motion.button>
 
             {/* Reset */}
@@ -426,33 +526,42 @@ const AutomaticMode = () => {
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
           <h3 className="text-sm font-medium text-muted-foreground">DEFECTS FOUND</h3>
           <span className="px-2 py-1 bg-destructive/10 text-destructive text-xs font-medium rounded">
-            {defects.length}
+            {totalDefectCount}
           </span>
         </div>
 
-        {/* Scrollable Defects List */}
-        <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
-          {defects.map((defect) => (
-            <motion.button
-              key={defect.id}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              onClick={() => defect.imageUrl && setSelectedDefectImage(defect.imageUrl)}
-              disabled={!defect.imageUrl}
-              className={`w-full text-left p-2 rounded-md border transition-all flex items-center gap-2 ${defect.imageUrl
-                ? "bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50 cursor-pointer"
-                : "bg-secondary/30 border-border/50 cursor-default"
-                }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-destructive" />
-              <span className="text-sm text-foreground truncate">{defect.type}</span>
-              {defect.imageUrl && (
-                <ImageIcon className="w-3 h-3 text-muted-foreground ml-auto flex-shrink-0" />
-              )}
-            </motion.button>
-          ))}
-          {defects.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-4">No defects detected</p>
+        {/* Scrollable Defects Grid */}
+        <div className="flex-1 overflow-y-auto min-h-0 bg-secondary/30 rounded-lg p-2">
+          {defects.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2">
+              {defects.map((defect) => (
+                <motion.button
+                  key={defect.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => defect.imageUrl && setSelectedDefectImage(defect.imageUrl)}
+                  className="aspect-square bg-black/50 rounded overflow-hidden relative group border border-transparent hover:border-primary/50 transition-colors"
+                >
+                  {defect.imageUrl ? (
+                    <img
+                      src={defect.imageUrl}
+                      alt={defect.type}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex w-full h-full items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-destructive/50" />
+                    </div>
+                  )}
+
+                </motion.button>
+              ))}
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50">
+              <span className="text-xs">No defects yet</span>
+            </div>
           )}
         </div>
       </div>

@@ -314,6 +314,8 @@ class DefectPredictor:
         alpha: float = 0.5
     ) -> Tuple[str, str, float, List[Dict]]:
         """Run inference and save result images."""
+        import json
+        
         original = Image.open(image_path).convert('RGB')
         original_np = np.array(original)
         
@@ -325,18 +327,29 @@ class DefectPredictor:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         base_name = Path(image_path).stem
         
-        # Save mask
+        # Generate mask RGB for overlay
         mask_rgb = mask_to_rgb(pred_mask)
-        mask_path = output_dir / f"{base_name}_{timestamp}_mask.png"
-        Image.fromarray(mask_rgb).save(mask_path)
         
+        # Save overlay only (no mask file)
         overlay_path = None
         if save_overlay:
             overlay = (original_np * (1 - alpha) + mask_rgb * alpha).astype(np.uint8)
             overlay_path = output_dir / f"{base_name}_{timestamp}_overlay.png"
             Image.fromarray(overlay).save(overlay_path)
         
-        return str(mask_path), str(overlay_path) if overlay_path else None, inference_time, defects
+        # Save defect metadata JSON
+        metadata_path = output_dir / f"{base_name}_{timestamp}_meta.json"
+        metadata = {
+            "image": Path(image_path).name,
+            "timestamp": timestamp,
+            "inference_time_ms": inference_time,
+            "defect_count": len(defects),
+            "defects": defects
+        }
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        return None, str(overlay_path) if overlay_path else None, inference_time, defects
 
 
 # Global predictor instance (lazy initialized)

@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
-from agent import get_agent
+from .agent import get_agent
 
 # Global agent instance
 agent = None

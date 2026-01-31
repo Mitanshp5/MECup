@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/components/theme-provider";
 
 const SettingsPage = () => {
   const [plcSettings, setPlcSettings] = useState({
@@ -16,7 +17,7 @@ const SettingsPage = () => {
     auto_exposure: false,
   });
 
-  const [theme, setTheme] = useState("dark");
+  const { theme, setTheme } = useTheme();
 
   // Sync settings from backend on mount
   useEffect(() => {
@@ -218,7 +219,7 @@ const SettingsPage = () => {
             {["dark", "light", "system"].map((t) => (
               <button
                 key={t}
-                onClick={() => setTheme(t)}
+                onClick={() => setTheme(t as "dark" | "light" | "system")}
                 className={`flex-1 py-3 rounded-md font-medium capitalize transition-colors ${theme === t
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-foreground hover:bg-secondary/80"
