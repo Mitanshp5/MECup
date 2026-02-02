@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 MODEL_DIR = Path(__file__).parent / "openvino_model"
 ONNX_MODEL_PATH = MODEL_DIR / "model.onnx"
 OPENVINO_MODEL_PATH = MODEL_DIR / "model.xml"
+TRT_MODEL_PATH = MODEL_DIR / "model.trt"
 
 # Defect class mapping
 CLASS_NAMES = {
@@ -48,7 +49,7 @@ def mask_to_rgb(mask: np.ndarray) -> np.ndarray:
 class DefectPredictor:
     """Multi-backend predictor for defect detection.
     
-    Tries backends in order: CUDA -> OpenVINO GPU -> CPU
+    Tries backends in order: TensorRT -> OpenVINO GPU -> OpenVINO CPU
     """
     
     _instance = None
@@ -60,21 +61,85 @@ class DefectPredictor:
         self.session = None  # For ONNX Runtime
         self.compiled_model = None  # For OpenVINO
         
+        # TensorRT specific
+        self.trt_logger = None
+        self.engine = None
+        self.context = None
+        self.inputs = []
+        self.outputs = []
+        self.bindings = []
+        self.stream = None
+
         # ImageNet normalization
         self.mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         self.std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         
         # Try backends in order
-        if self._try_cuda():
-            print("[Inference] Using CUDA backend (ONNX Runtime)")
+        if self._try_tensorrt():
+            print("[Inference] Using TensorRT backend")
         elif self._try_openvino():
-            print(f"[Inference] Using OpenVINO backend on {self.device}")
+             print(f"[Inference] Using OpenVINO backend on {self.device}")
         else:
             self._fallback_cpu()
             print("[Inference] Using CPU backend (ONNX Runtime)")
         
         # Warmup
         self._warmup()
+    
+    def _try_tensorrt(self) -> bool:
+        """Try to initialize TensorRT backend."""
+        try:
+            import tensorrt as trt
+            import pycuda.driver as cuda
+            import pycuda.autoinit
+
+            if not TRT_MODEL_PATH.exists():
+                print(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
+                return False
+
+            print(f"[Inference] Loading TensorRT engine from {TRT_MODEL_PATH}")
+            self.trt_logger = trt.Logger(trt.Logger.WARNING)
+            
+            with open(TRT_MODEL_PATH, "rb") as f, trt.Runtime(self.trt_logger) as runtime:
+                self.engine = runtime.deserialize_cuda_engine(f.read())
+            
+            if not self.engine:
+                print("[Inference] Failed to load TensorRT engine")
+                return False
+                
+            self.context = self.engine.create_execution_context()
+            self.stream = cuda.Stream()
+            
+            # Allocate buffers
+            self.inputs = []
+            self.outputs = []
+            self.bindings = []
+            
+            for binding in self.engine:
+                size = trt.volume(self.engine.get_binding_shape(binding)) * self.engine.max_batch_size
+                dtype = trt.nptype(self.engine.get_binding_dtype(binding))
+                
+                # Allocate host and device buffers
+                host_mem = cuda.pagelocked_empty(size, dtype)
+                device_mem = cuda.mem_alloc(host_mem.nbytes)
+                
+                self.bindings.append(int(device_mem))
+                
+                if self.engine.binding_is_input(binding):
+                    self.inputs.append({"host": host_mem, "device": device_mem})
+                else:
+                    self.outputs.append({"host": host_mem, "device": device_mem})
+            
+            self.backend = "tensorrt"
+            return True
+            
+        except ImportError:
+            print("[Inference] TensorRT or PyCUDA not installed")
+            return False
+        except Exception as e:
+            print(f"[Inference] TensorRT init failed: {e}")
+            return False
+
     
     def _try_cuda(self) -> bool:
         """Try to initialize CUDA backend via ONNX Runtime."""
@@ -232,7 +297,23 @@ class DefectPredictor:
         dummy = np.zeros((1, self.image_size, self.image_size, 3), dtype=np.uint8)
         
         for _ in range(iterations):
-            if self.backend == "openvino":
+            if self.backend == "tensorrt":
+                # TensorRT preprocessing (NCHW format, normalized)
+                dummy_f = dummy.astype(np.float32) / 255.0
+                dummy_f = (dummy_f - self.mean) / self.std
+                dummy_f = dummy_f.transpose(0, 3, 1, 2)
+                
+                # Copy input D2H
+                np.copyto(self.inputs[0]['host'], dummy_f.ravel())
+                
+                # Inference steps included in predict, but for warmup we just check generic run
+                import pycuda.driver as cuda
+                cuda.memcpy_htod_async(self.inputs[0]['device'], self.inputs[0]['host'], self.stream)
+                self.context.execute_async_v2(bindings=self.bindings, stream_handle=self.stream.handle)
+                cuda.memcpy_dtoh_async(self.outputs[0]['host'], self.outputs[0]['device'], self.stream)
+                self.stream.synchronize()
+                
+            elif self.backend == "openvino":
                 self.sync_request.infer({self.input_layer: dummy})
             else:
                 # ONNX preprocessing (NCHW format, normalized)
@@ -260,7 +341,33 @@ class DefectPredictor:
         
         start = time.perf_counter()
         
-        if self.backend == "openvino":
+        if self.backend == "tensorrt":
+            import pycuda.driver as cuda
+            
+            # Preprocess for TensorRT (NCHW, Float32, Normalized)
+            img_f = img.astype(np.float32) / 255.0
+            img_f = (img_f - self.mean) / self.std
+            img_f = np.expand_dims(img_f.transpose(2, 0, 1), 0)  # NCHW
+            
+            # Copy input to host memory
+            np.copyto(self.inputs[0]['host'], img_f.ravel())
+            
+            # Transfer input data to the GPU.
+            cuda.memcpy_htod_async(self.inputs[0]['device'], self.inputs[0]['host'], self.stream)
+            
+            # Run inference.
+            self.context.execute_async_v2(bindings=self.bindings, stream_handle=self.stream.handle)
+            
+            # Transfer predictions back from the GPU.
+            cuda.memcpy_dtoh_async(self.outputs[0]['host'], self.outputs[0]['device'], self.stream)
+            
+            # Synchronize the stream
+            self.stream.synchronize()
+            
+            # Get output (assumes single output)
+            output = self.outputs[0]['host'].reshape((1, 4, self.image_size, self.image_size))
+            
+        elif self.backend == "openvino":
             input_tensor = np.expand_dims(img, 0)
             self.sync_request.infer({self.input_layer: input_tensor})
             output = self.sync_request.get_output_tensor().data
