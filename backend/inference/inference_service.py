@@ -4,6 +4,7 @@ Tries backends in order: CUDA (ONNX Runtime) -> OpenVINO (Intel GPU) -> CPU
 """
 
 import logging
+import sys
 import time
 import os
 from pathlib import Path
