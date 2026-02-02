@@ -17,6 +17,12 @@ import uvicorn
 async def lifespan(app: FastAPI):
     # async with rag_lifespan(app):
     #     yield
+    try:
+        from inference.inference_service import get_predictor
+        print("[Backend] Initializing Inference Engine...", flush=True)
+        get_predictor()
+    except Exception as e:
+        print(f"[Backend] Failed to initialize inference: {e}", flush=True)
     yield
 
 app = FastAPI(
