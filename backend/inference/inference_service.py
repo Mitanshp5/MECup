@@ -12,8 +12,9 @@ from typing import List, Dict, Tuple, Optional
 import numpy as np
 from PIL import Image
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Model paths - local project folder
 MODEL_DIR = Path(__file__).parent / "openvino_model"
@@ -76,12 +77,12 @@ class DefectPredictor:
         
         # Try backends in order
         if self._try_tensorrt():
-            print("[Inference] Using TensorRT backend")
+            logger.info("[Inference] Using TensorRT backend")
         elif self._try_openvino():
-             print(f"[Inference] Using OpenVINO backend on {self.device}")
+             logger.info(f"[Inference] Using OpenVINO backend on {self.device}")
         else:
             self._fallback_cpu()
-            print("[Inference] Using CPU backend (ONNX Runtime)")
+            logger.info("[Inference] Using CPU backend (ONNX Runtime)")
         
         # Warmup
         self._warmup()
@@ -94,17 +95,17 @@ class DefectPredictor:
             import numpy as np
 
             if not TRT_MODEL_PATH.exists():
-                print(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
+                logger.warning(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
                 return False
 
-            print(f"[Inference] Loading TensorRT engine from {TRT_MODEL_PATH}")
+            logger.info(f"[Inference] Loading TensorRT engine from {TRT_MODEL_PATH}")
             self.trt_logger = trt.Logger(trt.Logger.WARNING)
             
             with open(TRT_MODEL_PATH, "rb") as f, trt.Runtime(self.trt_logger) as runtime:
                 self.engine = runtime.deserialize_cuda_engine(f.read())
             
             if not self.engine:
-                print("[Inference] Failed to load TensorRT engine")
+                logger.error("[Inference] Failed to load TensorRT engine")
                 return False
                 
             self.context = self.engine.create_execution_context()
@@ -142,10 +143,10 @@ class DefectPredictor:
             return True
             
         except ImportError:
-            print("[Inference] TensorRT or cuda-python not installed")
+            logger.warning("[Inference] TensorRT or cuda-python not installed")
             return False
         except Exception as e:
-            print(f"[Inference] TensorRT init failed: {e}")
+            logger.error(f"[Inference] TensorRT init failed: {e}")
             return False
 
     
@@ -212,23 +213,23 @@ class DefectPredictor:
             # Try GPU.0 first, then GPU.1, then fail (fall back to CPU via ONNX)
             if "GPU.0" in devices:
                 self.device = "GPU.0"
-                print("[Inference] Using GPU.0")
+                logger.info("[Inference] Using GPU.0")
             elif "GPU.1" in devices:
                 self.device = "GPU.1"
-                print("[Inference] Using GPU.1")
+                logger.info("[Inference] Using GPU.1")
             elif "GPU" in devices:
                 self.device = "GPU"
-                print("[Inference] Using GPU")
+                logger.info("[Inference] Using GPU")
             else:
-                print("[Inference] OpenVINO GPU not available")
+                logger.info("[Inference] OpenVINO GPU not available")
                 return False
             
             # Find OpenVINO model
             if not OPENVINO_MODEL_PATH.exists():
-                print(f"[Inference] OpenVINO model not found at {OPENVINO_MODEL_PATH}")
+                logger.warning(f"[Inference] OpenVINO model not found at {OPENVINO_MODEL_PATH}")
                 return False
             
-            print(f"[Inference] Loading OpenVINO model from {OPENVINO_MODEL_PATH}")
+            logger.info(f"[Inference] Loading OpenVINO model from {OPENVINO_MODEL_PATH}")
             
             # Enable caching
             cache_dir = OPENVINO_MODEL_PATH.parent / "cache"
@@ -346,7 +347,7 @@ class DefectPredictor:
                 dummy_f = dummy_f.transpose(0, 3, 1, 2)
                 self.session.run([self.output_name], {self.input_name: dummy_f})
         
-        print(f"[Inference] Model ready ({self.backend})")
+        logger.info(f"[Inference] Model ready ({self.backend})")
     
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         """Preprocess image for inference."""
