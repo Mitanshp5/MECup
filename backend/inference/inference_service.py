@@ -90,8 +90,8 @@ class DefectPredictor:
         """Try to initialize TensorRT backend."""
         try:
             import tensorrt as trt
-            import pycuda.driver as cuda
-            import pycuda.autoinit
+            from cuda import cudart
+            import numpy as np
 
             if not TRT_MODEL_PATH.exists():
                 print(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
@@ -108,7 +108,9 @@ class DefectPredictor:
                 return False
                 
             self.context = self.engine.create_execution_context()
-            self.stream = cuda.Stream()
+            
+            # Create stream
+            _, self.stream = cudart.cudaStreamCreate()
             
             # Allocate buffers
             self.inputs = []
@@ -116,25 +118,31 @@ class DefectPredictor:
             self.bindings = []
             
             for binding in self.engine:
-                size = trt.volume(self.engine.get_binding_shape(binding)) * self.engine.max_batch_size
+                # get_binding_shape returns a Dims object or tuple, volume calculates total elements
+                # Note: valid for TRT 8.x. 10.x uses different API, assuming 8.x/9.x based on common use
+                shape = self.engine.get_binding_shape(binding)
+                size = trt.volume(shape) * self.engine.max_batch_size
                 dtype = trt.nptype(self.engine.get_binding_dtype(binding))
                 
-                # Allocate host and device buffers
-                host_mem = cuda.pagelocked_empty(size, dtype)
-                device_mem = cuda.mem_alloc(host_mem.nbytes)
+                # Allocate host memory (standard numpy array)
+                host_mem = np.zeros(size, dtype=dtype)
+                
+                # Allocate device memory
+                nbytes = host_mem.nbytes
+                _, device_mem = cudart.cudaMalloc(nbytes)
                 
                 self.bindings.append(int(device_mem))
                 
                 if self.engine.binding_is_input(binding):
-                    self.inputs.append({"host": host_mem, "device": device_mem})
+                    self.inputs.append({"host": host_mem, "device": device_mem, "nbytes": nbytes})
                 else:
-                    self.outputs.append({"host": host_mem, "device": device_mem})
+                    self.outputs.append({"host": host_mem, "device": device_mem, "nbytes": nbytes})
             
             self.backend = "tensorrt"
             return True
             
         except ImportError:
-            print("[Inference] TensorRT or PyCUDA not installed")
+            print("[Inference] TensorRT or cuda-python not installed")
             return False
         except Exception as e:
             print(f"[Inference] TensorRT init failed: {e}")
@@ -307,11 +315,27 @@ class DefectPredictor:
                 np.copyto(self.inputs[0]['host'], dummy_f.ravel())
                 
                 # Inference steps included in predict, but for warmup we just check generic run
-                import pycuda.driver as cuda
-                cuda.memcpy_htod_async(self.inputs[0]['device'], self.inputs[0]['host'], self.stream)
-                self.context.execute_async_v2(bindings=self.bindings, stream_handle=self.stream.handle)
-                cuda.memcpy_dtoh_async(self.outputs[0]['host'], self.outputs[0]['device'], self.stream)
-                self.stream.synchronize()
+                from cuda import cudart
+                
+                cudart.cudaMemcpyAsync(
+                    self.inputs[0]['device'], 
+                    self.inputs[0]['host'].ctypes.data, 
+                    self.inputs[0]['nbytes'], 
+                    cudart.cudaMemcpyKind.cudaMemcpyHostToDevice, 
+                    self.stream
+                )
+                
+                self.context.execute_async_v2(bindings=self.bindings, stream_handle=int(self.stream))
+                
+                cudart.cudaMemcpyAsync(
+                    self.outputs[0]['host'].ctypes.data, 
+                    self.outputs[0]['device'], 
+                    self.outputs[0]['nbytes'], 
+                    cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost, 
+                    self.stream
+                )
+                
+                cudart.cudaStreamSynchronize(self.stream)
                 
             elif self.backend == "openvino":
                 self.sync_request.infer({self.input_layer: dummy})
@@ -342,7 +366,7 @@ class DefectPredictor:
         start = time.perf_counter()
         
         if self.backend == "tensorrt":
-            import pycuda.driver as cuda
+            from cuda import cudart
             
             # Preprocess for TensorRT (NCHW, Float32, Normalized)
             img_f = img.astype(np.float32) / 255.0
@@ -353,16 +377,28 @@ class DefectPredictor:
             np.copyto(self.inputs[0]['host'], img_f.ravel())
             
             # Transfer input data to the GPU.
-            cuda.memcpy_htod_async(self.inputs[0]['device'], self.inputs[0]['host'], self.stream)
+            cudart.cudaMemcpyAsync(
+                self.inputs[0]['device'], 
+                self.inputs[0]['host'].ctypes.data, 
+                self.inputs[0]['nbytes'], 
+                cudart.cudaMemcpyKind.cudaMemcpyHostToDevice, 
+                self.stream
+            )
             
             # Run inference.
-            self.context.execute_async_v2(bindings=self.bindings, stream_handle=self.stream.handle)
+            self.context.execute_async_v2(bindings=self.bindings, stream_handle=int(self.stream))
             
             # Transfer predictions back from the GPU.
-            cuda.memcpy_dtoh_async(self.outputs[0]['host'], self.outputs[0]['device'], self.stream)
+            cudart.cudaMemcpyAsync(
+                self.outputs[0]['host'].ctypes.data, 
+                self.outputs[0]['device'], 
+                self.outputs[0]['nbytes'], 
+                cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost, 
+                self.stream
+            )
             
             # Synchronize the stream
-            self.stream.synchronize()
+            cudart.cudaStreamSynchronize(self.stream)
             
             # Get output (assumes single output)
             output = self.outputs[0]['host'].reshape((1, 4, self.image_size, self.image_size))
