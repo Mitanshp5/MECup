@@ -142,8 +142,8 @@ class DefectPredictor:
             self.backend = "tensorrt"
             return True
             
-        except ImportError:
-            logger.warning("[Inference] TensorRT or cuda-python not installed")
+        except ImportError as e:
+            logger.warning(f"[Inference] TensorRT or cuda-python not installed: {e}")
             return False
         except Exception as e:
             logger.error(f"[Inference] TensorRT init failed: {e}")
