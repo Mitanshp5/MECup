@@ -97,8 +97,16 @@ class DefectPredictor:
                 from cuda import cudart
             except ImportError as e:
                 logger.error(f"[Inference] Failed to import 'cudart' from 'cuda': {e}")
-                logger.error("[Inference] This usually means the 'cuda' package is installed instead of 'cuda-python'.")
-                logger.error("[Inference] Please run: pip uninstall -y cuda && pip install cuda-python")
+                
+                # Debugging: Inspect what 'cuda' actually is
+                try:
+                    import cuda
+                    logger.info(f"[Inference] cuda module path: {getattr(cuda, '__path__', 'unknown')}")
+                    logger.info(f"[Inference] cuda module file: {getattr(cuda, '__file__', 'unknown')}")
+                    logger.info(f"[Inference] cuda dir: {dir(cuda)}")
+                except Exception as debug_e:
+                    logger.error(f"[Inference] Failed to inspect cuda module: {debug_e}")
+
                 return False
 
             if not TRT_MODEL_PATH.exists():
