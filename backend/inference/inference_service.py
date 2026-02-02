@@ -91,8 +91,15 @@ class DefectPredictor:
         """Try to initialize TensorRT backend."""
         try:
             import tensorrt as trt
-            from cuda import cudart
             import numpy as np
+            
+            try:
+                from cuda import cudart
+            except ImportError as e:
+                logger.error(f"[Inference] Failed to import 'cudart' from 'cuda': {e}")
+                logger.error("[Inference] This usually means the 'cuda' package is installed instead of 'cuda-python'.")
+                logger.error("[Inference] Please run: pip uninstall -y cuda && pip install cuda-python")
+                return False
 
             if not TRT_MODEL_PATH.exists():
                 logger.warning(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
