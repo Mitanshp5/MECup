@@ -96,16 +96,18 @@ class DefectPredictor:
             cudart = None
             try:
                 # Try explicit submodule import which works better with namespace packages
-                import cuda.cudart as _cudart
-                cudart = _cudart
-            except ImportError:
+                # On some versions/installs, it's cuda.bindings.runtime or cuda.cudart
                 try:
                     from cuda import cudart as _cudart
                     cudart = _cudart
-                except ImportError as e:
-                    logger.warning(f"[Inference] Could not import cuda-python: {e}")
-                    # Only log verbose debug details if we really fail
-                    return False
+                except ImportError:
+                    # Fallback to bindings.runtime which was verified to exist
+                    from cuda.bindings import runtime as _cudart
+                    cudart = _cudart
+
+            except ImportError as e:
+                logger.warning(f"[Inference] Could not import cuda-python: {e}")
+                return False
             
             if not TRT_MODEL_PATH.exists():
                 logger.warning(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
