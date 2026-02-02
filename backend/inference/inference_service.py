@@ -90,6 +90,16 @@ class DefectPredictor:
     def _try_tensorrt(self) -> bool:
         """Try to initialize TensorRT backend."""
         try:
+            # Allow importing from system PATH (critical for local TensorRT installs on Windows)
+            if sys.platform == "win32":
+                for path in os.environ.get("PATH", "").split(os.pathsep):
+                    if os.path.exists(path):
+                        try:
+                            # Python 3.8+ requires explicit DLL directory addition
+                            os.add_dll_directory(path)
+                        except Exception:
+                            pass
+
             import tensorrt as trt
             import numpy as np
             
@@ -109,6 +119,18 @@ class DefectPredictor:
                 logger.warning(f"[Inference] Could not import cuda-python: {e}")
                 return False
             
+            # Verify CUDA driver connectivity
+            err, num_devices = cudart.cudaGetDeviceCount()
+            if err != cudart.cudaError_t.cudaSuccess:
+                logger.error(f"[Inference] CUDA Driver Error: {err}")
+                logger.error("[Inference] this likely means your NVIDIA GPU Driver is too old for the installed TensorRT version.")
+                logger.error("[Inference] Please update your NVIDIA Drivers.")
+                return False
+                
+            if num_devices == 0:
+                logger.error("[Inference] No CUDA devices found.")
+                return False
+
             if not TRT_MODEL_PATH.exists():
                 logger.warning(f"[Inference] TensorRT engine not found at {TRT_MODEL_PATH}")
                 return False
