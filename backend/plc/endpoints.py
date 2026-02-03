@@ -285,8 +285,8 @@ async def grid_one():
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
-        manager.write_bit("M4", [1])
-        return {"success": True, "message": "Grid One Triggered (M4 ON)"}
+        manager.write_bit("M778", [1])
+        return {"success": True, "message": "Grid One Triggered (M778 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -311,7 +311,7 @@ async def homing_start():
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
-        manager.write_bit("X6", [1])
+        manager.write_bit("M1", [1])
         add_event("Homing sequence started", "info")
         return {"success": True, "message": "Homing Started (X6 ON)"}
     except Exception as e:

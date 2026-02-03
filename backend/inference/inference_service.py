@@ -1,8 +1,3 @@
-"""Multi-backend inference service for defect detection.
-
-Tries backends in order: CUDA (ONNX Runtime) -> OpenVINO (Intel GPU) -> CPU
-"""
-
 import logging
 import sys
 import time
@@ -397,13 +392,14 @@ class DefectPredictor:
     
     def predict(self, image_path: str) -> Tuple[np.ndarray, float, List[Dict]]:
         """Run inference on an image."""
+        
         original = Image.open(image_path).convert('RGB')
         original_size = original.size[::-1]  # (height, width)
         
         img = self.preprocess(np.array(original))
         
-        start = time.perf_counter()
         
+        start = time.perf_counter()
         if self.backend == "tensorrt":
             from cuda import cudart
             
@@ -465,6 +461,7 @@ class DefectPredictor:
         )
         
         defects = self._extract_defects(pred_mask)
+        
         return pred_mask, inference_time, defects
     
     def _extract_defects(self, mask: np.ndarray) -> List[Dict]:
