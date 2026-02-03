@@ -1,29 +1,135 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { UserPlus, Edit2, Trash2, Shield, User, Search, MoreVertical } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+// import LoginModal from "@/components/LoginModal"; 
+import { X, Lock, UserPlus, Edit2, Trash2, User, Search, Shield } from "lucide-react";
 
+// Update interface to match API response more closely
 interface SystemUser {
-  id: string;
-  name: string;
-  email: string;
+  id: number;
+  username: string;
   role: "admin" | "operator" | "viewer";
+  is_active: boolean;
+  // Computed/Mapped fields
   status: "active" | "inactive";
-  lastLogin: string;
 }
 
-const mockUsers: SystemUser[] = [
-  { id: "1", name: "Admin", email: "admin@example.com", role: "admin", status: "active", lastLogin: "2025-01-12 10:45" },
-  { id: "2", name: "Operator", email: "operator@example.com", role: "operator", status: "active", lastLogin: "2025-01-12 09:32" },
-  { id: "3", name: "Viewer", email: "viewer@example.com", role: "viewer", status: "active", lastLogin: "2025-01-11 16:22" },
-];
+const API_BASE_URL = "http://127.0.0.1:5001";
+
+const AddUserModal = ({ onClose, onSuccess, token }: { onClose: () => void, onSuccess: () => void, token: string }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("operator");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ username, password, role })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Failed to create user");
+      }
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-card w-full max-w-sm rounded-lg border border-border shadow-xl overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/50">
+          <h2 className="text-lg font-semibold text-foreground">Add New User</h2>
+          <button onClick={onClose}><X className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && <div className="text-red-500 text-sm">{error}</div>}
+          <div className="space-y-2">
+            <label className="text-sm">Username</label>
+            <input className="w-full p-2 bg-background border rounded" value={username} onChange={e => setUsername(e.target.value)} required />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm">Password</label>
+            <input className="w-full p-2 bg-background border rounded" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm">Role</label>
+            <select className="w-full p-2 bg-background border rounded" value={role} onChange={e => setRole(e.target.value)}>
+              <option value="admin">Admin</option>
+              <option value="operator">Operator</option>
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+          <button disabled={loading} className="w-full py-2 bg-primary text-primary-foreground rounded">
+            {loading ? "Creating..." : "Create User"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const UserManagement = () => {
-  const [users] = useState<SystemUser[]>(mockUsers);
+  const { token, hasRole } = useAuth();
+  const [users, setUsers] = useState<SystemUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // Fetch Users
+  const fetchUsers = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const mappedUsers = data.map((u: any) => ({
+            id: u.id,
+            username: u.username || 'Unknown',
+            role: u.role || 'viewer',
+            is_active: !!u.is_active,
+            status: u.is_active ? "active" : "inactive"
+          }));
+          setUsers(mappedUsers);
+        } else {
+          console.error("API returned non-array:", data);
+          setUsers([]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [token]);
+
+  // Guard against null/undefined API data
+  const safeUsers = Array.isArray(users) ? users : [];
+
+  const filteredUsers = safeUsers.filter(user =>
+    user && user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getRoleBadge = (role: string) => {
@@ -42,10 +148,14 @@ const UserManagement = () => {
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-foreground">Users</h3>
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-              <UserPlus className="w-4 h-4" />
-              Add User
-            </button>
+            {hasRole(['admin']) && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                <UserPlus className="w-4 h-4" />
+                Add User
+              </button>
+            )}
           </div>
 
           <div className="relative">
@@ -62,10 +172,8 @@ const UserManagement = () => {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {filteredUsers.map((user) => (
-            <motion.div
+            <div
               key={user.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
               className="p-4 bg-secondary/30 rounded-md border border-border hover:border-primary/30 transition-colors"
             >
               <div className="flex items-center justify-between">
@@ -74,8 +182,8 @@ const UserManagement = () => {
                     <User className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-foreground">{user.name}</h4>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <h4 className="font-medium text-foreground">{user.username}</h4>
+                    <p className="text-sm text-muted-foreground">ID: {user.id}</p>
                   </div>
                 </div>
 
@@ -102,9 +210,9 @@ const UserManagement = () => {
               </div>
 
               <div className="mt-3 pt-3 border-t border-border/50 flex items-center text-xs text-muted-foreground">
-                <span>Last login: {user.lastLogin}</span>
+                <span>Status: {user.status}</span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -165,6 +273,18 @@ const UserManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      {showAddModal && (
+        <AddUserModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            setShowAddModal(false);
+            fetchUsers();
+          }}
+          token={token!}
+        />
+      )}
     </div>
   );
 };

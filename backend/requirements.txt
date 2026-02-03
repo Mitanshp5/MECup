@@ -25,3 +25,10 @@ onnxruntime-gpu
 # tensorrt (Manually installed for RTX 5080)
 # cuda-python (Constrained for Driver compatibility)
 cuda-python<13.0.0
+
+# User Management / Auth
+python-dotenv
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart

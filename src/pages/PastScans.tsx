@@ -9,6 +9,7 @@ interface ScanRecord {
   image_count: number;
   defect_count: number;
   status: "pass" | "fail";
+  scanned_by?: string;
 }
 
 interface ScanDetails {
@@ -27,6 +28,7 @@ interface ScanDetails {
     defect_details?: { type: string; pixel_count: number; area_ratio: number }[];
   }[];
   status: "pass" | "fail";
+  scanned_by?: string;
 }
 
 const PastScans = () => {
@@ -116,6 +118,7 @@ const PastScans = () => {
                       <th className="text-left p-4 text-xs font-medium text-muted-foreground uppercase">Images</th>
                       <th className="text-left p-4 text-xs font-medium text-muted-foreground uppercase">Defects</th>
                       <th className="text-left p-4 text-xs font-medium text-muted-foreground uppercase">Status</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground uppercase">Scanned By</th>
                       <th className="text-left p-4 text-xs font-medium text-muted-foreground uppercase">Actions</th>
                     </tr>
                   </thead>
@@ -152,6 +155,12 @@ const PastScans = () => {
                             )}
                             {scan.status.toUpperCase()}
                           </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <User className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-sm text-foreground">{scan.scanned_by || 'Unknown'}</span>
+                          </div>
                         </td>
                         <td className="p-4">
                           <button

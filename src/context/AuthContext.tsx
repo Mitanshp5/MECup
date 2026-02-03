@@ -1,101 +1,111 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { toast } from "sonner";
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export enum UserRole {
-    ADMIN = "ADMIN",
-    OPERATOR = "OPERATOR",
-    VIEWER = "VIEWER"
-}
+// API Base URL
+const API_BASE_URL = "http://127.0.0.1:5001";
 
 interface User {
     username: string;
-    role: UserRole;
-    is_active: boolean;
+    role: 'admin' | 'operator' | 'viewer';
 }
 
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    isLoading: boolean;
-    login: (username: string, password: string) => Promise<boolean>;
+    login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
     logout: () => void;
+    isAuthenticated: boolean;
+    hasRole: (roles: string[]) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>({
-        username: "admin",
-        role: UserRole.ADMIN,
-        is_active: true
-    });
-    const [token, setToken] = useState<string | null>("bypass-token");
-    const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
 
-    // Hydrate user on mount if token exists
+    // Load token from localStorage on startup
     useEffect(() => {
-        // BYPASS: No hydration needed
+        const storedToken = localStorage.getItem('token');
+        const storedRole = localStorage.getItem('role');
+        const storedUser = localStorage.getItem('username');
+
+        if (storedToken && storedUser) {
+            setToken(storedToken);
+            setUser({
+                username: storedUser,
+                role: (storedRole as any) || 'viewer'
+            });
+        }
     }, []);
 
-    const fetchUser = async (authToken: string) => {
-        try {
-            const res = await fetch("http://localhost:5001/users/me", {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
-            if (res.ok) {
-                const userData = await res.json();
-                setUser(userData);
-            } else {
-                logout(); // Invalid token
-            }
-        } catch (e) {
-            console.error("Auth hydration failed", e);
-            logout();
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
         try {
             const formData = new URLSearchParams();
-            formData.append("username", username);
-            formData.append("password", password);
+            formData.append('username', username);
+            formData.append('password', password);
 
-            const res = await fetch("http://localhost:5001/token", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: formData,
+            const res = await fetch(`${API_BASE_URL}/token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                const accessToken = data.access_token;
-                setToken(accessToken);
-                localStorage.setItem("token", accessToken);
-                // Fetch user details immediately to get role
-                await fetchUser(accessToken);
-                toast.success("Welcome back!", { description: `Logged in as ${username}` });
-                return true;
-            } else {
-                toast.error("Login Failed", { description: "Invalid username or password" });
-                return false;
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ detail: res.statusText }));
+                console.error("Login API Error:", res.status, errorData);
+
+                if (res.status === 401) {
+                    return { success: false, message: 'Invalid credentials' };
+                }
+                if (res.status === 422) {
+                    return { success: false, message: 'Validation Error (422): ' + JSON.stringify(errorData) };
+                }
+                return { success: false, message: `Server Error (${res.status}): ${errorData.detail || 'Unknown error'}` };
             }
-        } catch (e) {
-            toast.error("Network Error", { description: "Could not reach authentication server" });
-            return false;
+
+            const data = await res.json();
+            const accessToken = data.access_token;
+            const role = data.role;
+
+            // Save to state
+            setToken(accessToken);
+            setUser({ username, role });
+
+            // Save to local storage
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('username', username);
+            localStorage.setItem('role', role);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error("Login Error:", error);
+            // Propagate the specific error message if possible
+            if (error.message === 'Failed to fetch') {
+                // Network error (backend down)
+                console.error("Backend seems to be offline");
+                return { success: false, message: 'Backend unreachable. Is server running?' };
+            }
+            return { success: false, message: error.message || 'Login failed' };
         }
     };
 
     const logout = () => {
-        setUser(null);
         setToken(null);
-        localStorage.removeItem("token");
-        toast.info("Logged Out");
+        setUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+    };
+
+    const hasRole = (allowedRoles: string[]) => {
+        if (!user) return false;
+        return allowedRoles.includes(user.role);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user, hasRole }}>
             {children}
         </AuthContext.Provider>
     );
@@ -103,6 +113,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth must be used within an AuthProvider");
+    if (!context) throw new Error('useAuth must be used within an AuthProvider');
     return context;
 };

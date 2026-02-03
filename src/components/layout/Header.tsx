@@ -1,11 +1,14 @@
-import { Bell, MessageCircle, User, Wifi, WifiOff } from "lucide-react";
+import { Bell, MessageCircle, User, Wifi, WifiOff, LogOut, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   currentPage: string;
   onChatbotToggle: () => void;
   chatbotOpen: boolean;
+  onLoginClick: () => void;
 }
+// ... (pageTitles map remains same, I should omit it or include it from context if I can't partial edit properly. I will include the full start of component)
 
 const pageTitles: Record<string, string> = {
   dashboard: "Dashboard",
@@ -18,26 +21,25 @@ const pageTitles: Record<string, string> = {
   heartbeat: "System Heartbeat",
 };
 
-const Header = ({ currentPage, onChatbotToggle, chatbotOpen }: HeaderProps) => {
+const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: HeaderProps) => {
+  const { user, logout, isAuthenticated } = useAuth();
   const [plcStatus, setPlcStatus] = useState<{ connected: boolean; error?: string }>({
     connected: false,
   });
 
   useEffect(() => {
+    // ... (keep useEffect for polling)
     const interval = setInterval(async () => {
       try {
         const res = await fetch("http://localhost:5001/plc/status");
         const data = await res.json();
-        // console.log("PLC Status Poll:", data);
         if (data.connected && data.error === null) {
           setPlcStatus({ connected: true });
         } else {
           setPlcStatus({ connected: false });
-          // Only log error if strictly necessary, avoiding spam
         }
       } catch (err) {
         setPlcStatus({ connected: false, error: "No backend" });
-        // console.warn("PLC Status Poll Failed");
       }
     }, 2000);
     return () => clearInterval(interval);
@@ -87,13 +89,35 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen }: HeaderProps) => {
           <MessageCircle className="w-5 h-5" />
         </button>
 
-        {/* User menu */}
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-secondary transition-colors">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <User className="w-4 h-4 text-primary" />
+        {/* User menu / Login */}
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary/50 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-sm font-medium text-foreground">{user.username}</span>
+                <span className="text-[10px] text-muted-foreground uppercase">{user.role}</span>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
-          <span className="text-sm font-medium text-foreground">Operator</span>
-        </button>
+        ) : (
+          <button
+            onClick={onLoginClick}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            <LogIn className="w-4 h-4" />
+            <span className="font-medium text-sm">Login</span>
+          </button>
+        )}
       </div>
     </header>
   );
