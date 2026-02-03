@@ -27,7 +27,7 @@ interface InferenceResult {
 }
 
 const AutomaticMode = () => {
-  const MOCK_MODE = true; // TOGGLE THIS FOR MOCK MODE
+  const MOCK_MODE = false; 
 
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
