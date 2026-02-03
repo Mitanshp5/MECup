@@ -27,7 +27,7 @@ interface InferenceResult {
 }
 
 const AutomaticMode = () => {
-  const MOCK_MODE = false; 
+  const MOCK_MODE = false;
 
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
@@ -37,6 +37,7 @@ const AutomaticMode = () => {
   const [selectedDefectImage, setSelectedDefectImage] = useState<string | null>(null);
   const [isInferencing, setIsInferencing] = useState(false);
   const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
+  const [pulseMode, setPulseMode] = useState<'white' | 'black'>('white');
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
@@ -272,6 +273,44 @@ const AutomaticMode = () => {
     }
   };
 
+  const handlePulseToggle = async () => {
+    if (isScanning) return;
+
+    const newMode = pulseMode === 'white' ? 'black' : 'white';
+
+    if (MOCK_MODE) {
+      setPulseMode(newMode);
+      toast.success(`Pulse: ${newMode.toUpperCase()}`, {
+        description: `Simulated ${newMode === 'white' ? 'M104' : 'M103'} Pulse`
+      });
+      return;
+    }
+
+    try {
+      // Optimistically update or wait? Let's wait for success to confirm mode switch if critical, 
+      // but for UI responsiveness, optimistic is often better. 
+      // However, we need to send the PULSE for the NEW mode.
+
+      const res = await fetch("http://localhost:5001/plc/toggle-pulse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: newMode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPulseMode(newMode);
+        toast.success(`Pulse: ${newMode.toUpperCase()}`, {
+          description: `Triggered ${newMode === 'white' ? 'M104' : 'M103'}`
+        });
+      } else {
+        toast.error("Pulse Failed", { description: data.error || "PLC Error" });
+      }
+    } catch (e) {
+      console.error("Pulse error:", e);
+      toast.error("Pulse Failed", { description: "Network error" });
+    }
+  };
+
   const handleRunInference = useCallback(async () => {
     if (isInferencing) return;
     setIsInferencing(true);
@@ -440,10 +479,29 @@ const AutomaticMode = () => {
                 }`}
             >
               <Square className={`w-6 h-6 ${isScanning ? 'drop-shadow-md' : ''}`} />
-              <span className="text-xs font-bold">STOP</span>
+              <span className="text-[10px] font-bold">STOP</span>
+            </motion.button>
+
+            {/* Toggle Pulse */}
+            <motion.button
+              whileHover={{ scale: isScanning ? 1 : 1.02 }}
+              whileTap={{ scale: isScanning ? 1 : 0.98 }}
+              onClick={handlePulseToggle}
+              disabled={isScanning}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${isScanning
+                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                : pulseMode === 'white'
+                  ? "bg-white text-black border-2 border-gray-200 hover:bg-gray-50"
+                  : "bg-black text-white border-2 border-gray-700 hover:bg-gray-900"
+                }`}
+            >
+              <Zap className={`w-5 h-5 ${isScanning ? '' : 'drop-shadow-sm'}`} />
+              <span className="text-[10px] font-bold">{pulseMode.toUpperCase()}</span>
             </motion.button>
           </div>
         </div>
+
+
 
         {/* Bottom row: Grid, Reset, Home buttons */}
         <div className="industrial-panel p-3">
