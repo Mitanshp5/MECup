@@ -1,20 +1,14 @@
-"""
-Authentication models - DISABLED for development.
-Using simple classes instead of SQLAlchemy models.
-"""
+from sqlalchemy import Column, Integer, String, Boolean
+try:
+    from database import Base
+except ImportError:
+    from ..database import Base
 
-import enum
+class User(Base):
+    __tablename__ = "users"
 
-class UserRole(str, enum.Enum):
-    ADMIN = "ADMIN"
-    OPERATOR = "OPERATOR"
-    VIEWER = "VIEWER"
-
-class User:
-    """Simple user class without database dependency."""
-    def __init__(self, username="admin", role=None, is_active=True):
-        self.id = 1
-        self.username = username
-        self.hashed_password = "dummy"
-        self.role = role or UserRole.ADMIN
-        self.is_active = is_active
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
+    role = Column(String, default="viewer")  # admin, operator, viewer

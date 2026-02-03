@@ -4,6 +4,8 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Chatbot from "../chatbot/Chatbot";
 
+import LoginModal from "../LoginModal";
+
 interface AppLayoutProps {
   children: React.ReactNode;
   currentPage: string;
@@ -13,23 +15,25 @@ interface AppLayoutProps {
 const AppLayout = ({ children, currentPage, onPageChange }: AppLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar 
+      <Sidebar
         collapsed={sidebarCollapsed}
         onCollapse={setSidebarCollapsed}
         currentPage={currentPage}
         onPageChange={onPageChange}
       />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header 
+        <Header
           currentPage={currentPage}
           onChatbotToggle={() => setChatbotOpen(!chatbotOpen)}
           chatbotOpen={chatbotOpen}
+          onLoginClick={() => setLoginModalOpen(true)}
         />
-        
+
         <main className="flex-1 overflow-auto p-6 grid-overlay">
           <AnimatePresence mode="wait">
             <motion.div
@@ -47,6 +51,7 @@ const AppLayout = ({ children, currentPage, onPageChange }: AppLayoutProps) => {
       </div>
 
       <Chatbot isOpen={chatbotOpen} onClose={() => setChatbotOpen(false)} />
+      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </div>
   );
 };

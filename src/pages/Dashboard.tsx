@@ -162,26 +162,12 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           />
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - REMOVED for Read-Only Dashboard */}
+        {/* 
         <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">QUICK ACTIONS</h3>
-          <div className="space-y-2">
-            <button
-              onClick={() => onPageChange("automatic")}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
-            >
-              <Play className="w-5 h-5" />
-              <span className="font-medium">Start New Scan</span>
-            </button>
-            <button
-              onClick={() => onPageChange("manual")}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-              <span className="font-medium">Manual Control</span>
-            </button>
-          </div>
-        </div>
+           ... (removed)
+        </div> 
+        */}
 
         {/* Recent Activity */}
         <div className="industrial-panel p-4 flex-1">

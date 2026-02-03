@@ -1,44 +1,94 @@
-"""
-Authentication router - DISABLED for development.
-All endpoints return dummy responses.
-"""
+from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from datetime import timedelta
+from typing import List
 
-from fastapi import APIRouter
 try:
-    from auth import models, schemas
+    from ..database import get_db
 except ImportError:
-    from . import models, schemas
+    from database import get_db
+from . import models, schemas, security, dependencies
 
 router = APIRouter(tags=["Authentication"])
 
-# Mock users for display
-MOCK_USERS = [
-    {"id": 1, "username": "admin", "role": models.UserRole.ADMIN, "is_active": True},
-    {"id": 2, "username": "operator", "role": models.UserRole.OPERATOR, "is_active": True},
-    {"id": 3, "username": "viewer", "role": models.UserRole.VIEWER, "is_active": True},
-]
+@router.post("/token", response_model=schemas.Token)
+async def login_for_access_token(
+    username: str = Form(...),
+    password: str = Form(""), 
+    db: Session = Depends(get_db)
+):
+    # Construct a form_data like object to keep compatible variable names if desired, 
+    # or just use username/password directly.
+    class FormData:
+        def __init__(self, u, p):
+            self.username = u
+            self.password = p
+    form_data = FormData(username, password)
+    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    
+    print(f"[AUTH DEBUG] Login attempt for: {form_data.username}", flush=True)
+    if not user:
+        print("[AUTH DEBUG] User not found", flush=True)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    print(f"[AUTH DEBUG] User found. Verifying password...", flush=True)
+    # print(f"[AUTH DEBUG] Hashed: {user.hashed_password}", flush=True) # Security risk in prod, ok for debug
+    
+    is_valid = security.verify_password(form_data.password, user.hashed_password)
+    print(f"[AUTH DEBUG] Verify result: {is_valid}", flush=True)
 
-@router.post("/token")
-async def login_for_access_token():
-    """Bypass login - always returns a valid token."""
-    return {"access_token": "bypass_token", "token_type": "bearer"}
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
+    # Include role in the JWT payload/response logic if needed, but here we embed it in response
+    access_token = security.create_access_token(
+        data={"sub": user.username, "role": user.role}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer", "role": user.role}
 
-@router.get("/users/me")
-async def read_users_me():
-    """Return dummy admin user."""
-    return {"id": 1, "username": "admin", "role": "ADMIN", "is_active": True}
+@router.post("/users", response_model=schemas.UserResponse)
+def create_user(
+    user: schemas.UserCreate, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(dependencies.get_admin_user)
+):
+    """Create new user (Admin only)."""
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
+    hashed_password = security.get_password_hash(user.password)
+    new_user = models.User(
+        username=user.username, 
+        hashed_password=hashed_password,
+        role=user.role
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
-@router.get("/users")
-async def list_users():
-    """Return mock users list."""
-    return MOCK_USERS
+@router.get("/users", response_model=List[schemas.UserResponse])
+def read_users(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(dependencies.get_admin_user)
+):
+    """List all users (Admin only)."""
+    users = db.query(models.User).offset(skip).limit(limit).all()
+    return users
 
-@router.post("/users")
-async def create_user(user_in: schemas.UserCreate):
-    """Mock user creation - just returns the input."""
-    return {
-        "id": len(MOCK_USERS) + 1,
-        "username": user_in.username,
-        "role": user_in.role,
-        "is_active": True
-    }
+@router.get("/users/me", response_model=schemas.UserResponse)
+async def read_users_me(current_user: models.User = Depends(dependencies.get_current_active_user)):
+    return current_user

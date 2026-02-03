@@ -2,11 +2,20 @@ import threading
 import time
 import datetime
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
-from typing import Dict
+from typing import Dict, List, Optional
 from .settings import save_plc_settings, load_plc_settings
-from .connection import PLCManager
+from .connection import manager
+
+# Try sourcing from parent auth module
+try:
+    from auth.dependencies import get_current_active_user
+    from auth.models import User
+except ImportError:
+    # Fallback for when running tests or different path context
+    from ..auth.dependencies import get_current_active_user
+    from ..auth.models import User
 
 # ------------- camera imports -------------
 camera_manager = None
@@ -59,7 +68,7 @@ def add_event(event: str, event_type: str = "info"):
 
 # ------------- Global / Manager -------------
 router = APIRouter()
-manager = PLCManager()
+# manager = PLCManager() # Use imported manager
 
 # Batch folder for current scan session
 current_batch_folder = None
@@ -76,9 +85,9 @@ class PLCWriteRequest(BaseModel):
     value: int
 
 class ServoSpeedRequest(BaseModel):
-    x: int = Field(..., ge=0, le=50000, description="Speed for X axis (D2)")
-    y: int = Field(..., ge=0, le=50000, description="Speed for Y axis (D0)")
-    z: int = Field(..., ge=0, le=50000, description="Speed for Z axis (D4)")
+    x: int = Field(..., ge=0, le=500000, description="Speed for X axis (D2)")
+    y: int = Field(..., ge=0, le=500000, description="Speed for Y axis (D0)")
+    z: int = Field(..., ge=0, le=500000, description="Speed for Z axis (D4)")
 
 class ServoEnableRequest(BaseModel):
     enable: bool
@@ -89,22 +98,31 @@ class ServoMoveRequest(BaseModel):
 class TogglePulseRequest(BaseModel):
     mode: str
 
+class LightControlRequest(BaseModel):
+    pass
+
+class ScanStopRequest(BaseModel):
+    pass
+
+class ErrorResetRequest(BaseModel):
+    pass
+
 # ------------- Constants -------------
 MOTION_COMMANDS = {
     # Control
     "servo_on": "M0",
     # X Axis
-    "x_left_17": "M100",
+    "x_left_17": "M10",
     "x_right_17": "M200",
-    "x_home": "M300",
+    "x_home": "M1",
     # Y Axis
-    "y_back_12.5": "M500",
+    "y_back_12.5": "M20",
     "y_fwd_12.5": "M600",
     # Z Axis
     "z_up_5": "M800",
-    "z_down_5": "M900",
+    "z_down_5": "M30",
     "z_up_jog": "M8",
-    "z_down_jog": "M7"
+    "z_down_jog": "M30"
 }
 
 # ------------- Polling Logic -------------
@@ -256,6 +274,51 @@ async def plc_write(req: PLCWriteRequest):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@router.post("/plc/lights")
+async def control_lights(req: LightControlRequest):
+    """Control Y0 lights (Toggle)."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        # Read current Y0
+        current = manager.read_bit("Y0", 1)
+        current_val = current[0] if current else 0
+        
+        # Toggle
+        new_val = 1 if current_val == 0 else 0
+        
+        manager.write_bit("Y0", [new_val])
+        return {"success": True, "state": bool(new_val)}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/scan-stop")
+async def scan_stop(req: ScanStopRequest):
+    """Stop scan by setting M5 to OFF."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        manager.write_bit("M5", [0])
+        add_event("Scan stopped", "info")
+        return {"success": True, "message": "Scan Stopped (M5 OFF)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/error-reset")
+async def error_reset(req: ErrorResetRequest):
+    """Pulse M15 to reset errors."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        # Pulse M15: ON then OFF
+        manager.write_bit("M15", [1])
+        time.sleep(0.2)
+        manager.write_bit("M15", [0])
+        add_event("Error reset triggered", "info")
+        return {"success": True, "message": "Error Reset (M15 Pulsed)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @router.post("/plc/toggle-pulse")
 async def toggle_pulse(req: TogglePulseRequest):
     """Pulse M104 (White) or M103 (Black) for 0.2s."""
@@ -282,18 +345,33 @@ async def toggle_pulse(req: TogglePulseRequest):
 # ------------- Control Endpoints -------------
 
 @router.post("/plc/scan-start")
-async def scan_start():
+async def scan_start(current_user: User = Depends(get_current_active_user)):
     """Start scan by setting M5 to ON and creating a new batch folder."""
-    global current_batch_folder
+    global current_batch_folder, current_scan_user
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
+        current_scan_user = current_user.username
+        
         # Create new batch folder with timestamp if not already set
         if not current_batch_folder:
             backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             current_batch_folder = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
             os.makedirs(current_batch_folder, exist_ok=True)
+            
+            # Save Scan Metadata having scanned_by
+            try:
+                import json
+                meta_file = os.path.join(current_batch_folder, "scan_info.json")
+                with open(meta_file, 'w') as f:
+                    json.dump({
+                        "scanned_by": current_scan_user,
+                        "start_time": timestamp,
+                        "role": current_user.role
+                    }, f, indent=2)
+            except Exception as ex:
+                print(f"Failed to save scan info: {ex}")
         
         manager.write_bit("M5", [1])
         time.sleep(1)
@@ -339,28 +417,42 @@ async def homing_start():
     try:
         manager.write_bit("M1", [1])
         add_event("Homing sequence started", "info")
-        return {"success": True, "message": "Homing Started (X6 ON)"}
+        return {"success": True, "message": "Homing Started (M1 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 @router.get("/plc/control-status")
 async def get_control_status():
-    """Read current status of control bits M5, M4, M120, X6."""
+    """Read current status of control bits M5, M4, M120, M1, M0, M99, Y0."""
     if not manager.connected:
-        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "x6": None}
+        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "m99": None, "y0": None}
     try:
-        m5 = manager.read_bit("M5", 1)
-        m4 = manager.read_bit("M4", 1)
-        m120 = manager.read_bit("M120", 1)
-        x6 = manager.read_bit("X6", 1)
+        # Optimize: Read M0-M120 in one block (121 bits)
+        # This reduces 5 separate calls to 1 call.
+        # Indices: M0=0, M1=1, M4=4, M5=5, M99=99, M120=120
+        m_block = manager.read_bit("M0", 121)
+        
+        # Read Y0 separately
+        y0 = manager.read_bit("Y0", 1)
+        
+        m0_val = m_block[0] if m_block and len(m_block) > 0 else None
+        m1_val = m_block[1] if m_block and len(m_block) > 1 else None
+        m4_val = m_block[4] if m_block and len(m_block) > 4 else None
+        m5_val = m_block[5] if m_block and len(m_block) > 5 else None
+        m99_val = m_block[99] if m_block and len(m_block) > 99 else None
+        m120_val = m_block[120] if m_block and len(m_block) > 120 else None
+        
         return {
-            "m5": m5[0] if m5 else None,
-            "m4": m4[0] if m4 else None,
-            "m120": m120[0] if m120 else None,
-            "x6": x6[0] if x6 else None
+            "m5": m5_val,
+            "m4": m4_val,
+            "m120": m120_val,
+            "m1": m1_val,
+            "m0": m0_val,
+            "m99": m99_val,
+            "y0": y0[0] if y0 else None
         }
     except Exception as e:
-        return {"error": str(e), "m5": None, "m4": None, "m120": None, "x6": None}
+        return {"error": str(e), "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "m99": None, "y0": None}
 
 @router.get("/plc/heartbeat")
 async def get_heartbeat():
@@ -446,9 +538,15 @@ async def enable_servo(req: ServoEnableRequest) -> Dict[str, str]:
     if not manager.connected:
         raise HTTPException(status_code=503, detail="PLC Not Connected")
     try:
-        val = [1] if req.enable else [0]
-        manager.write_bit("M0", val)
-        return {"status": "success", "message": f"Servo {'Enabled' if req.enable else 'Disabled'}"}
+        # Read current status of M99
+        current = manager.read_bit("M99", 1)
+        current_val = current[0] if current else 0
+        
+        # Toggle
+        new_val = 1 if current_val == 0 else 0
+        
+        manager.write_bit("M99", [new_val])
+        return {"status": "success", "message": f"Servo {'Enabled' if new_val else 'Disabled'}", "enabled": bool(new_val)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -516,6 +614,18 @@ async def list_scans():
                     overlay_files = [f for f in os.listdir(results_dir) if "_overlay" in f]
                     defect_count = len(overlay_files)
             
+            # Read scanned_by from scan_info.json
+            scanned_by = "Unknown"
+            try:
+                import json
+                info_path = os.path.join(folder_path, "scan_info.json")
+                if os.path.exists(info_path):
+                    with open(info_path, 'r') as f:
+                        info = json.load(f)
+                        scanned_by = info.get("scanned_by", "Unknown")
+            except:
+                pass
+
             # Fail if defects > images/10
             threshold = image_count / 10
             scans.append({
@@ -525,7 +635,8 @@ async def list_scans():
                 "time": time_str,
                 "image_count": image_count,
                 "defect_count": defect_count,
-                "status": "fail" if defect_count > threshold else "pass"
+                "status": "fail" if defect_count > (image_count / 10) else "pass", # Simple threshold logic
+                "scanned_by": scanned_by
             })
     
     # Sort by date (newest first)

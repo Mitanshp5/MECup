@@ -1,8 +1,20 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap, Lightbulb } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap, Lightbulb, AlertCircle } from "lucide-react";
+
+import { useAuth } from "@/context/AuthContext";
+
+const getApiBaseUrl = () => {
+  if (!window.location.hostname) return 'http://127.0.0.1:5001';
+  return `http://${window.location.hostname}:5001`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const ManualMode = () => {
+  const { hasRole } = useAuth();
+  const canControl = hasRole(['admin', 'operator']);
+
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
   const [speeds, setSpeeds] = useState({ x: 50, y: 50, z: 50 });
   const [jogDistance, setJogDistance] = useState(10);
@@ -13,18 +25,42 @@ const ManualMode = () => {
   useEffect(() => {
     const checkPlc = async () => {
       try {
-        const res = await fetch('http://localhost:5001/plc/status');
+        const res = await fetch(`${API_BASE_URL}/plc/control-status`);
         const data = await res.json();
-        setPlcConnected(data.connected);
+
+        // Check m5/m4 etc but primarily we need m99 for servo
+        // If control-status endpoint returns m99, use it.
+        // Or if we need connection status, we might need to check how backend handles it.
+        // Wait, get_plc_status is /plc/status (endpoints line 216).
+        // control-status is /plc/control-status (endpoints line 347).
+        // The original checkPlc used /plc/status which returns connection info.
+        // We should probably call control-status as well to get M99.
+
+        const statusRes = await fetch(`${API_BASE_URL}/plc/status`);
+        const statusData = await statusRes.json();
+        setPlcConnected(statusData.connected);
+
+        if (statusData.connected) {
+          try {
+            const ctrlRes = await fetch(`${API_BASE_URL}/plc/control-status`);
+            const ctrlData = await ctrlRes.json();
+            if (ctrlData.m99 !== undefined && ctrlData.m99 !== null) {
+              setServoEnabled(ctrlData.m99 === 1);
+            }
+            if (ctrlData.y0 !== undefined && ctrlData.y0 !== null) {
+              setLightsOn(ctrlData.y0 === 1);
+            }
+          } catch (e) { console.error("Control status poll failed", e); }
+        }
 
         // Read current servo speeds from PLC
-        if (data.connected) {
-          const speedsRes = await fetch('http://localhost:5001/servo/speeds');
-          const speedsData = await speedsRes.json();
-          if (speedsData.connected) {
-            setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
-          }
-        }
+        // if (data.connected) {
+        //   const speedsRes = await fetch(`${API_BASE_URL}/servo/speeds`);
+        //   const speedsData = await speedsRes.json();
+        //   if (speedsData.connected) {
+        //     setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
+        //   }
+        // }
       } catch (e) {
         setPlcConnected(false);
       }
@@ -39,28 +75,34 @@ const ManualMode = () => {
 
   const handleServoToggle = async () => {
     try {
-      const newState = !servoEnabled;
-      // Optimistic update
-      setServoEnabled(newState);
-      await fetch('http://localhost:5001/servo/enable', {
+      // Backend now handles reading current state and toggling
+      // We send a dummy value since backend ignores it, or rather backend uses it?
+      // Wait, backend 'enable_servo' READS current M99. argument 'req' is ServoEnableRequest which has 'enable: bool'.
+      // But implementation ignores 'req.enable' for logic, just uses it for nothing or I should check.
+      // My backend change:
+      //     # Read current status of M99...
+      //     # Toggle...
+
+      // So I can send anything.
+      await fetch(`${API_BASE_URL}/servo/enable`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enable: newState })
+        body: JSON.stringify({ enable: true }) // Value ignored by new backend logic
       });
+      // State updated via polling
     } catch (error) {
       console.error("Failed to toggle servo:", error);
-      // Revert on error
-      setServoEnabled(!servoEnabled);
     }
   };
 
   const handleMove = async (command: string) => {
+    if (!canControl) return; // Prevent unauthorized moves
     if (!servoEnabled) {
       alert("Please Enable Servo First!");
       return;
     }
     try {
-      await fetch('http://localhost:5001/servo/move', {
+      await fetch(`${API_BASE_URL}/servo/move`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command })
@@ -77,7 +119,7 @@ const ManualMode = () => {
   return (
     <div className="h-full grid grid-cols-12 gap-6 relative">
       {/* Blocking Overlay */}
-      {!plcConnected && (
+      {/* {!plcConnected && (
         <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg border border-destructive/50">
           <div className="text-center space-y-4 p-8 bg-card border border-destructive rounded-xl shadow-lg">
             <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto animate-pulse">
@@ -90,7 +132,7 @@ const ManualMode = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Main Control Panel */}
       <div className="col-span-8 space-y-6">
@@ -111,8 +153,11 @@ const ManualMode = () => {
         </div>
 
         {/* Jog Controls */}
-        <div className="industrial-panel p-6">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">JOG CONTROLS</h3>
+        <div className={`industrial-panel p-6 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">JOG CONTROLS</h3>
+            {!canControl && <span className="text-xs text-destructive font-bold">READ ONLY</span>}
+          </div>
 
           <div className="grid grid-cols-2 gap-8">
             {/* XY Control */}
@@ -120,17 +165,17 @@ const ManualMode = () => {
               <p className="text-xs text-muted-foreground mb-3 text-center">X/Y AXIS</p>
               <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
                 <div />
-                <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_12.5")} label="Y+ (12.5mm)" />
+                {/* <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_12.5")} label="Y+ (12.5mm)" /> */}
                 <div />
                 <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_17")} label="X- (17mm)" />
-                <button
+                {/* <button
                   onClick={() => handleMove("x_home")}
                   className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
                   title="X Home"
                 >
                   <Home className="w-5 h-5 mx-auto" />
-                </button>
-                <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_17")} label="X+ (17mm)" />
+                </button> */}
+                {/* <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_17")} label="X+ (17mm)" /> */}
                 <div />
                 <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_12.5")} label="Y- (12.5mm)" />
                 <div />
@@ -141,7 +186,7 @@ const ManualMode = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">Z AXIS</p>
               <div className="flex flex-col gap-2 items-center">
-                <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_5")} label="Z+ (5mm)" />
+                {/* <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_5")} label="Z+ (5mm)" /> */}
                 <div className="h-8" />
                 <JogButton icon={ArrowDown} onClick={() => handleMove("z_down_5")} label="Z- (5mm)" />
               </div>
@@ -151,7 +196,7 @@ const ManualMode = () => {
 
         {/* Speed & Distance */}
         <div className="grid grid-cols-2 gap-6">
-          <div className="industrial-panel p-4">
+          <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">AXIS SPEEDS</h3>
             </div>
@@ -169,6 +214,7 @@ const ManualMode = () => {
                     value={speeds.x}
                     onChange={(e) => setSpeeds(prev => ({ ...prev, x: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
                     className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                    disabled={!canControl}
                   />
                 </div>
                 {/* Y Axis */}
@@ -183,6 +229,7 @@ const ManualMode = () => {
                     value={speeds.y}
                     onChange={(e) => setSpeeds(prev => ({ ...prev, y: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
                     className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                    disabled={!canControl}
                   />
                 </div>
                 {/* Z Axis */}
@@ -197,12 +244,13 @@ const ManualMode = () => {
                     value={speeds.z}
                     onChange={(e) => setSpeeds(prev => ({ ...prev, z: Math.max(0, Math.min(50000, Number(e.target.value))) }))}
                     className="w-full bg-secondary border border-border rounded px-2 py-1 text-sm text-center"
+                    disabled={!canControl}
                   />
                 </div>
               </div>
               <button
                 onClick={() => {
-                  fetch('http://localhost:5001/servo/speeds', {
+                  fetch(`${API_BASE_URL}/servo/speeds`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(speeds)
@@ -218,6 +266,7 @@ const ManualMode = () => {
                     .catch(err => alert("Connection Error: " + err));
                 }}
                 className="w-full py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors mt-2"
+                disabled={!canControl}
               >
                 SET SPEEDS
               </button>
@@ -251,7 +300,7 @@ const ManualMode = () => {
           <h3 className="text-sm font-medium text-muted-foreground mb-3">LIVE CAMERA VIEW</h3>
           <div className="aspect-[4/3] bg-black rounded-md overflow-hidden border border-border relative">
             <img
-              src="http://localhost:5001/camera/stream"
+              src={`${API_BASE_URL}/camera/stream`}
               alt="Camera Stream"
               className="w-full h-full object-contain"
               onError={(e) => {
@@ -285,14 +334,16 @@ const ManualMode = () => {
           <h3 className="text-sm font-medium text-muted-foreground mb-3">LIGHT CONTROL</h3>
           <button
             onClick={async () => {
-              const newState = !lightsOn;
               try {
-                await fetch("http://localhost:5001/plc/write", {
+                const res = await fetch(`${API_BASE_URL}/plc/lights`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ device: "Y1", value: newState ? 1 : 0 })
+                  body: JSON.stringify({})
                 });
-                setLightsOn(newState);
+                const data = await res.json();
+                if (data.success) {
+                  setLightsOn(data.state);
+                }
               } catch (e) {
                 console.error("Failed to toggle lights:", e);
               }
@@ -305,15 +356,37 @@ const ManualMode = () => {
             <Lightbulb className={`w-4 h-4 ${lightsOn ? "fill-current" : ""}`} />
             <span>{lightsOn ? "LIGHTS OFF" : "LIGHTS ON"}</span>
           </button>
+
+          {/* Error Reset Button */}
+          <button
+            onClick={async () => {
+              try {
+                // Trigger reset (Pulse M15 handled by backend)
+                await fetch(`${API_BASE_URL}/plc/error-reset`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({})
+                });
+
+              } catch (e) {
+                console.error("Failed to reset error:", e);
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 mt-3 rounded-md font-medium text-sm transition-all bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20"
+          >
+            <AlertCircle className="w-4 h-4" />
+            <span>ERROR RESET (M15)</span>
+          </button>
         </div>
 
         {/* Servo Status */}
-        <div className="industrial-panel p-4">
+        <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-muted-foreground">SERVO CONTROL</h3>
             <button
               onClick={handleServoToggle}
               className={`px-3 py-1 rounded text-xs font-bold transition-all ${servoEnabled ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground"}`}
+              disabled={!canControl}
             >
               {servoEnabled ? "ON" : "OFF"}
             </button>

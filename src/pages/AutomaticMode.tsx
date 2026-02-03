@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Defect {
   id: string;
@@ -28,6 +30,8 @@ interface InferenceResult {
 
 const AutomaticMode = () => {
   const MOCK_MODE = false;
+  const { hasRole } = useAuth();
+  const canControl = hasRole(['admin', 'operator']);
 
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
@@ -41,7 +45,7 @@ const AutomaticMode = () => {
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
-    if (!MOCK_MODE) {
+    if (true) {
       fetch('http://localhost:5001/camera/connect', { method: 'POST' })
         .catch(err => console.error("Failed to connect camera:", err));
     }
@@ -186,10 +190,10 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/write", {
+      const res = await fetch("http://localhost:5001/plc/scan-stop", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device: "M5", value: 0 }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
 
@@ -453,27 +457,36 @@ const AutomaticMode = () => {
             </div>
 
             {/* Start */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleStartScan}
-              disabled={isScanning}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${isScanning
-                ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
-                : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
-                }`}
-            >
-              <Play className={`w-6 h-6 ${isScanning ? '' : 'drop-shadow-md'}`} />
-              <span className="text-xs font-bold">START</span>
-            </motion.button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex-1 flex w-full"> {/* Span wrapper needed for disabled button tooltip trigger */}
+                    <motion.button
+                      whileHover={canControl ? { scale: 1.02 } : {}}
+                      whileTap={canControl ? { scale: 0.98 } : {}}
+                      onClick={handleStartScan}
+                      disabled={isScanning || !canControl}
+                      className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${(isScanning || !canControl)
+                        ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
+                        : "bg-gradient-to-br from-success to-success/80 text-success-foreground hover:from-success/90 hover:to-success/70 border border-success/30"
+                        }`}
+                    >
+                      <Play className={`w-6 h-6 ${isScanning ? '' : 'drop-shadow-md'}`} />
+                      <span className="text-xs font-bold">START</span>
+                    </motion.button>
+                  </span>
+                </TooltipTrigger>
+                {!canControl && <TooltipContent><p>Read-Only Access</p></TooltipContent>}
+              </Tooltip>
+            </TooltipProvider>
 
             {/* Stop */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={canControl ? { scale: 1.02 } : {}}
+              whileTap={canControl ? { scale: 0.98 } : {}}
               onClick={handleStopScan}
-              disabled={!isScanning}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${!isScanning
+              disabled={!isScanning || !canControl}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${(!isScanning || !canControl)
                 ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
                 : "bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-400 hover:to-red-500 border-2 border-red-400 ring-2 ring-red-500/30"
                 }`}
@@ -484,11 +497,11 @@ const AutomaticMode = () => {
 
             {/* Toggle Pulse */}
             <motion.button
-              whileHover={{ scale: isScanning ? 1 : 1.02 }}
-              whileTap={{ scale: isScanning ? 1 : 0.98 }}
+              whileHover={(isScanning || !canControl) ? { scale: 1 } : { scale: 1.02 }}
+              whileTap={(isScanning || !canControl) ? { scale: 1 } : { scale: 0.98 }}
               onClick={handlePulseToggle}
-              disabled={isScanning}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${isScanning
+              disabled={isScanning || !canControl}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 p-2 rounded-lg font-medium transition-all shadow-lg ${(isScanning || !canControl)
                 ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
                 : pulseMode === 'white'
                   ? "bg-white text-black border-2 border-gray-200 hover:bg-gray-50"

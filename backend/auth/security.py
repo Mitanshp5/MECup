@@ -1,34 +1,31 @@
-"""
-Authentication security module - DISABLED for development.
-All authentication is bypassed, returning a dummy admin user.
-"""
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+import os
+from dotenv import load_dotenv
 
-# Dummy User class for compatibility
-class DummyUser:
-    def __init__(self):
-        self.username = "admin"
-        self.role = "admin"
-        self.is_active = True
+load_dotenv()
 
-# Bypass function - always returns dummy user
-async def get_current_user():
-    return DummyUser()
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_change_me")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
-async def get_current_active_user():
-    return DummyUser()
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
-def require_admin():
-    return DummyUser()
-
-def require_operator():
-    return DummyUser()
-
-# Dummy password functions
 def verify_password(plain_password, hashed_password):
-    return True
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
-    return "dummy_hash"
+    return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta=None):
-    return "dummy_token"
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt

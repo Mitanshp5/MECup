@@ -7,9 +7,17 @@ from contextlib import asynccontextmanager
 logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from sqlalchemy.orm import Session
+
+# Database & Auth
+from database import engine, get_db
+from auth import models as auth_models, router as auth_router, security as auth_security
+
+# Create Tables
+auth_models.Base.metadata.create_all(bind=engine)
 
 # from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
@@ -17,6 +25,35 @@ import uvicorn
 async def lifespan(app: FastAPI):
     # async with rag_lifespan(app):
     #     yield
+    # Create Default Admin User
+    try:
+        db = next(get_db())
+        # Check for 'mee' user
+        user = db.query(auth_models.User).filter(auth_models.User.username == "mee").first()
+        
+        # Calculate expected hash for empty password
+        hashed_pwd = auth_security.get_password_hash("")
+        
+        if not user:
+            print("[Backend] Creating default user 'mee'...", flush=True)
+            new_user = auth_models.User(
+                username="mee",
+                hashed_password=hashed_pwd,
+                role="admin"
+            )
+            db.add(new_user)
+            db.commit()
+            print("[Backend] Default user created: mee / (empty)", flush=True)
+        else:
+            # Force update password to ensure it matches current security scheme
+            user.hashed_password = hashed_pwd
+            # Ensure role is admin
+            user.role = "admin"
+            db.commit()
+            print("[Backend] User 'mee' password reset to empty (sync with security scheme).", flush=True)
+    except Exception as e:
+        print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
+
     try:
         from inference.inference_service import get_predictor
         print("[Backend] Initializing Inference Engine...", flush=True)
@@ -42,6 +79,7 @@ app.add_middleware(
 )
 
 # Include Routers
+app.include_router(auth_router.router)
 from plc.endpoints import router as plc_router
 app.include_router(plc_router, tags=["PLC"])
 

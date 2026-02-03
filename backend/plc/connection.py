@@ -3,6 +3,8 @@ import socket
 import time
 import rk_mcprotocol as mc
 
+print("LOADING PLC CONNECTION MODULE...", flush=True)
+
 class PLCManager:
     _instance = None
     _lock = threading.RLock()
@@ -59,6 +61,8 @@ class PLCManager:
             try:
                 print(f"[PLC MANAGER] Connecting to {self.ip}:{self.port}...")
                 self._sock = mc.open_socket(self.ip, self.port)
+                self._sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                self._sock.settimeout(5.0) # Set 5s timeout
                 self.connected = True
                 self.last_error = None
                 self.last_checked = time.time()
@@ -78,6 +82,7 @@ class PLCManager:
             try:
                 return mc.read_bit(self._sock, device, count)
             except Exception as e:
+                print(f"[PLC MANAGER] Read Error: {e}")
                 self.disconnect()
                 raise e
 
@@ -92,26 +97,30 @@ class PLCManager:
             try:
                 mc.write_bit(self._sock, device, value_list)
             except Exception as e:
+                print(f"[PLC MANAGER] Write Error: {e}")
                 self.disconnect()
                 raise e
 
-    def write_sign_dword(self, device, value_list):
+    def write_sign_dword(self, device, value_list, signed_type=True):
         with self._socket_lock:
             if not self.connect():
                 raise Exception(f"PLC disconnected: {self.last_error}")
             try:
-                mc.write_sign_dword(self._sock, device, value_list)
+                # Case sensitive correction based on library
+                mc.write_sign_Dword(self._sock, device, value_list, signed_type)
             except Exception as e:
+                print(f"[PLC MANAGER] Write DWord Error: {e}")
                 self.disconnect()
                 raise e
 
-    def read_sign_dword(self, device, count=1):
+    def read_sign_dword(self, device, count=1, signed_type=True):
         with self._socket_lock:
             if not self.connect():
                 raise Exception(f"PLC disconnected: {self.last_error}")
             try:
-                return mc.read_sign_dword(self._sock, device, count)
+                return mc.read_sign_Dword(self._sock, device, count, signed_type)
             except Exception as e:
+                print(f"[PLC MANAGER] Read DWord Error: {e}")
                 self.disconnect()
                 raise e
 
@@ -121,5 +130,7 @@ class PLCManager:
             "port": self.port,
             "connected": self.connected,
             "error": self.last_error,
-            "last_checked": self.last_checked
         }
+
+# Global instance
+manager = PLCManager()
