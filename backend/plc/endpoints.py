@@ -86,6 +86,9 @@ class ServoEnableRequest(BaseModel):
 class ServoMoveRequest(BaseModel):
     command: str
 
+class TogglePulseRequest(BaseModel):
+    mode: str
+
 # ------------- Constants -------------
 MOTION_COMMANDS = {
     # Control
@@ -250,6 +253,29 @@ async def plc_write(req: PLCWriteRequest):
         val_list = [1] if req.value == 1 else [0]
         manager.write_bit(req.device, val_list)
         return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/toggle-pulse")
+async def toggle_pulse(req: TogglePulseRequest):
+    """Pulse M104 (White) or M103 (Black) for 0.2s."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    
+    try:
+        bit = "M104" if req.mode.lower() == "white" else "M103" if req.mode.lower() == "black" else None
+        
+        if not bit:
+            return {"success": False, "error": "Invalid Mode (use 'white' or 'black')"}
+
+        # Pulse ON
+        manager.write_bit(bit, [1])
+        time.sleep(0.2)
+        # Pulse OFF
+        manager.write_bit(bit, [0])
+        
+        add_event(f"Pulse sent: {req.mode} ({bit})", "info")
+        return {"success": True, "message": f"Pulsed {bit}"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 

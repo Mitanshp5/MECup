@@ -1,6 +1,6 @@
---extra-index-url https://pypi.nvidia.com
---find-links https://pypi.nvidia.com/tensorrt/
-tensorrt
+# --extra-index-url https://pypi.nvidia.com
+# --find-links https://pypi.nvidia.com/tensorrt/
+# tensorrt
 
 flask>=3.0.0
 flask-cors>=4.0.0
