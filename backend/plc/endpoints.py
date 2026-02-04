@@ -222,8 +222,12 @@ def poll_plc_thread():
                                         time.sleep(.5)
                                         manager.write_bit("M77", [1])
                                         count += 1
+                                        if (manager.read_bit("X0",1)[0]==1 and manager.read_bit("Y2",1)[0]==0):
+                                            time.sleep(1)
+                                            manager.write_bit("M77",[1])
                                     except Exception:
-                                        pass
+                                        print("Failed to write M77 feedback")
+                                        # manager.write_bit("M77", [1])
                             except Exception:
                                 pass
                     
@@ -243,11 +247,23 @@ def start_polling():
     t = threading.Thread(target=poll_plc_thread, daemon=True)
     t.start()
 
-# Load settings on import and start polling if configured
-settings = load_plc_settings()
-if settings and settings.get("ip") and settings.get("port"):
-    manager.configure(settings["ip"], settings["port"])
-    start_polling()
+def init_plc_system():
+    """Initialize PLC connection and start polling thread."""
+    settings = load_plc_settings()
+    if settings and settings.get("ip") and settings.get("port"):
+        print(f"[PLC INIT] Loading settings: {settings['ip']}:{settings['port']}", flush=True)
+        manager.configure(settings["ip"], settings["port"])
+        start_polling()
+    else:
+        print("[PLC INIT] No settings found. Waiting for manual connect.", flush=True)
+
+# WARNING: Do NOT start polling at module level. 
+# It causes worker processes (spawned by ProcessPoolExecutor) to also start polling,
+# leading to resource contention and freezing.
+# settings = load_plc_settings()
+# if settings and settings.get("ip") and settings.get("port"):
+#     manager.configure(settings["ip"], settings["port"])
+#     start_polling()
 
 
 # ------------- General PLC Endpoints -------------
@@ -348,15 +364,16 @@ async def toggle_pulse(req: TogglePulseRequest):
     
     try:
         bit = "M103" if req.mode.lower() == "white" else "M104" if req.mode.lower() == "black" else None
-        
+        bit2= "M104" if req.mode.lower() == "white" else "M103" if req.mode.lower() == "black" else None
         if not bit:
             return {"success": False, "error": "Invalid Mode (use 'white' or 'black')"}
 
         # Pulse ON
         manager.write_bit(bit, [1])
-        await asyncio.sleep(0.2)
-        # Pulse OFF
-        manager.write_bit(bit, [0])
+        # await asyncio.sleep(0.2)
+        # # Pulse OFF
+        # manager.write_bit(bit, [0])
+        manager.write_bit(bit2, [0])
         
         add_event(f"Pulse sent: {req.mode} ({bit})", "info")
         return {"success": True, "message": f"Pulsed {bit}"}
@@ -416,11 +433,12 @@ async def scan_start(username: str = "operator"):
 @router.post("/plc/grid-one")
 async def grid_one():
     """Trigger Grid One by setting M4 to ON."""
-    if not manager.connected:
-        return {"success": False, "error": "PLC Not Connected"}
+    # if not manager.connected:
+    #     return {"success": False, "error": "PLC Not Connected"}
     try:
-        manager.write_bit("M778", [1])
-        return {"success": True, "message": "Grid One Triggered (M778 ON)"}
+        time.sleep(0.1)
+        manager.write_bit("M4", [1])
+        return {"success": True, "message": "Grid One Triggered (M4 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -428,8 +446,8 @@ async def grid_one():
 async def cycle_reset():
     """Reset cycle by setting M120 to ON and clearing batch folder."""
     global current_batch_folder
-    if not manager.connected:
-        return {"success": False, "error": "PLC Not Connected"}
+    # if not manager.connected:
+    #     return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M120", [1])
         # Clear batch folder so new scan creates a new folder
@@ -442,12 +460,12 @@ async def cycle_reset():
 @router.post("/plc/homing-start")
 async def homing_start():
     """Start homing sequence by setting X6 to ON."""
-    if not manager.connected:
-        return {"success": False, "error": "PLC Not Connected"}
+    # if not manager.connected:
+    #     return {"success": False, "error": "PLC Not Connected"}
     try:
-        manager.write_bit("M4", [1])
+        manager.write_bit("M1", [1])
         add_event("Homing sequence started", "info")
-        return {"success": True, "message": "Homing Started (M1 ON)"}
+        return {"success": True, "message": "Homing Started (M4 ON)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -582,9 +600,6 @@ async def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
         new_val = 1 if current_val == 0 else 0
         
         manager.write_bit("M190", [new_val])
-        manager.write_sign_dword("D0", [350000])
-        manager.write_sign_dword("D2", [350000])
-        manager.write_sign_dword("D4", [50000])
         return {"status": "success", "message": f"Servo {'Enabled' if new_val else 'Disabled'}", "enabled": bool(new_val)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -60,6 +60,14 @@ async def lifespan(app: FastAPI):
         get_predictor()
     except Exception as e:
         print(f"[Backend] Failed to initialize inference: {e}", flush=True)
+
+    # Initialize PLC System (Polling) - Main Process Only
+    try:
+        from plc.endpoints import init_plc_system
+        init_plc_system()
+    except Exception as e:
+        print(f"[Backend] Failed to initialize PLC: {e}", flush=True)
+
     yield
 
 app = FastAPI(

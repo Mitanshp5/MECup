@@ -1,9 +1,9 @@
 Traceback (most recent call last):
-  File "C:\MyStuff\VS\MECup\backend\plc\endpoints.py", line 379, in scan_start
+  File "C:\MyStuff\VS\MECup\backend\plc\endpoints.py", line 403, in scan_start
     manager.write_bit("M5", [1])
-  File "C:\MyStuff\VS\MECup\backend\plc\connection.py", line 102, in write_bit
+  File "C:\MyStuff\VS\MECup\backend\plc\connection.py", line 117, in write_bit
     raise e
-  File "C:\MyStuff\VS\MECup\backend\plc\connection.py", line 98, in write_bit
+  File "C:\MyStuff\VS\MECup\backend\plc\connection.py", line 113, in write_bit
     mc.write_bit(self._sock, device, value_list)
   File "C:\MyStuff\VS\MECup\backend\plc\mc_protocol_fixed.py", line 282, in write_bit
     raise e

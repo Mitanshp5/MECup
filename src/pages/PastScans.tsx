@@ -35,6 +35,7 @@ const PastScans = () => {
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [displayCount, setDisplayCount] = useState(5);
   const [selectedScan, setSelectedScan] = useState<ScanDetails | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -72,6 +73,8 @@ const PastScans = () => {
     scan.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     scan.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const displayedScans = filteredScans.slice(0, displayCount);
 
   return (
     <div className="h-full grid grid-cols-12 gap-6">
@@ -123,7 +126,7 @@ const PastScans = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredScans.map((scan) => (
+                    {displayedScans.map((scan) => (
                       <motion.tr
                         key={scan.id}
                         initial={{ opacity: 0 }}
@@ -177,6 +180,17 @@ const PastScans = () => {
                     ))}
                   </tbody>
                 </table>
+              )}
+
+              {!loading && filteredScans.length > displayCount && (
+                <div className="p-4 flex justify-center border-t border-border">
+                  <button
+                    onClick={() => setDisplayCount(prev => prev + 5)}
+                    className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md transition-colors text-sm font-medium"
+                  >
+                    Load More ({filteredScans.length - displayCount} remaining)
+                  </button>
+                </div>
               )}
             </div>
           </>
