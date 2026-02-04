@@ -84,20 +84,23 @@ const AddUserModal = ({ onClose, onSuccess, token }: { onClose: () => void, onSu
 };
 
 const UserManagement = () => {
-  const { token, hasRole } = useAuth();
+  const { token, hasRole, logout } = useAuth();
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Fetch Users
   const fetchUsers = async () => {
     if (!token) return;
     setLoading(true);
+    setError("");
     try {
       const res = await fetch(`${API_BASE_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log("[UserManagement] Fetch Users Response:", res.status);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -106,16 +109,27 @@ const UserManagement = () => {
             username: u.username || 'Unknown',
             role: u.role || 'viewer',
             is_active: !!u.is_active,
-            status: u.is_active ? "active" : "inactive"
+            status: (u.is_active ? "active" : "inactive") as "active" | "inactive"
           }));
           setUsers(mappedUsers);
         } else {
           console.error("API returned non-array:", data);
           setUsers([]);
         }
+      } else {
+        console.error("Failed to fetch users. Status:", res.status, res.statusText);
+        if (res.status === 403) {
+          setError("Permission denied: You do not have permission to view users (Admin required).");
+        } else if (res.status === 401) {
+          setError("Session expired. Please log in again.");
+          logout();
+        } else {
+          setError(`Failed to load users: ${res.statusText}`);
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch users", err);
+      setError(err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -171,6 +185,15 @@ const UserManagement = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-500 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          {loading && <div className="text-center text-muted-foreground">Loading users...</div>}
+          {!loading && !error && filteredUsers.length === 0 && (
+            <div className="text-center text-muted-foreground p-4">No users found.</div>
+          )}
           {filteredUsers.map((user) => (
             <div
               key={user.id}

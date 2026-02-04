@@ -535,9 +535,25 @@ class DefectPredictor:
 _predictor: Optional[DefectPredictor] = None
 
 
+
 def get_predictor() -> DefectPredictor:
     """Get or create the global predictor instance."""
     global _predictor
     if _predictor is None:
         _predictor = DefectPredictor()
     return _predictor
+
+
+def run_inference_task(image_path, output_dir, save_overlay=True):
+    """
+    Standalone function to run inference in a separate process.
+    This ensures the main process isn't blocked by the GIL during heavy computation.
+    """
+    try:
+        # Re-import needed dependencies inside the process if necessary,
+        # but top-level imports should work with 'spawn' as it re-imports the module.
+        predictor = get_predictor()
+        return predictor.predict_and_save(image_path, output_dir, save_overlay)
+    except Exception as e:
+        logger.error(f"Error in inference process: {e}")
+        return None, None, 0, []

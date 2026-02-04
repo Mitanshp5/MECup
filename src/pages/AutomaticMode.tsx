@@ -30,7 +30,7 @@ interface InferenceResult {
 
 const AutomaticMode = () => {
   const MOCK_MODE = false;
-  const { hasRole } = useAuth();
+  const { hasRole, user } = useAuth();
   const canControl = hasRole(['admin', 'operator']);
 
   const [isScanning, setIsScanning] = useState(false);
@@ -164,7 +164,8 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/scan-start", {
+      const username = user?.username || "operator";
+      const res = await fetch(`http://localhost:5001/plc/scan-start?username=${encodeURIComponent(username)}`, {
         method: "POST",
       });
       const data = await res.json();
