@@ -16,7 +16,7 @@ const ManualMode = () => {
   const canControl = hasRole(['admin', 'operator']);
 
   const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
-  const [speeds, setSpeeds] = useState({ x: 50, y: 50, z: 50 });
+  const [speeds, setSpeeds] = useState({ x: 3500, y: 3500, z: 800 });
   const [jogDistance, setJogDistance] = useState(10);
   const [plcConnected, setPlcConnected] = useState(false);
   const [lightsOn, setLightsOn] = useState(false);
@@ -44,8 +44,8 @@ const ManualMode = () => {
           try {
             const ctrlRes = await fetch(`${API_BASE_URL}/plc/control-status`);
             const ctrlData = await ctrlRes.json();
-            if (ctrlData.m99 !== undefined && ctrlData.m99 !== null) {
-              setServoEnabled(ctrlData.m99 === 1);
+            if (ctrlData.m190 !== undefined && ctrlData.m190 !== null) {
+              setServoEnabled(ctrlData.m190 === 1);
             }
             if (ctrlData.y0 !== undefined && ctrlData.y0 !== null) {
               setLightsOn(ctrlData.y0 === 1);
@@ -163,11 +163,14 @@ const ManualMode = () => {
             {/* XY Control */}
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">X/Y AXIS</p>
-              <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+              <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
                 <div />
+                <div /> {/* Placeholder for Up */}
                 {/* <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_12.5")} label="Y+ (12.5mm)" /> */}
                 <div />
+
                 <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_17")} label="X- (17mm)" />
+                <div /> {/* Placeholder for Center */}
                 {/* <button
                   onClick={() => handleMove("x_home")}
                   className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
@@ -175,7 +178,9 @@ const ManualMode = () => {
                 >
                   <Home className="w-5 h-5 mx-auto" />
                 </button> */}
+                <div /> {/* Placeholder for Right */}
                 {/* <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_17")} label="X+ (17mm)" /> */}
+
                 <div />
                 <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_12.5")} label="Y- (12.5mm)" />
                 <div />
@@ -248,7 +253,7 @@ const ManualMode = () => {
                   />
                 </div>
               </div>
-              <button
+              {/* <button
                 onClick={() => {
                   fetch(`${API_BASE_URL}/servo/speeds`, {
                     method: 'POST',
@@ -269,11 +274,11 @@ const ManualMode = () => {
                 disabled={!canControl}
               >
                 SET SPEEDS
-              </button>
+              </button> */}
             </div>
           </div>
 
-          <div className="industrial-panel p-4">
+          {/* <div className="industrial-panel p-4">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">JOG DISTANCE</h3>
             <div className="flex gap-2">
               {[1, 10, 50, 100].map((dist) => (
@@ -289,7 +294,7 @@ const ManualMode = () => {
                 </button>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -396,7 +401,7 @@ const ManualMode = () => {
             <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
               <div className="flex items-center gap-3">
                 <Zap className={`w-4 h-4 ${servoEnabled ? "text-success" : "text-destructive"}`} />
-                <span className="text-sm text-foreground">Main Power (M0)</span>
+                <span className="text-sm text-foreground">Servo Power (M190)</span>
               </div>
               <span className={`text-xs font-medium ${servoEnabled ? "text-success" : "text-destructive"}`}>
                 {servoEnabled ? "ENABLED" : "DISABLED"}
@@ -406,14 +411,14 @@ const ManualMode = () => {
         </div>
 
         {/* Position History */}
-        <div className="industrial-panel p-4 flex-1">
+        {/* <div className="industrial-panel p-4 flex-1">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">POSITION LOG</h3>
           <div className="space-y-2 text-xs font-mono">
             <div className="text-muted-foreground">
               {`[${new Date().toLocaleTimeString()}] Position: X:${position.x} Y:${position.y} Z:${position.z}`}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

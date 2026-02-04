@@ -86,7 +86,9 @@ def read_users(
     current_user: models.User = Depends(dependencies.get_admin_user)
 ):
     """List all users (Admin only)."""
+    print(f"[AUTH DEBUG] Listing users. Current user: {current_user.username} ({current_user.role})", flush=True)
     users = db.query(models.User).offset(skip).limit(limit).all()
+    print(f"[AUTH DEBUG] Found {len(users)} users", flush=True)
     return users
 
 @router.get("/users/me", response_model=schemas.UserResponse)

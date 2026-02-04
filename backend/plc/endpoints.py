@@ -1,10 +1,11 @@
 import threading
 import time
+import asyncio
 import datetime
 import os
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from .settings import save_plc_settings, load_plc_settings
 from .connection import manager
 
@@ -31,11 +32,12 @@ except Exception:
 
 # ------------- inference imports -------------
 get_predictor = None
+run_inference_task = None
 try:
-    from inference.inference_service import get_predictor
+    from inference.inference_service import get_predictor, run_inference_task
 except ImportError:
     try:
-        from ..inference.inference_service import get_predictor
+        from ..inference.inference_service import get_predictor, run_inference_task
     except ImportError:
         pass
 except Exception:
@@ -47,7 +49,8 @@ last_inference_result = {
     "overlay_path": None,
     "defects": [],
     "inference_time_ms": 0,
-    "timestamp": None
+    "timestamp": None,
+    "scan_id": None
 }
 
 # Event log for recent events
@@ -68,7 +71,12 @@ def add_event(event: str, event_type: str = "info"):
 
 # ------------- Global / Manager -------------
 router = APIRouter()
+router = APIRouter()
 # manager = PLCManager() # Use imported manager
+
+# Global executor for inference
+from concurrent.futures import ProcessPoolExecutor
+inference_executor = ProcessPoolExecutor(max_workers=1)
 
 # Batch folder for current scan session
 current_batch_folder = None
@@ -177,11 +185,23 @@ def poll_plc_thread():
                                         try:
                                             predictor = get_predictor()
                                             # Store results in 'results' subfolder of current batch
+                                            # result_dir = os.path.join(save_dir, "results")
+                                            # os.makedirs(result_dir, exist_ok=True)
+                                            # mask_path, overlay_path, inference_time, defects = predictor.predict_and_save(
+                                            #     filepath, result_dir, save_overlay=True
+                                            # )
+                                            
+                                            # Use executor to run in separate process (Non-blocking)
                                             result_dir = os.path.join(save_dir, "results")
                                             os.makedirs(result_dir, exist_ok=True)
-                                            mask_path, overlay_path, inference_time, defects = predictor.predict_and_save(
-                                                filepath, result_dir, save_overlay=True
+                                            
+                                            future = inference_executor.submit(
+                                                 run_inference_task, 
+                                                 filepath, 
+                                                 result_dir, 
+                                                 save_overlay=True
                                             )
+                                            mask_path, overlay_path, inference_time, defects = future.result()
                                             
                                             # Update global result for frontend polling
                                             global last_inference_result
@@ -190,7 +210,8 @@ def poll_plc_thread():
                                                 "overlay_path": overlay_path,
                                                 "defects": defects,
                                                 "inference_time_ms": inference_time,
-                                                "timestamp": datetime.datetime.now().isoformat()
+                                                "timestamp": datetime.datetime.now().isoformat(),
+                                                "scan_id": os.path.basename(current_batch_folder) if current_batch_folder else None
                                             }
                                             
                                         except Exception:
@@ -198,7 +219,7 @@ def poll_plc_thread():
                                     
                                     # Feedback M77
                                     try:
-                                        time.sleep(2)
+                                        time.sleep(.5)
                                         manager.write_bit("M77", [1])
                                         count += 1
                                     except Exception:
@@ -312,7 +333,7 @@ async def error_reset(req: ErrorResetRequest):
     try:
         # Pulse M15: ON then OFF
         manager.write_bit("M15", [1])
-        time.sleep(0.2)
+        await asyncio.sleep(0.2)
         manager.write_bit("M15", [0])
         add_event("Error reset triggered", "info")
         return {"success": True, "message": "Error Reset (M15 Pulsed)"}
@@ -326,14 +347,14 @@ async def toggle_pulse(req: TogglePulseRequest):
         return {"success": False, "error": "PLC Not Connected"}
     
     try:
-        bit = "M104" if req.mode.lower() == "white" else "M103" if req.mode.lower() == "black" else None
+        bit = "M103" if req.mode.lower() == "white" else "M104" if req.mode.lower() == "black" else None
         
         if not bit:
             return {"success": False, "error": "Invalid Mode (use 'white' or 'black')"}
 
         # Pulse ON
         manager.write_bit(bit, [1])
-        time.sleep(0.2)
+        await asyncio.sleep(0.2)
         # Pulse OFF
         manager.write_bit(bit, [0])
         
@@ -345,13 +366,14 @@ async def toggle_pulse(req: TogglePulseRequest):
 # ------------- Control Endpoints -------------
 
 @router.post("/plc/scan-start")
-async def scan_start(current_user: User = Depends(get_current_active_user)):
+async def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
     global current_batch_folder, current_scan_user
-    if not manager.connected:
-        return {"success": False, "error": "PLC Not Connected"}
+    # if not manager.connected:
+    #     return {"success": False, "error": "PLC Not Connected"}
     try:
-        current_scan_user = current_user.username
+        current_scan_user = username
+
         
         # Create new batch folder with timestamp if not already set
         if not current_batch_folder:
@@ -368,19 +390,27 @@ async def scan_start(current_user: User = Depends(get_current_active_user)):
                     json.dump({
                         "scanned_by": current_scan_user,
                         "start_time": timestamp,
-                        "role": current_user.role
+                        "role": "operator"
                     }, f, indent=2)
             except Exception as ex:
                 print(f"Failed to save scan info: {ex}")
         
         manager.write_bit("M5", [1])
-        time.sleep(1)
+        await asyncio.sleep(1)
         manager.write_bit("M77", [1])
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         manager.write_bit("M77", [0])
         add_event("Scan started", "success")
         return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
     except Exception as e:
+        import traceback
+        print(f"SCAN START ERROR: {e}", flush=True)
+        try:
+            with open("C:/MyStuff/VS/MECup/backend/error_log.txt", "w") as log:
+                traceback.print_exc(file=log)
+        except:
+            print("Failed to write to error log file", flush=True)
+        traceback.print_exc()
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/grid-one")
@@ -415,7 +445,7 @@ async def homing_start():
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
-        manager.write_bit("M1", [1])
+        manager.write_bit("M4", [1])
         add_event("Homing sequence started", "info")
         return {"success": True, "message": "Homing Started (M1 ON)"}
     except Exception as e:
@@ -423,23 +453,26 @@ async def homing_start():
 
 @router.get("/plc/control-status")
 async def get_control_status():
-    """Read current status of control bits M5, M4, M120, M1, M0, M99, Y0."""
+    """Read current status of control bits M5, M4, M120, M1, M0, M190, Y0."""
     if not manager.connected:
-        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "m99": None, "y0": None}
+        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "M190": None, "y0": None}
     try:
         # Optimize: Read M0-M120 in one block (121 bits)
         # This reduces 5 separate calls to 1 call.
-        # Indices: M0=0, M1=1, M4=4, M5=5, M99=99, M120=120
+        # Indices: M0=0, M1=1, M4=4, M5=5, M190=99, M120=120
         m_block = manager.read_bit("M0", 121)
         
         # Read Y0 separately
         y0 = manager.read_bit("Y0", 1)
         
+        # Read M190 separately (Servo Status)
+        m190 = manager.read_bit("M190", 1)
+        
         m0_val = m_block[0] if m_block and len(m_block) > 0 else None
         m1_val = m_block[1] if m_block and len(m_block) > 1 else None
         m4_val = m_block[4] if m_block and len(m_block) > 4 else None
         m5_val = m_block[5] if m_block and len(m_block) > 5 else None
-        m99_val = m_block[99] if m_block and len(m_block) > 99 else None
+        # M190_val = m_block[99] # This was M99, not M190!
         m120_val = m_block[120] if m_block and len(m_block) > 120 else None
         
         return {
@@ -448,11 +481,11 @@ async def get_control_status():
             "m120": m120_val,
             "m1": m1_val,
             "m0": m0_val,
-            "m99": m99_val,
+            "m190": m190[0] if m190 else None, # Changed key to lowercase m190
             "y0": y0[0] if y0 else None
         }
     except Exception as e:
-        return {"error": str(e), "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "m99": None, "y0": None}
+        return {"error": str(e), "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "M190": None, "y0": None}
 
 @router.get("/plc/heartbeat")
 async def get_heartbeat():
@@ -489,7 +522,10 @@ async def get_latest_inference():
     if last_inference_result["overlay_path"]:
         from pathlib import Path
         overlay_filename = Path(last_inference_result["overlay_path"]).name
-        overlay_url = f"/inference/result/{overlay_filename}"
+        if last_inference_result.get("scan_id"):
+             overlay_url = f"/scans/{last_inference_result['scan_id']}/results/{overlay_filename}"
+        else:
+             overlay_url = f"/inference/result/{overlay_filename}"
     
     return {
         "has_result": True,
@@ -534,18 +570,21 @@ async def get_servo_speeds():
         return {"connected": False, "x": 0, "y": 0, "z": 0, "error": str(e)}
 
 @router.post("/servo/enable")
-async def enable_servo(req: ServoEnableRequest) -> Dict[str, str]:
+async def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
     if not manager.connected:
         raise HTTPException(status_code=503, detail="PLC Not Connected")
     try:
-        # Read current status of M99
-        current = manager.read_bit("M99", 1)
+        # Read current status of M190
+        current = manager.read_bit("M190", 1)
         current_val = current[0] if current else 0
         
         # Toggle
         new_val = 1 if current_val == 0 else 0
         
-        manager.write_bit("M99", [new_val])
+        manager.write_bit("M190", [new_val])
+        manager.write_sign_dword("D0", [350000])
+        manager.write_sign_dword("D2", [350000])
+        manager.write_sign_dword("D4", [50000])
         return {"status": "success", "message": f"Servo {'Enabled' if new_val else 'Disabled'}", "enabled": bool(new_val)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -561,7 +600,7 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
     try:
         manager.write_bit(bit_addr, [1])
         print(f"[SERVO] Triggered {req.command}")
-        time.sleep(4)
+        await asyncio.sleep(4)
         manager.write_bit(bit_addr, [0])
         return {"status": "success", "message": f"Triggered {req.command}"}
     except Exception as e:

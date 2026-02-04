@@ -1,7 +1,7 @@
 import threading
 import socket
 import time
-import rk_mcprotocol as mc
+from . import mc_protocol_fixed as mc
 
 print("LOADING PLC CONNECTION MODULE...", flush=True)
 
