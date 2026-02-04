@@ -1,13 +1,29 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow;
 let pythonProcess = null;
+let isStopping = false;
+
+function cleanupPythonProcesses() {
+  return new Promise((resolve) => {
+    // Windows only: Kill all python processes to ensure clean slate
+    if (process.platform === 'win32') {
+      console.log('Cleaning up existing Python processes...');
+      exec('taskkill /F /IM python.exe /T', (error, stdout, stderr) => {
+        // Ignore errors (e.g. if no process found)
+        resolve();
+      });
+    } else {
+      resolve();
+    }
+  });
+}
 
 function startPythonBackend() {
   const backendPath = path.join(__dirname, '../backend');
@@ -39,10 +55,22 @@ function startPythonBackend() {
 }
 
 function stopPythonBackend() {
-  if (pythonProcess) {
+  if (pythonProcess && !isStopping) {
+    isStopping = true;
     console.log('Stopping Python backend server...');
-    pythonProcess.kill();
-    pythonProcess = null;
+    // Robust kill for Windows (Tree kill)
+    if (process.platform === 'win32') {
+      exec(`taskkill /pid ${pythonProcess.pid} /T /F`, (err) => {
+        if (err) {
+          console.log("Process might have already exited");
+          try { pythonProcess.kill(); } catch (e) { }
+        }
+        pythonProcess = null;
+      });
+    } else {
+      pythonProcess.kill();
+      pythonProcess = null;
+    }
   }
 }
 
@@ -78,7 +106,8 @@ function createWindow() {
   });
 }
 
-app.on('ready', () => {
+app.on('ready', async () => {
+  await cleanupPythonProcesses();
   startPythonBackend();
   createWindow();
   mainWindow.webContents.session.clearCache();
