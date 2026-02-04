@@ -52,9 +52,9 @@ plc_error_message = {
 
 def open_socket(HOST, PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2.0)  # Set timeout BEFORE connect for fast failure
     try:
         s.connect((HOST, PORT))
-        s.settimeout(6)  
         return s
     except Exception as e:
         s.close()

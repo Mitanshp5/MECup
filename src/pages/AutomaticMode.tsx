@@ -45,10 +45,8 @@ const AutomaticMode = () => {
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
-    if (true) {
-      fetch('http://localhost:5001/camera/connect', { method: 'POST' })
-        .catch(err => console.error("Failed to connect camera:", err));
-    }
+    fetch('http://localhost:5001/camera/connect', { method: 'POST' })
+      .catch(err => console.error("Failed to connect camera:", err));
 
     // Sync scan state from PLC on mount and periodically
     const syncScanState = async () => {
