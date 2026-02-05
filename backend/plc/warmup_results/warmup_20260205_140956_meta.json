@@ -1,0 +1,14 @@
+{
+  "image": "warmup.jpg",
+  "timestamp": "20260205_140956",
+  "inference_time_ms": 64.15530000231229,
+  "defect_count": 1,
+  "defects": [
+    {
+      "type": "Dust",
+      "class_id": 1,
+      "pixel_count": 10,
+      "area_ratio": 3.7268377036716806e-05
+    }
+  ]
+}

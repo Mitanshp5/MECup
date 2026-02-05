@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Download, Eye, Calendar, User, CheckCircle, AlertTriangle, X, Image as ImageIcon } from "lucide-react";
+import { Search, Filter, Download, Eye, Calendar, User, CheckCircle, AlertTriangle, X, Image as ImageIcon, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ScanRecord {
   id: string;
@@ -38,6 +48,7 @@ const PastScans = () => {
   const [displayCount, setDisplayCount] = useState(5);
   const [selectedScan, setSelectedScan] = useState<ScanDetails | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [scanToDelete, setScanToDelete] = useState<string | null>(null);
 
   const [showFullDetails, setShowFullDetails] = useState(false);
 
@@ -67,6 +78,37 @@ const PastScans = () => {
     } catch (e) {
       console.error("Failed to fetch scan details:", e);
     }
+  };
+
+  const confirmDelete = async () => {
+    if (!scanToDelete) return;
+
+    try {
+      const res = await fetch(`http://localhost:5001/scans/${scanToDelete}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        // Remove from list
+        setScans(prev => prev.filter(s => s.id !== scanToDelete));
+        // If selected, deselect
+        if (selectedScan?.id === scanToDelete) {
+          setSelectedScan(null);
+          setShowFullDetails(false);
+        }
+      } else {
+        alert("Failed to delete scan");
+      }
+    } catch (e) {
+      console.error("Failed to delete scan:", e);
+      alert("Error deleting scan");
+    } finally {
+      setScanToDelete(null);
+    }
+  };
+
+  const handleDeleteScan = (scanId: string) => {
+    setScanToDelete(scanId);
   };
 
   const filteredScans = scans.filter(scan =>
@@ -174,6 +216,16 @@ const PastScans = () => {
                             }}
                           >
                             <Eye className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                          <button
+                            className="p-2 hover:bg-destructive/10 rounded-md transition-colors group"
+                            title="Delete Scan"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteScan(scan.id);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
                           </button>
                         </td>
                       </motion.tr>
@@ -361,6 +413,23 @@ const PastScans = () => {
           </div>
         </div>
       )}
+      <AlertDialog open={!!scanToDelete} onOpenChange={(open) => !open && setScanToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the scan record
+              <span className="font-mono font-medium text-foreground ml-1">{scanToDelete}</span> and remove all associated data and images from the server.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+              Delete Scan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

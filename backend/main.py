@@ -15,9 +15,12 @@ from sqlalchemy.orm import Session
 # Database & Auth
 from database import engine, get_db
 from auth import models as auth_models, router as auth_router, security as auth_security
+from plc import models as plc_models
 
 # Create Tables
+# Create Tables
 auth_models.Base.metadata.create_all(bind=engine)
+plc_models.Base.metadata.create_all(bind=engine)
 
 # from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
