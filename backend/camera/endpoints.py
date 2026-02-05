@@ -96,8 +96,19 @@ def get_image_stream():
 @router.get("/camera/stream")
 async def stream():
     if not camera_manager.is_grabbing:
-        # Try to auto-connect if not grabbing
-        # Check if connected but just not grabbing?
-         pass # Endpoint logic should ideally handle this or rely on explicit connect
+        # Try to auto-connect
+        print("[Stream] Camera not grabbing, attempting connect...")
+        devices = camera_manager.enum_devices()
+        if devices:
+            camera_manager.open_device(0)
+            settings = load_camera_settings()
+            camera_manager.set_exposure_mode(settings['auto_exposure'])
+            if not settings['auto_exposure']:
+                camera_manager.set_exposure(settings['exposure'])
+            camera_manager.set_gain(settings['gain'])
+            camera_manager.start_grabbing()
+            
+    if not camera_manager.is_grabbing:
+        raise HTTPException(status_code=503, detail="Camera Not Connected")
     
     return StreamingResponse(get_image_stream(), media_type="multipart/x-mixed-replace; boundary=frame")

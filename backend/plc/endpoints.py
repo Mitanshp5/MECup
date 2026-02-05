@@ -8,6 +8,12 @@ from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 from .settings import save_plc_settings, load_plc_settings
 from .connection import manager
+from . import models as plc_models
+try:
+    from database import SessionLocal
+except ImportError:
+    from ..database import SessionLocal
+from sqlalchemy.orm import Session
 
 # Try sourcing from parent auth module
 try:
@@ -68,6 +74,73 @@ def add_event(event: str, event_type: str = "info"):
     # Keep only last MAX_EVENTS
     if len(recent_events) > MAX_EVENTS:
         recent_events = recent_events[:MAX_EVENTS]
+
+# ------------- Helper Functions -------------
+
+def save_inference_callback(future):
+    """Callback to save inference result to DB and update global state."""
+    try:
+        mask_path, overlay_path, inference_time, defects, filepath, scan_id = future.result()
+        
+        # Update global result for frontend polling
+        global last_inference_result
+        last_inference_result = {
+            "filepath": filepath,
+            "overlay_path": overlay_path,
+            "defects": defects,
+            "inference_time_ms": inference_time,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "scan_id": scan_id
+        }
+        
+        # Save result to database
+        try:
+            db = SessionLocal()
+            
+            # Create image record
+            scan_image = plc_models.ScanImage(
+                scan_id=scan_id,
+                filename=os.path.basename(filepath),
+                filepath=filepath,
+                defect_count=len(defects),
+                has_defects=(len(defects) > 0),
+                overlay_path=overlay_path,
+                inference_time_ms=inference_time
+            )
+            db.add(scan_image)
+            
+            # Update scan stats
+            scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
+            if scan:
+                scan.image_count += 1
+                scan.defect_count += len(defects)
+                if scan.defect_count > (scan.image_count / 10): # Simple threshold
+                    scan.status = "fail"
+            
+            db.commit()
+            db.close()
+        except Exception as db_err:
+            print(f"DB Error saving result: {db_err}")
+            
+    except Exception as e:
+        print(f"Inference Task Failed: {e}")
+
+def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id):
+    """Wrapper to return filepath and scan_id along with results."""
+    # This must be importable by the worker process! 
+    # Since we are in endpoints.py, we might need to rely on run_inference_task static import
+    # But we want to return extra args.
+    # It's better to modify run_inference_task or just pass args through.
+    # NOTE: ProcessPoolExecutor requires functions to be picklable. 
+    # Lambdas and local functions don't work reliably.
+    # We will use the imported run_inference_task and handle logic elsewhere?
+    # No, we need context in callback.
+    
+    # Let's assume run_inference_task is importable.
+    from inference.inference_service import run_inference_task
+    res = run_inference_task(filepath, result_dir, save_overlay)
+    return (*res, filepath, scan_id)
+
 
 # ------------- Global / Manager -------------
 router = APIRouter()
@@ -196,31 +269,25 @@ def poll_plc_thread():
                                             result_dir = os.path.join(save_dir, "results")
                                             os.makedirs(result_dir, exist_ok=True)
                                             
+                                            scan_id = os.path.basename(current_batch_folder)
+                                            
                                             future = inference_executor.submit(
-                                                 run_inference_task, 
+                                                 run_inference_wrapper, # Use wrapper to pass context
                                                  filepath, 
                                                  result_dir, 
-                                                 save_overlay=True
+                                                 True, # save_overlay
+                                                 scan_id
                                             )
-                                            mask_path, overlay_path, inference_time, defects = future.result()
                                             
-                                            # Update global result for frontend polling
-                                            global last_inference_result
-                                            last_inference_result = {
-                                                "filepath": filepath,
-                                                "overlay_path": overlay_path,
-                                                "defects": defects,
-                                                "inference_time_ms": inference_time,
-                                                "timestamp": datetime.datetime.now().isoformat(),
-                                                "scan_id": os.path.basename(current_batch_folder) if current_batch_folder else None
-                                            }
+                                            future.add_done_callback(save_inference_callback)
                                             
-                                        except Exception:
+                                        except Exception as ie:
+                                            print(f"Inference Submission Error: {ie}")
                                             pass
                                     
-                                    # Feedback M77
+                                    # Feedback M77 - Now Immediate!
                                     try:
-                                        time.sleep(.1)
+                                        time.sleep(0.05) # Small buffer
                                         manager.write_bit("M77", [1])
                                         count += 1
                                         if manager.read_bit("X0",1)[0]==1:
@@ -251,7 +318,43 @@ def start_polling():
     t.start()
 
 def init_plc_system():
-    """Initialize PLC connection and start polling thread."""
+    """Initialize PLC connection, start polling thread, and warmup inference."""
+    # Warmup Inference
+    try:
+        print("[PLC INIT] Warming up inference worker...", flush=True)
+        # Submit a dummy task to force worker spawn and model load
+        # We use a non-existent file, the worker should handle it gracefully or we just want the import side-effect
+        # Ideally we pass a special flag or a tiny dummy image.
+        # But run_inference_wrapper expects file.
+        # Let's just rely on the fact that submitting ANY task starts the process.
+        # We can't really "warmup" the TensorRT engine without running prediction.
+        # So let's try to run a dummy prediction if possible, or just let the first scan be the warmup?
+        # The user specifically complained about first grid.
+        # So we SHOULD run a dummy prediction.
+        
+        # We need a dummy image path.
+        # Let's create a dummy black image.
+        dummy_path = os.path.join(os.path.dirname(__file__), "warmup.jpg")
+        if not os.path.exists(dummy_path):
+             import numpy as np
+             from PIL import Image
+             img = Image.fromarray(np.zeros((518, 518, 3), dtype=np.uint8))
+             img.save(dummy_path)
+             
+        # Submit warmup task
+        future = inference_executor.submit(
+             run_inference_wrapper, 
+             dummy_path, 
+             os.path.join(os.path.dirname(__file__), "warmup_results"), 
+             False, # save_overlay
+             "warmup_scan"
+        )
+        # We don't wait for result here to not block startup, but it will run in background.
+        print("[PLC INIT] Inference warmup task submitted.", flush=True)
+        
+    except Exception as e:
+        print(f"[PLC INIT] Warmup failed: {e}")
+
     settings = load_plc_settings()
     if settings and settings.get("ip") and settings.get("port"):
         print(f"[PLC INIT] Loading settings: {settings['ip']}:{settings['port']}", flush=True)
@@ -260,13 +363,7 @@ def init_plc_system():
     else:
         print("[PLC INIT] No settings found. Waiting for manual connect.", flush=True)
 
-# WARNING: Do NOT start polling at module level. 
-# It causes worker processes (spawned by ProcessPoolExecutor) to also start polling,
-# leading to resource contention and freezing.
-# settings = load_plc_settings()
-# if settings and settings.get("ip") and settings.get("port"):
-#     manager.configure(settings["ip"], settings["port"])
-#     start_polling()
+
 
 
 # ------------- General PLC Endpoints -------------
@@ -402,7 +499,23 @@ async def scan_start(username: str = "operator"):
             current_batch_folder = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
             os.makedirs(current_batch_folder, exist_ok=True)
             
-            # Save Scan Metadata having scanned_by
+            # Create DB Record for Scan
+            try:
+                db = SessionLocal()
+                new_scan = plc_models.Scan(
+                    id=f"scan_{timestamp}",
+                    start_time=datetime.datetime.now(),
+                    scanned_by=current_scan_user,
+                    batch_folder=current_batch_folder,
+                    status="pass"
+                )
+                db.add(new_scan)
+                db.commit()
+                db.close()
+            except Exception as db_err:
+                print(f"Failed to create DB record for scan: {db_err}")
+
+            # Save Scan Metadata having scanned_by (Legacy JSON support)
             try:
                 import json
                 meta_file = os.path.join(current_batch_folder, "scan_info.json")
@@ -629,165 +742,105 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
 
 @router.get("/scans/list")
 async def list_scans():
-    """List all past scan folders from captured_images directory."""
-    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    captured_dir = os.path.join(backend_dir, "captured_images")
-    
-    if not os.path.exists(captured_dir):
-        return {"scans": []}
-    
-    scans = []
-    for folder_name in os.listdir(captured_dir):
-        folder_path = os.path.join(captured_dir, folder_name)
-        if os.path.isdir(folder_path) and folder_name.startswith("scan_"):
-            # Parse timestamp from folder name (scan_YYYYMMDD_HHMMSS)
-            try:
-                timestamp_str = folder_name.replace("scan_", "")
-                dt = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
-                date_str = dt.strftime("%Y-%m-%d")
-                time_str = dt.strftime("%H:%M:%S")
-            except:
-                date_str = "Unknown"
-                time_str = "Unknown"
-            
-            # Count images and defects
-            image_count = len([f for f in os.listdir(folder_path) if f.endswith(".jpg")])
-            results_dir = os.path.join(folder_path, "results")
-            defect_count = 0
-            
-            if os.path.exists(results_dir):
-                import json
-                # Read actual defect counts from metadata JSON files
-                for f in os.listdir(results_dir):
-                    if f.endswith("_meta.json"):
-                        try:
-                            with open(os.path.join(results_dir, f), 'r') as jf:
-                                meta = json.load(jf)
-                                defect_count += meta.get("defect_count", 0)
-                        except:
-                            pass
-                
-                # Fallback: if no JSON files, count overlay images
-                if defect_count == 0:
-                    overlay_files = [f for f in os.listdir(results_dir) if "_overlay" in f]
-                    defect_count = len(overlay_files)
-            
-            # Read scanned_by from scan_info.json
-            scanned_by = "Unknown"
-            try:
-                import json
-                info_path = os.path.join(folder_path, "scan_info.json")
-                if os.path.exists(info_path):
-                    with open(info_path, 'r') as f:
-                        info = json.load(f)
-                        scanned_by = info.get("scanned_by", "Unknown")
-            except:
-                pass
-
-            # Fail if defects > images/10
-            threshold = image_count / 10
-            scans.append({
-                "id": folder_name,
-                "folder_path": folder_path,
-                "date": date_str,
-                "time": time_str,
-                "image_count": image_count,
-                "defect_count": defect_count,
-                "status": "fail" if defect_count > (image_count / 10) else "pass", # Simple threshold logic
-                "scanned_by": scanned_by
+    """List all past scans from Database."""
+    try:
+        db = SessionLocal()
+        # Get latest 50 scans
+        scans_db = db.query(plc_models.Scan).order_by(plc_models.Scan.start_time.desc()).limit(50).all()
+        
+        scans = []
+        for s in scans_db:
+             scans.append({
+                "id": s.id,
+                "folder_path": s.batch_folder,
+                "date": s.start_time.strftime("%Y-%m-%d") if s.start_time else "Unknown",
+                "time": s.start_time.strftime("%H:%M:%S") if s.start_time else "Unknown",
+                "image_count": s.image_count,
+                "defect_count": s.defect_count,
+                "status": s.status,
+                "scanned_by": s.scanned_by
             })
-    
-    # Sort by date (newest first)
-    scans.sort(key=lambda x: x["id"], reverse=True)
-    return {"scans": scans}
+        db.close()
+        return {"scans": scans}
+    except Exception as e:
+        return {"scans": [], "error": str(e)}
 
 @router.get("/scans/{scan_id}")
 async def get_scan_details(scan_id: str):
-    """Get detailed information about a specific scan."""
-    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    folder_path = os.path.join(backend_dir, "captured_images", scan_id)
-    
-    if not os.path.exists(folder_path):
-        raise HTTPException(status_code=404, detail="Scan not found")
-    
-    # Parse timestamp
+    """Get detailed information about a specific scan from DB."""
     try:
-        timestamp_str = scan_id.replace("scan_", "")
-        dt = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
-        date_str = dt.strftime("%Y-%m-%d")
-        time_str = dt.strftime("%H:%M:%S")
-    except:
-        date_str = "Unknown"
-        time_str = "Unknown"
-    
-    # Get all images
-    images = [f for f in os.listdir(folder_path) if f.endswith(".jpg")]
-    images.sort()
-    
-    # Get results and count defects by type
-    results_dir = os.path.join(folder_path, "results")
-    defects = []
-    defect_types = {}
-    total_defect_count = 0
-    
-    if os.path.exists(results_dir):
-        import json
-        for f in os.listdir(results_dir):
-            if f.endswith("_meta.json"):
-                try:
-                    with open(os.path.join(results_dir, f), 'r') as jf:
-                        meta = json.load(jf)
-                        base_name = f.replace("_meta.json", "")
-                        overlay_file = f"{base_name}_overlay.png"
-                        
-                        # Add each defect type from this image
-                        for defect in meta.get("defects", []):
-                            defect_type = defect.get("type", "Unknown")
-                            defect_types[defect_type] = defect_types.get(defect_type, 0) + 1
-                            total_defect_count += 1
-                        
-                        # Add to defects list if has any defects
-                        if meta.get("defect_count", 0) > 0:
-                            defects.append({
-                                "image": meta.get("image", ""),
-                                "overlay": overlay_file,
-                                "overlay_url": f"/scans/{scan_id}/results/{overlay_file}",
-                                "defect_count": meta.get("defect_count", 0),
-                                "defect_details": meta.get("defects", [])
-                            })
-                except:
-                    pass
+        db = SessionLocal()
+        scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
+        if not scan:
+             db.close()
+             raise HTTPException(status_code=404, detail="Scan not found")
         
-        # Fallback for old scans without JSON
-        if total_defect_count == 0:
-            for f in os.listdir(results_dir):
-                if "_overlay" in f and (f.endswith(".jpg") or f.endswith(".png")):
-                    base_name = f.replace("_overlay.jpg", "").replace("_overlay.png", "")
-                    defects.append({
-                        "image": base_name + ".jpg",
-                        "overlay": f,
-                        "overlay_url": f"/scans/{scan_id}/results/{f}",
-                        "defect_count": 1,
-                        "defect_details": []
-                    })
-                    total_defect_count += 1
-    
-    # Fail if defects > images/10
-    image_count = len(images)
-    threshold = image_count / 10
-    
-    return {
-        "id": scan_id,
-        "date": date_str,
-        "time": time_str,
-        "folder_path": folder_path,
-        "image_count": image_count,
-        "images": images,
-        "total_defects": total_defect_count,
-        "defect_types": defect_types,
-        "defects": defects,
-        "status": "fail" if total_defect_count > threshold else "pass"
-    }
+        # Get images
+        images_db = db.query(plc_models.ScanImage).filter(plc_models.ScanImage.scan_id == scan_id).all()
+        
+        images = []
+        defects = []
+        defect_types = {}
+        total_defect_count = scan.defect_count
+        
+        for img in images_db:
+            images.append(img.filename)
+            
+            if img.has_defects:
+                defects.append({
+                    "image": img.filename,
+                    "overlay": os.path.basename(img.overlay_path) if img.overlay_path else None,
+                    "overlay_url": f"/scans/{scan_id}/results/{os.path.basename(img.overlay_path)}" if img.overlay_path else None,
+                    "defect_count": img.defect_count,
+                    "defect_details": [] # We didn't store details in DB yet, but that's fine for now
+                })
+        
+        images.sort()
+        db.close()
+        
+        return {
+            "id": scan.id,
+            "date": scan.start_time.strftime("%Y-%m-%d") if scan.start_time else "Unknown",
+            "time": scan.start_time.strftime("%H:%M:%S") if scan.start_time else "Unknown",
+            "folder_path": scan.batch_folder,
+            "image_count": scan.image_count,
+            "images": images,
+            "total_defects": total_defect_count,
+            "defect_types": defect_types, 
+            "defects": defects,
+            "status": scan.status
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/scans/{scan_id}")
+async def delete_scan(scan_id: str):
+    """Delete a scan record and its associated files."""
+    try:
+        db = SessionLocal()
+        scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
+        
+        if not scan:
+            db.close()
+            raise HTTPException(status_code=404, detail="Scan not found")
+        
+        # 1. Delete Folder force
+        if scan.batch_folder and os.path.exists(scan.batch_folder):
+            try:
+                import shutil
+                shutil.rmtree(scan.batch_folder)
+            except Exception as fe:
+                print(f"Failed to delete folder {scan.batch_folder}: {fe}")
+        
+        # 2. Delete from DB (Cascade should handle images)
+        db.delete(scan)
+        db.commit()
+        db.close()
+        
+        return {"success": True, "message": f"Scan {scan_id} deleted"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 from fastapi.responses import FileResponse
 

@@ -42,6 +42,7 @@ const AutomaticMode = () => {
   const [isInferencing, setIsInferencing] = useState(false);
   const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
   const [pulseMode, setPulseMode] = useState<'white' | 'black'>('white');
+  const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
@@ -71,7 +72,24 @@ const AutomaticMode = () => {
     syncScanState();
     const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
 
-    return () => clearInterval(interval);
+    // Poll Camera Status
+    const checkCamera = async () => {
+      if (MOCK_MODE) return;
+      try {
+        const res = await fetch('http://localhost:5001/camera/status');
+        const data = await res.json();
+        // If is_grabbing is true, we consider it connected and streaming
+        setCameraConnected(data.is_grabbing);
+      } catch (e) {
+        setCameraConnected(false);
+      }
+    };
+    const camInterval = setInterval(checkCamera, 3000); // Check every 3 seconds
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(camInterval);
+    };
   }, [MOCK_MODE]);
 
   // Mock Mode: Trigger inference periodically when scanning
@@ -397,31 +415,28 @@ const AutomaticMode = () => {
             {/* 4:3 aspect ratio container */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-full h-full max-w-full max-h-full" style={{ aspectRatio: '4/3' }}>
-                <img
-                  src="http://localhost:5001/camera/stream"
-                  className="w-full h-full object-contain"
-                  alt="Live Feed"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const parent = e.currentTarget.parentElement;
-                    if (parent) {
-                      parent.classList.add('bg-black/80', 'flex', 'items-center', 'justify-center', 'border', 'border-destructive/30');
-                      // Create offline message element
-                      const offlineMsg = document.createElement('div');
-                      offlineMsg.className = 'flex flex-col items-center text-destructive animate-pulse';
-                      offlineMsg.innerHTML = `
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" class="mb-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <line x1="2" x2="22" y1="2" y2="22"></line>
-                          <path d="M7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16"></path>
-                          <path d="M9.5 14.5 12 12l2.5 2.5"></path>
-                          <path d="M16 16v4a2 2 0 0 0 2 2h4"></path>
-                        </svg>
-                        <span class="text-sm font-mono font-bold">CAMERA OFFLINE</span>
-                      `;
-                      parent.appendChild(offlineMsg);
-                    }
-                  }}
-                />
+                {cameraConnected ? (
+                  <img
+                    src={`http://localhost:5001/camera/stream?t=${Date.now()}`} // Cache bust if needed, handled by stream MIME usually
+                    className="w-full h-full object-contain"
+                    alt="Live Feed"
+                    onError={(e) => {
+                      // Fallback if connected but stream fails
+                      setCameraConnected(false);
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-black/80 border border-destructive/30 text-destructive animate-pulse">
+                    <Camera className="w-12 h-12 mb-2 opacity-50" />
+                    <span className="text-sm font-mono font-bold">CAMERA OFFLINE</span>
+                    <button
+                      onClick={() => fetch('http://localhost:5001/camera/connect', { method: 'POST' })}
+                      className="mt-4 px-3 py-1 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs rounded border border-destructive/30"
+                    >
+                      Retry Connection
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
