@@ -20,6 +20,8 @@ const ManualMode = () => {
   const [jogDistance, setJogDistance] = useState(10);
   const [plcConnected, setPlcConnected] = useState(false);
   const [lightsOn, setLightsOn] = useState(false);
+  const [lightMode, setLightMode] = useState<'off' | 'white' | 'green'>('off');
+  const [directionState, setDirectionState] = useState({ up: false, down: false, left: false, right: false });
 
   // Poll PLC connection status and read current speeds
   useEffect(() => {
@@ -49,6 +51,20 @@ const ManualMode = () => {
             }
             if (ctrlData.y0 !== undefined && ctrlData.y0 !== null) {
               setLightsOn(ctrlData.y0 === 1);
+            }
+            // Parse new bits if available
+            if (ctrlData.m103 !== undefined) {
+              if (ctrlData.m103) setLightMode('white');
+              else if (ctrlData.m104) setLightMode('green');
+              else setLightMode('off');
+            }
+            if (ctrlData.m68 !== undefined) {
+              setDirectionState({
+                up: ctrlData.m68 === 1,
+                down: ctrlData.m69 === 1,
+                right: ctrlData.m70 === 1,
+                left: ctrlData.m71 === 1
+              });
             }
           } catch (e) { console.error("Control status poll failed", e); }
         }
@@ -105,6 +121,16 @@ const ManualMode = () => {
 
   const handleHome = () => {
     setPosition({ x: 0, y: 0, z: 0 });
+  };
+
+  const toggleDirection = async (direction: string, currentState: boolean) => {
+    try {
+      await fetch(`${API_BASE_URL}/plc/light-direction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction, state: !currentState })
+      });
+    } catch (e) { console.error(e); }
   };
 
   return (
@@ -190,8 +216,9 @@ const ManualMode = () => {
           </div>
         </div>
 
-        {/* Speed & Distance */}
+        {/* Speed & Servo Control Grid */}
         <div className="grid grid-cols-2 gap-6">
+          {/* Axis Speeds */}
           <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground">AXIS SPEEDS</h3>
@@ -244,48 +271,51 @@ const ManualMode = () => {
                   />
                 </div>
               </div>
-              {/* <button
-                onClick={() => {
-                  fetch(`${API_BASE_URL}/servo/speeds`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(speeds)
-                  })
-                    .then(async res => {
-                      if (!res.ok) {
-                        const err = await res.json();
-                        alert(err.detail || "Failed to set speeds");
-                      } else {
-                        alert("Speeds Set Successfully");
-                      }
-                    })
-                    .catch(err => alert("Connection Error: " + err));
-                }}
-                className="w-full py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors mt-2"
-                disabled={!canControl}
-              >
-                SET SPEEDS
-              </button> */}
             </div>
           </div>
 
-          {/* <div className="industrial-panel p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">JOG DISTANCE</h3>
-            <div className="flex gap-2">
-              {[1, 10, 50, 100].map((dist) => (
-                <button
-                  key={dist}
-                  onClick={() => setJogDistance(dist)}
-                  className={`flex-1 py-2 rounded-md text-sm font-mono transition-colors ${jogDistance === dist
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-foreground hover:bg-secondary/80"
-                    }`}
-                >
-                  {dist}mm
-                </button>
-              ))}
+          {/* Servo Control (Moved Here) */}
+          <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-muted-foreground">SERVO CONTROL</h3>
+              <button
+                onClick={handleServoToggle}
+                className={`px-3 py-1 rounded text-xs font-bold transition-all ${servoEnabled ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground"}`}
+                disabled={!canControl}
+              >
+                {servoEnabled ? "ON" : "OFF"}
+              </button>
             </div>
-          </div> */}
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
+                <div className="flex items-center gap-3">
+                  <Zap className={`w-4 h-4 ${servoEnabled ? "text-success" : "text-destructive"}`} />
+                  <span className="text-sm text-foreground">Servo Power (M190)</span>
+                </div>
+                <span className={`text-xs font-medium ${servoEnabled ? "text-success" : "text-destructive"}`}>
+                  {servoEnabled ? "ENABLED" : "DISABLED"}
+                </span>
+              </div>
+
+              {/* Error Reset */}
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch(`${API_BASE_URL}/plc/error-reset`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({})
+                    });
+                  } catch (e) { console.error("Reset failed", e); }
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md font-medium text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all shadow-sm"
+              >
+                <AlertCircle className="w-3 h-3" />
+                <span>ERROR RESET (M15)</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -325,91 +355,103 @@ const ManualMode = () => {
           </div>
         </div>
 
-        {/* Lights Control */}
-        <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">LIGHT CONTROL</h3>
-          <button
-            onClick={async () => {
-              try {
-                const res = await fetch(`${API_BASE_URL}/plc/lights`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({})
-                });
-                const data = await res.json();
-                if (data.success) {
-                  setLightsOn(data.state);
-                }
-              } catch (e) {
-                console.error("Failed to toggle lights:", e);
-              }
-            }}
-            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-md font-medium text-sm transition-all ${lightsOn
-              ? "bg-warning text-warning-foreground border-2 border-warning shadow-lg"
-              : "bg-secondary text-foreground border border-border hover:bg-secondary/80"
-              }`}
-          >
-            <Lightbulb className={`w-4 h-4 ${lightsOn ? "fill-current" : ""}`} />
-            <span>{lightsOn ? "LIGHTS OFF" : "LIGHTS ON"}</span>
-          </button>
+        {/* Advanced Light Control Panel */}
+        <div className="industrial-panel p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+          {/* Background Grid/Effect */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-50 pointer-events-none" />
 
-          {/* Error Reset Button */}
-          <button
-            onClick={async () => {
-              try {
-                // Trigger reset (Pulse M15 handled by backend)
-                await fetch(`${API_BASE_URL}/plc/error-reset`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({})
-                });
+          <h3 className="text-xs font-bold tracking-widest text-muted-foreground/70 mb-8 z-10">LIGHTING ARRAY CONTROL</h3>
 
-              } catch (e) {
-                console.error("Failed to reset error:", e);
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 mt-3 rounded-md font-medium text-sm transition-all bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20"
-          >
-            <AlertCircle className="w-4 h-4" />
-            <span>ERROR RESET (M15)</span>
-          </button>
-        </div>
+          <div className="relative w-full max-w-[300px] aspect-square flex items-center justify-center">
 
-        {/* Servo Status */}
-        <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">SERVO CONTROL</h3>
-            <button
-              onClick={handleServoToggle}
-              className={`px-3 py-1 rounded text-xs font-bold transition-all ${servoEnabled ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground"}`}
-              disabled={!canControl}
-            >
-              {servoEnabled ? "ON" : "OFF"}
-            </button>
-          </div>
+            {/* Light Rays Layer */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+              {/* Up Ray */}
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[120%] w-16 h-32 bg-gradient-to-t from-primary/20 to-transparent transition-all duration-300 ${directionState.up ? 'opacity-100' : 'opacity-0'}`} />
+              {/* Down Ray */}
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[20%] w-16 h-32 bg-gradient-to-b from-primary/20 to-transparent transition-all duration-300 ${directionState.down ? 'opacity-100' : 'opacity-0'}`} />
+              {/* Left Ray */}
+              <div className={`absolute top-1/2 left-1/2 -translate-x-[120%] -translate-y-1/2 w-32 h-16 bg-gradient-to-l from-primary/20 to-transparent transition-all duration-300 ${directionState.left ? 'opacity-100' : 'opacity-0'}`} />
+              {/* Right Ray */}
+              <div className={`absolute top-1/2 left-1/2 translate-x-[20%] -translate-y-1/2 w-32 h-16 bg-gradient-to-r from-primary/20 to-transparent transition-all duration-300 ${directionState.right ? 'opacity-100' : 'opacity-0'}`} />
+            </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
-              <div className="flex items-center gap-3">
-                <Zap className={`w-4 h-4 ${servoEnabled ? "text-success" : "text-destructive"}`} />
-                <span className="text-sm text-foreground">Servo Power (M190)</span>
+            {/* Controls Grid - Rotated 45deg to fit or just standard cross? Standard cross for now based on previous requests */}
+            <div className="relative z-10 grid grid-cols-3 grid-rows-3 gap-4 w-full h-full">
+
+              {/* Top Center: UP */}
+              <div className="col-start-2 row-start-1 flex justify-center items-end">
+                <LightPanel
+                  active={directionState.up}
+                  disabled={lightMode === 'off'}
+                  onClick={() => toggleDirection('up', directionState.up)}
+                  orientation="vertical"
+                />
               </div>
-              <span className={`text-xs font-medium ${servoEnabled ? "text-success" : "text-destructive"}`}>
-                {servoEnabled ? "ENABLED" : "DISABLED"}
-              </span>
+
+              {/* Middle Left: LEFT */}
+              <div className="col-start-1 row-start-2 flex justify-end items-center">
+                <LightPanel
+                  active={directionState.left}
+                  disabled={lightMode === 'off'}
+                  onClick={() => toggleDirection('left', directionState.left)}
+                  orientation="horizontal"
+                />
+              </div>
+
+              {/* Center: MODE TOGGLE */}
+              <div className="col-start-2 row-start-2 flex justify-center items-center">
+                <button
+                  onClick={async () => {
+                    const nextMode = lightMode === 'off' ? 'white' : lightMode === 'white' ? 'green' : 'off';
+                    try {
+                      await fetch(`${API_BASE_URL}/plc/light-mode`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mode: nextMode })
+                      });
+                      setLightMode(nextMode); // Optimistic update
+                    } catch (e) { console.error(e); }
+                  }}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border-2 z-20 relative overflow-hidden group
+                            ${lightMode === 'off' ? 'bg-zinc-800 border-zinc-700 text-zinc-600' :
+                      lightMode === 'white' ? 'bg-white border-white text-zinc-900 shadow-[0_0_30px_rgba(255,255,255,0.4)]' :
+                        'bg-emerald-500 border-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.4)]'
+                    }`}
+                >
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="flex flex-col items-center gap-1">
+                    <Lightbulb className={`w-8 h-8 ${lightMode !== 'off' ? 'fill-current' : ''}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{lightMode}</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Middle Right: RIGHT */}
+              <div className="col-start-3 row-start-2 flex justify-start items-center">
+                <LightPanel
+                  active={directionState.right}
+                  disabled={lightMode === 'off'}
+                  onClick={() => toggleDirection('right', directionState.right)}
+                  orientation="horizontal"
+                />
+              </div>
+
+              {/* Bottom Center: DOWN */}
+              <div className="col-start-2 row-start-3 flex justify-center items-start">
+                <LightPanel
+                  active={directionState.down}
+                  disabled={lightMode === 'off'}
+                  onClick={() => toggleDirection('down', directionState.down)}
+                  orientation="vertical"
+                />
+              </div>
+
             </div>
           </div>
         </div>
-
-        {/* Position History */}
-        {/* <div className="industrial-panel p-4 flex-1">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">POSITION LOG</h3>
-          <div className="space-y-2 text-xs font-mono">
-            <div className="text-muted-foreground">
-              {`[${new Date().toLocaleTimeString()}] Position: X:${position.x} Y:${position.y} Z:${position.z}`}
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -426,5 +468,46 @@ const JogButton = ({ icon: Icon, onClick, label }: { icon: React.ElementType; on
     <Icon className="w-5 h-5 mx-auto" />
   </motion.button>
 );
+
+const LightPanel = ({ active, disabled, onClick, orientation }: { active: boolean, disabled: boolean, onClick: () => void, orientation: 'horizontal' | 'vertical' }) => {
+  return (
+    <motion.button
+      onClick={() => !disabled && onClick()}
+      whileTap={!disabled ? { scale: 0.95 } : {}}
+      disabled={disabled}
+      className={`
+                relative flex items-center justify-center transition-all duration-300
+                ${orientation === 'horizontal' ? 'w-24 h-14' : 'w-14 h-24'}
+                ${disabled ? 'opacity-30 cursor-not-allowed grayscale' : 'cursor-pointer'}
+            `}
+    >
+      {/* Base Glass Layer */}
+      <div className={`
+                absolute inset-0 rounded-xl border backdrop-blur-md transition-all duration-300
+                ${active
+          ? 'bg-primary/20 border-primary shadow-[0_0_20px_rgba(var(--primary),0.2)]'
+          : 'bg-card/40 border-white/5 hover:bg-card/60'
+        }
+            `} />
+
+      {/* Brightness Indicator Bar */}
+      <div className={`
+                absolute bg-current transition-all duration-300 rounded-full
+                ${active ? 'opacity-100' : 'opacity-20'}
+                ${orientation === 'horizontal'
+          ? 'bottom-2 left-2 right-2 h-1'
+          : 'right-2 top-2 bottom-2 w-1'
+        }
+                ${active ? 'bg-primary shadow-[0_0_10px_currentColor]' : 'bg-muted-foreground'}
+            `} />
+
+      {/* Glow Core */}
+      {active && (
+        <div className="absolute inset-0 rounded-xl bg-primary/10 animate-pulse" />
+      )}
+
+    </motion.button>
+  );
+};
 
 export default ManualMode;
