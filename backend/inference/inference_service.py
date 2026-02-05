@@ -488,20 +488,24 @@ class DefectPredictor:
     def predict_and_save(
         self,
         image_path: str,
-        output_dir: str,
+        output_dir: Optional[str] = None,
         save_overlay: bool = True,
         alpha: float = 0.5
     ) -> Tuple[str, str, float, List[Dict]]:
-        """Run inference and save result images."""
+        """Run inference and optionally save result images."""
         import json
-        
-        original = Image.open(image_path).convert('RGB')
-        original_np = np.array(original)
         
         pred_mask, inference_time, defects = self.predict(image_path)
         
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # If output_dir is None, skip saving and return results
+        if output_dir is None:
+             return None, None, inference_time, defects
+
+        original = Image.open(image_path).convert('RGB')
+        original_np = np.array(original)
+        
+        output_dir_path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
         
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         base_name = Path(image_path).stem
@@ -513,11 +517,11 @@ class DefectPredictor:
         overlay_path = None
         if save_overlay:
             overlay = (original_np * (1 - alpha) + mask_rgb * alpha).astype(np.uint8)
-            overlay_path = output_dir / f"{base_name}_{timestamp}_overlay.png"
+            overlay_path = output_dir_path / f"{base_name}_{timestamp}_overlay.png"
             Image.fromarray(overlay).save(overlay_path)
         
         # Save defect metadata JSON
-        metadata_path = output_dir / f"{base_name}_{timestamp}_meta.json"
+        metadata_path = output_dir_path / f"{base_name}_{timestamp}_meta.json"
         metadata = {
             "image": Path(image_path).name,
             "timestamp": timestamp,

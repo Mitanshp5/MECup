@@ -127,16 +127,7 @@ def save_inference_callback(future):
 
 def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id):
     """Wrapper to return filepath and scan_id along with results."""
-    # This must be importable by the worker process! 
-    # Since we are in endpoints.py, we might need to rely on run_inference_task static import
-    # But we want to return extra args.
-    # It's better to modify run_inference_task or just pass args through.
-    # NOTE: ProcessPoolExecutor requires functions to be picklable. 
-    # Lambdas and local functions don't work reliably.
-    # We will use the imported run_inference_task and handle logic elsewhere?
-    # No, we need context in callback.
-    
-    # Let's assume run_inference_task is importable.
+    """Wrapper to return filepath and scan_id along with results."""
     from inference.inference_service import run_inference_task
     res = run_inference_task(filepath, result_dir, save_overlay)
     return (*res, filepath, scan_id)
@@ -216,26 +207,29 @@ def poll_plc_thread():
     count = 1
     county=1
     start= 0
+    passleft = 0
     while True:
         try:
             # Status check (Heartbeat)
             resp = manager.read_bit("X0", 1)
-            m5_status=manager.read_bit("M5",1)  
-            if m5_status[0]==1:
-                # Check y14 Trigger
+            m5_status = manager.read_bit("M5", 1)
+            
+            if m5_status and m5_status[0] == 1:
+                # Check Y14 Trigger
                 resp_y = manager.read_bit("Y14", 2)
                 if resp_y and len(resp_y) > 0:
                     current_Y14 = resp_y[0]
                     current_Y15 = resp_y[1]
                     
                     # Rising Edge (0 -> 1)
-                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (passleft==1):
-                        passleft=0
-                        current_m101= manager.read_bit("M101",1)
-                        if last_m101!=current_m101[0]:
-                            county+=1
-                            count=1
-                            last_m101=current_m101[0]
+                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (passleft == 1):
+                        passleft = 0
+                        current_m101 = manager.read_bit("M101", 1)
+                        if last_m101 != current_m101[0]:
+                            county += 1
+                            count = 1
+                            last_m101 = current_m101[0]
+                            
                         global current_batch_folder
                         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                         
@@ -257,14 +251,6 @@ def poll_plc_thread():
                                     # Run inference on captured image
                                     if get_predictor is not None:
                                         try:
-                                            predictor = get_predictor()
-                                            # Store results in 'results' subfolder of current batch
-                                            # result_dir = os.path.join(save_dir, "results")
-                                            # os.makedirs(result_dir, exist_ok=True)
-                                            # mask_path, overlay_path, inference_time, defects = predictor.predict_and_save(
-                                            #     filepath, result_dir, save_overlay=True
-                                            # )
-                                            
                                             # Use executor to run in separate process (Non-blocking)
                                             result_dir = os.path.join(save_dir, "results")
                                             os.makedirs(result_dir, exist_ok=True)
@@ -282,28 +268,30 @@ def poll_plc_thread():
                                             future.add_done_callback(save_inference_callback)
                                             
                                         except Exception as ie:
-                                            print(f"Inference Submission Error: {ie}")
                                             pass
                                     
                                     # Feedback M77 - Now Immediate!
                                     try:
-                                        time.sleep(0.05) # Small buffer
+                                        time.sleep(0.2) # Small buffer
                                         manager.write_bit("M77", [1])
                                         count += 1
-                                        if manager.read_bit("X0",1)[0]==1:
-                                            passleft=1
-                                        # if (manager.read_bit("X0",1)[0]==1 and manager.read_bit("Y14",1)[0]==0):
-                                        #     time.sleep(1)
-                                        #     manager.write_bit("M77",[1])
+                                        
+                                        # Restore X0 Logic (Double Scan if X0 is High)
+                                        # We put this in a nested try to ensure M77 failure logic doesn't trigger if this fails
+                                        try:
+                                            x0_resp = manager.read_bit("X0", 1)
+                                            if x0_resp and x0_resp[0] == 1:
+                                                passleft = 1
+                                        except Exception:
+                                            pass # Ignore X0 read failure
+                                            
                                     except Exception:
-                                        print("Failed to write M77 feedback")
-                                        manager.write_bit("M77", [1])
+                                        pass # Failed to write M77, no retry requested
                             except Exception:
                                 pass
                     
                     last_Y14 = current_Y14
                     last_Y15 = current_Y15
-                
                 
         except Exception:
             # Logging suppressed for cleanliness
@@ -322,15 +310,6 @@ def init_plc_system():
     # Warmup Inference
     try:
         print("[PLC INIT] Warming up inference worker...", flush=True)
-        # Submit a dummy task to force worker spawn and model load
-        # We use a non-existent file, the worker should handle it gracefully or we just want the import side-effect
-        # Ideally we pass a special flag or a tiny dummy image.
-        # But run_inference_wrapper expects file.
-        # Let's just rely on the fact that submitting ANY task starts the process.
-        # We can't really "warmup" the TensorRT engine without running prediction.
-        # So let's try to run a dummy prediction if possible, or just let the first scan be the warmup?
-        # The user specifically complained about first grid.
-        # So we SHOULD run a dummy prediction.
         
         # We need a dummy image path.
         # Let's create a dummy black image.
@@ -345,8 +324,8 @@ def init_plc_system():
         future = inference_executor.submit(
              run_inference_wrapper, 
              dummy_path, 
-             os.path.join(os.path.dirname(__file__), "warmup_results"), 
-             False, # save_overlay
+             None, # output_dir=None to skip saving
+             False, # save_overlay (ignored when output_dir is None, but good for clarity)
              "warmup_scan"
         )
         # We don't wait for result here to not block startup, but it will run in background.
@@ -470,9 +449,6 @@ async def toggle_pulse(req: TogglePulseRequest):
 
         # Pulse ON
         manager.write_bit(bit, [1])
-        # await asyncio.sleep(0.2)
-        # # Pulse OFF
-        # manager.write_bit(bit, [0])
         manager.write_bit(bit2, [0])
         
         add_event(f"Pulse sent: {req.mode} ({bit})", "info")
@@ -486,8 +462,6 @@ async def toggle_pulse(req: TogglePulseRequest):
 async def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
     global current_batch_folder, current_scan_user
-    # if not manager.connected:
-    #     return {"success": False, "error": "PLC Not Connected"}
     try:
         current_scan_user = username
 
@@ -550,8 +524,6 @@ async def scan_start(username: str = "operator"):
 @router.post("/plc/grid-one")
 async def grid_one():
     """Trigger Grid One by setting M4 to ON."""
-    # if not manager.connected:
-    #     return {"success": False, "error": "PLC Not Connected"}
     try:
         time.sleep(0.1)
         manager.write_bit("M4", [1])
@@ -563,8 +535,6 @@ async def grid_one():
 async def cycle_reset():
     """Reset cycle by setting M120 to ON and clearing batch folder."""
     global current_batch_folder
-    # if not manager.connected:
-    #     return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M120", [1])
         # Clear batch folder so new scan creates a new folder
@@ -577,8 +547,6 @@ async def cycle_reset():
 @router.post("/plc/homing-start")
 async def homing_start():
     """Start homing sequence by setting X6 to ON."""
-    # if not manager.connected:
-    #     return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M1", [1])
         add_event("Homing sequence started", "info")
@@ -588,39 +556,98 @@ async def homing_start():
 
 @router.get("/plc/control-status")
 async def get_control_status():
-    """Read current status of control bits M5, M4, M120, M1, M0, M190, Y0."""
+    """Read current status of control bits."""
     if not manager.connected:
-        return {"error": "PLC Not Connected", "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "M190": None, "y0": None}
+        return {
+            "error": "PLC Not Connected", 
+            "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, 
+            "m190": None, "y0": None,
+            "m103": None, "m104": None, 
+            "m68": None, "m69": None, "m70": None, "m71": None
+        }
     try:
-        # Optimize: Read M0-M120 in one block (121 bits)
-        # This reduces 5 separate calls to 1 call.
-        # Indices: M0=0, M1=1, M4=4, M5=5, M190=99, M120=120
-        m_block = manager.read_bit("M0", 121)
+        # Optimize: Read combined range if possible or separate blocks
+        # We need M0-M120 range roughly. M190 is further.
+        # Let's read M0-M121 covers M0, M1, M4, M5, M68-71, M103, M104, M120
+        # M68 is index 68. M103 is index 103.
+        m_block = manager.read_bit("M0", 125) # Extend to cover M120
         
         # Read Y0 separately
         y0 = manager.read_bit("Y0", 1)
         
-        # Read M190 separately (Servo Status)
+        # Read M190 separately
         m190 = manager.read_bit("M190", 1)
         
-        m0_val = m_block[0] if m_block and len(m_block) > 0 else None
-        m1_val = m_block[1] if m_block and len(m_block) > 1 else None
-        m4_val = m_block[4] if m_block and len(m_block) > 4 else None
-        m5_val = m_block[5] if m_block and len(m_block) > 5 else None
-        # M190_val = m_block[99] # This was M99, not M190!
-        m120_val = m_block[120] if m_block and len(m_block) > 120 else None
-        
+        def get_bit(idx):
+            return m_block[idx] if m_block and len(m_block) > idx else None
+            
         return {
-            "m5": m5_val,
-            "m4": m4_val,
-            "m120": m120_val,
-            "m1": m1_val,
-            "m0": m0_val,
-            "m190": m190[0] if m190 else None, # Changed key to lowercase m190
+            "m5": get_bit(5),
+            "m4": get_bit(4),
+            "m120": get_bit(120),
+            "m1": get_bit(1),
+            "m0": get_bit(0),
+            "m68": get_bit(68), # Up
+            "m69": get_bit(69), # Down
+            "m70": get_bit(70), # Right
+            "m71": get_bit(71), # Left
+            "m103": get_bit(103), # White
+            "m104": get_bit(104), # Green
+            "m190": m190[0] if m190 else None,
             "y0": y0[0] if y0 else None
         }
     except Exception as e:
-        return {"error": str(e), "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, "M190": None, "y0": None}
+         return {"error": str(e), "connected": False}
+
+class LightModeRequest(BaseModel):
+    mode: str # "off", "white", "green"
+
+class LightDirectRequest(BaseModel):
+    direction: str # "up", "down", "left", "right"
+    state: bool
+
+@router.post("/plc/light-mode")
+async def set_light_mode(req: LightModeRequest):
+    """Set light mode: Off (M103/104=0), White (M103=1), Green (M104=1)."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        m103_val = 1 if req.mode == "white" else 0
+        m104_val = 1 if req.mode == "green" else 0
+        
+        # Write both
+        manager.write_bit("M103", [m103_val])
+        manager.write_bit("M104", [m104_val])
+        
+        add_event(f"Light Mode: {req.mode}", "info")
+        return {"success": True, "mode": req.mode}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/light-direction")
+async def set_light_direction(req: LightDirectRequest):
+    """Set light direction bits (M68-M71)."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    
+    # Map direction to bit
+    dir_map = {
+        "up": "M68",
+        "down": "M69",
+        "right": "M70",
+        "left": "M71"
+    }
+    
+    if req.direction not in dir_map:
+        return {"success": False, "error": "Invalid Direction"}
+        
+    try:
+        bit = dir_map[req.direction]
+        val = 1 if req.state else 0
+        manager.write_bit(bit, [val])
+        return {"success": True, "bit": bit, "state": val}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 @router.get("/plc/heartbeat")
 async def get_heartbeat():
