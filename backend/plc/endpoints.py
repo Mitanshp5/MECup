@@ -137,8 +137,8 @@ MOTION_COMMANDS = {
 
 def poll_plc_thread():
     """Background polling using the shared manager."""
-    last_y2 = 0
-    last_y7 = 0
+    last_Y14 = 0
+    last_Y15 = 0
     last_m101 = 1
     count = 1
     county=1
@@ -149,14 +149,15 @@ def poll_plc_thread():
             resp = manager.read_bit("X0", 1)
             m5_status=manager.read_bit("M5",1)  
             if m5_status[0]==1:
-                # Check Y2 Trigger
-                resp_y = manager.read_bit("Y2", 6)
+                # Check y14 Trigger
+                resp_y = manager.read_bit("Y14", 2)
                 if resp_y and len(resp_y) > 0:
-                    current_y2 = resp_y[0]
-                    current_y7 = resp_y[5]
+                    current_Y14 = resp_y[0]
+                    current_Y15 = resp_y[1]
                     
                     # Rising Edge (0 -> 1)
-                    if (current_y2 == 1 and last_y2 == 0) or (current_y7 == 1 and last_y7 == 0):
+                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (passleft==1):
+                        passleft=0
                         current_m101= manager.read_bit("M101",1)
                         if last_m101!=current_m101[0]:
                             county+=1
@@ -222,17 +223,19 @@ def poll_plc_thread():
                                         time.sleep(.1)
                                         manager.write_bit("M77", [1])
                                         count += 1
-                                        if (manager.read_bit("X0",1)[0]==1 and manager.read_bit("Y2",1)[0]==0):
-                                            time.sleep(1)
-                                            manager.write_bit("M77",[1])
+                                        if manager.read_bit("X0",1)[0]==1:
+                                            passleft=1
+                                        # if (manager.read_bit("X0",1)[0]==1 and manager.read_bit("Y14",1)[0]==0):
+                                        #     time.sleep(1)
+                                        #     manager.write_bit("M77",[1])
                                     except Exception:
                                         print("Failed to write M77 feedback")
                                         manager.write_bit("M77", [1])
                             except Exception:
                                 pass
                     
-                    last_y2 = current_y2
-                    last_y7 = current_y7
+                    last_Y14 = current_Y14
+                    last_Y15 = current_Y15
                 
                 
         except Exception:
@@ -414,7 +417,7 @@ async def scan_start(username: str = "operator"):
         await asyncio.sleep(0.1)
         manager.write_bit("M5", [1])
         await asyncio.sleep(0.1)
-        # manager.write_bit("Y2", [1])
+        # manager.write_bit("Y14", [1])
         manager.write_bit("M77", [1])
         await asyncio.sleep(0.1)
         manager.write_bit("M77", [0])
