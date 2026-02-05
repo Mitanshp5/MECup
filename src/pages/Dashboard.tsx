@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { motion } from "framer-motion";
-import { Play, Settings, Activity, History } from "lucide-react";
+import { Activity, TrendingUp, Shield, Zap, Award, Users, Target, Cpu } from "lucide-react";
 
 interface DashboardProps {
   onPageChange: (page: string) => void;
@@ -10,13 +10,11 @@ interface DashboardProps {
 const MachineModel = () => {
   return (
     <group>
-      {/* Base platform */}
       <mesh position={[0, -1.5, 0]}>
         <boxGeometry args={[4, 0.2, 3]} />
         <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
       </mesh>
 
-      {/* Gantry rails */}
       <mesh position={[-1.8, -0.5, 0]}>
         <boxGeometry args={[0.1, 2, 0.1]} />
         <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
@@ -26,37 +24,31 @@ const MachineModel = () => {
         <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
       </mesh>
 
-      {/* Gantry crossbar */}
       <mesh position={[0, 0.5, 0]}>
         <boxGeometry args={[3.8, 0.15, 0.15]} />
         <meshStandardMaterial color="#3a4555" metalness={0.3} roughness={0.6} />
       </mesh>
 
-      {/* Camera head */}
       <group position={[0, 0.5, 0]}>
         <mesh position={[0, -0.3, 0.2]}>
           <boxGeometry args={[0.4, 0.5, 0.3]} />
           <meshStandardMaterial color="#0d1117" metalness={0.3} roughness={0.7} />
         </mesh>
-        {/* Camera lens */}
         <mesh position={[0, -0.4, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.08, 0.1, 0.15, 16]} />
           <meshStandardMaterial color="#00d4ff" emissive="#00d4ff" emissiveIntensity={0.5} />
         </mesh>
-        {/* LED ring */}
         <mesh position={[0, -0.4, 0.36]}>
           <torusGeometry args={[0.15, 0.02, 8, 24]} />
           <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={0.8} />
         </mesh>
       </group>
 
-      {/* Control box */}
       <mesh position={[2.3, -0.8, 1]}>
         <boxGeometry args={[0.5, 1.2, 0.4]} />
         <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
       </mesh>
 
-      {/* Status lights on control box */}
       <mesh position={[2.05, -0.4, 1.05]}>
         <sphereGeometry args={[0.04, 16, 16]} />
         <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={1} />
@@ -73,39 +65,57 @@ const MachineModel = () => {
   );
 };
 
-const StatCard = ({ title, value, subtitle, icon: Icon, onClick }: {
+const MetricCard = ({ title, value, trend, icon: Icon, color = "primary" }: {
   title: string;
   value: string;
-  subtitle: string;
+  trend?: string;
   icon: React.ElementType;
-  onClick?: () => void;
+  color?: string;
 }) => (
   <motion.div
     whileHover={{ scale: 1.02, y: -2 }}
-    whileTap={{ scale: 0.98 }}
-    onClick={onClick}
-    className="industrial-panel p-4 cursor-pointer transition-all hover:border-primary/50"
+    className="industrial-panel p-5 transition-all hover:border-primary/50"
   >
     <div className="flex items-start justify-between mb-3">
-      <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
-        <Icon className="w-5 h-5 text-primary" />
+      <div className={`w-11 h-11 rounded-lg bg-${color}/10 flex items-center justify-center border border-${color}/20`}>
+        <Icon className={`w-6 h-6 text-${color}`} />
       </div>
-      <span className="status-indicator status-ok" />
+      {trend && (
+        <div className="flex items-center gap-1 text-xs font-medium text-success">
+          <TrendingUp className="w-3 h-3" />
+          {trend}
+        </div>
+      )}
     </div>
-    <h3 className="text-2xl font-bold text-foreground font-mono">{value}</h3>
-    <p className="text-sm font-medium text-foreground mt-1">{title}</p>
-    <p className="text-xs text-muted-foreground">{subtitle}</p>
+    <h3 className="text-3xl font-bold text-foreground font-mono mb-1">{value}</h3>
+    <p className="text-sm text-muted-foreground">{title}</p>
   </motion.div>
+);
+
+const InfoCard = ({ title, description, icon: Icon }: {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+}) => (
+  <div className="flex gap-4 p-4 rounded-lg bg-secondary/30 border border-border hover:border-primary/30 transition-colors">
+    <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+      <Icon className="w-5 h-5 text-primary" />
+    </div>
+    <div>
+      <h4 className="text-sm font-semibold text-foreground mb-1">{title}</h4>
+      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+    </div>
+  </div>
 );
 
 const Dashboard = ({ onPageChange }: DashboardProps) => {
   return (
-    <div className="h-full grid grid-cols-12 gap-6">
-      {/* Left: 3D Model */}
-      <div className="col-span-8 industrial-panel overflow-hidden relative">
+    <div className="h-full grid grid-cols-3 grid-rows-2 gap-6">
+      {/* Top-Left: 3D Model Viewer (spans 2 columns) */}
+      <div className="col-span-2 industrial-panel overflow-hidden relative">
         <div className="absolute top-4 left-4 z-10">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">MACHINE VIEW</h3>
-          <p className="text-xs text-muted-foreground font-mono">CON-SOL-E 5.0 Gantry System</p>
+          <p className="text-xs text-muted-foreground font-mono">Spectra-Scan</p>
         </div>
 
         <Canvas className="w-full h-full">
@@ -122,72 +132,73 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           <pointLight position={[-3, 3, -3]} intensity={0.5} color="#00d4ff" />
           <MachineModel />
         </Canvas>
+      </div>
 
-        {/* System status overlay */}
-        <div className="absolute bottom-4 left-4 right-4 flex gap-4">
-          <div className="flex-1 bg-background/80 backdrop-blur-sm rounded-md p-3 border border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">System Status</span>
-              <span className="flex items-center gap-1.5 text-xs font-medium text-success">
-                <span className="status-indicator status-ok" />
-                OPERATIONAL
-              </span>
-            </div>
+      {/* Right Side: About Spectra-Scan (spanning both rows) */}
+      <div className="row-span-2 industrial-panel p-6 overflow-y-auto">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+            <Cpu className="w-5 h-5 text-primary" />
           </div>
-          <div className="flex-1 bg-background/80 backdrop-blur-sm rounded-md p-3 border border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Gantry Position</span>
-              <span className="text-xs font-mono text-foreground">X: 0.00 Y: 0.00 Z: 0.00</span>
+          <h3 className="text-base font-bold text-foreground uppercase tracking-wide">About Spectra-Scan</h3>
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+          Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">CON-SOL-E club</span>. 
+          It utilizes cutting-edge computer vision and machine learning algorithms for real-time defect detection. 
+          The system features a precision gantry mechanism with high-resolution imaging capabilities, specifically 
+          designed for industrial quality control applications.
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-secondary/40 rounded-lg p-3 border border-border">
+            <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Resolution</div>
+            <div className="text-base font-bold text-foreground">4K Ultra HD</div>
+          </div>
+          <div className="bg-secondary/40 rounded-lg p-3 border border-border">
+            <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Processing Speed</div>
+            <div className="text-base font-bold text-foreground">60 FPS</div>
+          </div>
+        </div>
+        
+        {/* MECUP Competition Badge */}
+        <div className="mt-6 pt-4 border-t border-border">
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg p-3 border border-border">
+            <img 
+              src="/assets/MECUP_logo.png" 
+              alt="MECUP Competition" 
+              className="h-12 w-12 object-contain flex-shrink-0"
+            />
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Competition</div>
+              <div className="text-sm font-bold text-foreground">MECUP</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right: Quick stats and actions */}
-      <div className="col-span-4 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <StatCard
-            title="Scans Today"
-            value="24"
-            subtitle="3 defects found"
-            icon={History}
-            onClick={() => onPageChange("scans")}
-          />
-          <StatCard
-            title="Uptime"
-            value="99.2%"
-            subtitle="Last 30 days"
-            icon={Activity}
-            onClick={() => onPageChange("heartbeat")}
-          />
-        </div>
-
-        {/* Quick Actions - REMOVED for Read-Only Dashboard */}
-        {/* 
-        <div className="industrial-panel p-4">
-           ... (removed)
-        </div> 
-        */}
-
-        {/* Recent Activity */}
-        <div className="industrial-panel p-4 flex-1">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">RECENT ACTIVITY</h3>
-          <div className="space-y-3">
-            {[
-              { time: "10:45", event: "Scan completed", status: "success" },
-              { time: "10:32", event: "Defect detected", status: "warning" },
-              { time: "10:15", event: "System calibrated", status: "success" },
-              { time: "09:58", event: "Operator login", status: "info" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-sm">
-                <span className="font-mono text-muted-foreground text-xs w-12">{item.time}</span>
-                <span className={`status-indicator ${item.status === "success" ? "status-ok" :
-                  item.status === "warning" ? "status-warning" : "bg-primary"
-                  }`} />
-                <span className="text-foreground">{item.event}</span>
-              </div>
-            ))}
+      {/* Bottom-Left: Key Features (spans 2 columns) */}
+      <div className="col-span-2 row-span-0.5 industrial-panel p-6 overflow-y-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+            <Zap className="w-6 h-6 text-primary" />
           </div>
+          <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Key Features</h3>
+        </div>
+        <div className="space-y-5">
+          <InfoCard
+            title="Real-time Detection"
+            description="Instant defect identification with AI-powered analysis and pattern recognition for enhanced quality control"
+            icon={Shield}
+          />
+          <InfoCard
+            title="Automated Workflow"
+            description="Seamless integration with production line systems enabling continuous monitoring and automated reporting"
+            icon={Award}
+          />
+          <InfoCard
+            title="Precision Gantry System"
+            description="High-accuracy positioning mechanism ensuring consistent and repeatable inspection results"
+            icon={Target}
+          />
         </div>
       </div>
     </div>
