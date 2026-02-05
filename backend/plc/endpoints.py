@@ -219,7 +219,7 @@ def poll_plc_thread():
                                     
                                     # Feedback M77
                                     try:
-                                        time.sleep(.5)
+                                        time.sleep(.1)
                                         manager.write_bit("M77", [1])
                                         count += 1
                                         if (manager.read_bit("X0",1)[0]==1 and manager.read_bit("Y2",1)[0]==0):
@@ -227,7 +227,7 @@ def poll_plc_thread():
                                             manager.write_bit("M77",[1])
                                     except Exception:
                                         print("Failed to write M77 feedback")
-                                        # manager.write_bit("M77", [1])
+                                        manager.write_bit("M77", [1])
                             except Exception:
                                 pass
                     
@@ -313,18 +313,18 @@ async def plc_write(req: PLCWriteRequest):
 
 @router.post("/plc/lights")
 async def control_lights(req: LightControlRequest):
-    """Control Y0 lights (Toggle)."""
+    """Control M104 lights (Toggle)."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
-        # Read current Y0
-        current = manager.read_bit("Y0", 1)
+        # Read current M104
+        current = manager.read_bit("M104", 1)
         current_val = current[0] if current else 0
         
         # Toggle
         new_val = 1 if current_val == 0 else 0
         
-        manager.write_bit("Y0", [new_val])
+        manager.write_bit("M104", [new_val])
         return {"success": True, "state": bool(new_val)}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -411,9 +411,10 @@ async def scan_start(username: str = "operator"):
                     }, f, indent=2)
             except Exception as ex:
                 print(f"Failed to save scan info: {ex}")
-        
+        await asyncio.sleep(0.1)
         manager.write_bit("M5", [1])
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
+        # manager.write_bit("Y2", [1])
         manager.write_bit("M77", [1])
         await asyncio.sleep(0.1)
         manager.write_bit("M77", [0])
@@ -515,8 +516,8 @@ async def get_heartbeat():
             "error": "PLC Not Connected"
         }
     try:
-        # Read Y1 for LED lights status
-        y1_status = manager.read_bit("Y1", 1)
+        # Read M104 for LED lights status
+        y1_status = manager.read_bit("M104", 1)
         return {
             "connected": True,
             "y1": y1_status[0] if y1_status else None,
@@ -615,7 +616,7 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
     try:
         manager.write_bit(bit_addr, [1])
         print(f"[SERVO] Triggered {req.command}")
-        await asyncio.sleep(4)
+        await asyncio.sleep(1)
         manager.write_bit(bit_addr, [0])
         return {"status": "success", "message": f"Triggered {req.command}"}
     except Exception as e:
@@ -809,4 +810,3 @@ async def get_scan_result(scan_id: str, filename: str):
     
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
-

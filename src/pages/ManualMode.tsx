@@ -54,13 +54,13 @@ const ManualMode = () => {
         }
 
         // Read current servo speeds from PLC
-        // if (data.connected) {
-        //   const speedsRes = await fetch(`${API_BASE_URL}/servo/speeds`);
-        //   const speedsData = await speedsRes.json();
-        //   if (speedsData.connected) {
-        //     setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
-        //   }
-        // }
+        if (statusData.connected) {
+          const speedsRes = await fetch(`${API_BASE_URL}/servo/speeds`);
+          const speedsData = await speedsRes.json();
+          if (speedsData.connected) {
+            setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
+          }
+        }
       } catch (e) {
         setPlcConnected(false);
       }
@@ -75,19 +75,10 @@ const ManualMode = () => {
 
   const handleServoToggle = async () => {
     try {
-      // Backend now handles reading current state and toggling
-      // We send a dummy value since backend ignores it, or rather backend uses it?
-      // Wait, backend 'enable_servo' READS current M99. argument 'req' is ServoEnableRequest which has 'enable: bool'.
-      // But implementation ignores 'req.enable' for logic, just uses it for nothing or I should check.
-      // My backend change:
-      //     # Read current status of M99...
-      //     # Toggle...
-
-      // So I can send anything.
       await fetch(`${API_BASE_URL}/servo/enable`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enable: true }) // Value ignored by new backend logic
+        body: JSON.stringify({ enable: true })
       });
       // State updated via polling
     } catch (error) {
