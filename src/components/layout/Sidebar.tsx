@@ -62,10 +62,13 @@ const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarPr
     >
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
-        {/* ... logo content */}
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/30">
-            <span className="text-primary font-mono font-bold text-sm">CS</span>
+          <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/30 p-1.5">
+            <img 
+              src="/assets/icon.ico" 
+              alt="CON-SOL-E" 
+              className="w-full h-full object-contain"
+            />
           </div>
           {!collapsed && (
             <motion.div
