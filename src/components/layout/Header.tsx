@@ -29,7 +29,9 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
 
   useEffect(() => {
     // ... (keep useEffect for polling)
-    const interval = setInterval(async () => {
+    let timeoutId: NodeJS.Timeout;
+
+    const checkStatus = async () => {
       try {
         const res = await fetch("http://localhost:5001/plc/status");
         const data = await res.json();
@@ -41,8 +43,12 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
       } catch (err) {
         setPlcStatus({ connected: false, error: "No backend" });
       }
-    }, 2000);
-    return () => clearInterval(interval);
+      timeoutId = setTimeout(checkStatus, 2000);
+    };
+
+    checkStatus();
+    // const interval = setInterval(..., 2000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

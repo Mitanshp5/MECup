@@ -35,7 +35,11 @@ const AutomaticMode = () => {
 
   const [isScanning, setIsScanning] = useState(false);
   const [gridTriggered, setGridTriggered] = useState(false);
-  const [defects, setDefects] = useState<Defect[]>([]);
+  // Init from session storage
+  const [defects, setDefects] = useState<Defect[]>(() => {
+    const saved = sessionStorage.getItem("mecup-defects");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [totalDefectCount, setTotalDefectCount] = useState(0);
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [selectedDefectImage, setSelectedDefectImage] = useState<string | null>(null);
@@ -44,12 +48,19 @@ const AutomaticMode = () => {
   const [pulseMode, setPulseMode] = useState<'white' | 'black'>('white');
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
 
+  // Persist defects to session storage
+  useEffect(() => {
+    sessionStorage.setItem("mecup-defects", JSON.stringify(defects));
+  }, [defects]);
+
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
     fetch('http://localhost:5001/camera/connect', { method: 'POST' })
       .catch(err => console.error("Failed to connect camera:", err));
 
     // Sync scan state from PLC on mount and periodically
+    // Sync scan state loop
+    let scanTimeout: NodeJS.Timeout;
     const syncScanState = async () => {
       if (MOCK_MODE) return;
 
@@ -67,12 +78,14 @@ const AutomaticMode = () => {
       } catch (err) {
         console.error("Failed to sync scan state:", err);
       }
+      scanTimeout = setTimeout(syncScanState, 2000);
     };
 
     syncScanState();
-    const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
+    // const interval = setInterval(syncScanState, 2000); // Poll every 2 seconds
 
-    // Poll Camera Status
+    // Poll Camera Status loop
+    let camTimeout: NodeJS.Timeout;
     const checkCamera = async () => {
       if (MOCK_MODE) return;
       try {
@@ -83,12 +96,14 @@ const AutomaticMode = () => {
       } catch (e) {
         setCameraConnected(false);
       }
+      camTimeout = setTimeout(checkCamera, 3000);
     };
-    const camInterval = setInterval(checkCamera, 3000); // Check every 3 seconds
+    checkCamera();
+    // const camInterval = setInterval(checkCamera, 3000); // Check every 3 seconds
 
     return () => {
-      clearInterval(interval);
-      clearInterval(camInterval);
+      clearTimeout(scanTimeout);
+      clearTimeout(camTimeout);
     };
   }, [MOCK_MODE]);
 
@@ -113,6 +128,8 @@ const AutomaticMode = () => {
   const [lastInferenceTimestamp, setLastInferenceTimestamp] = useState<string | null>(null);
 
   useEffect(() => {
+    let pollTimeout: NodeJS.Timeout;
+
     const pollLatestInference = async () => {
       try {
         const endpoint = MOCK_MODE
@@ -164,12 +181,14 @@ const AutomaticMode = () => {
       } catch (err) {
         // Silent fail for polling
       }
+      // Schedule next poll - strictly serial
+      pollTimeout = setTimeout(pollLatestInference, 500);
     };
 
-    // Poll every 500ms for responsive updates
-    const interval = setInterval(pollLatestInference, 500);
+    // Kick off
+    pollLatestInference();
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(pollTimeout);
   }, [lastInferenceTimestamp, MOCK_MODE]);
 
   const handleStartScan = async () => {
@@ -188,6 +207,11 @@ const AutomaticMode = () => {
 
       if (data.success) {
         setIsScanning(true);
+        // Clear defects on new scan start!
+        setDefects([]);
+        setTotalDefectCount(0);
+        setResultImageUrl(null);
+        sessionStorage.removeItem("mecup-defects"); // Clear persistent store
         toast.success("Scan Started", { description: "M5 set to ON" });
       } else {
         toast.error("Failed to start scan", { description: data.error || "PLC Error" });

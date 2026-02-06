@@ -3,6 +3,7 @@ import time
 import asyncio
 import datetime
 import os
+import csv
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
@@ -62,6 +63,15 @@ last_inference_result = {
 # Event log for recent events
 recent_events = []
 MAX_EVENTS = 50
+ 
+ # Global Counters (for Grid Naming)
+count = 1
+county = 1
+ 
+ # Monitoring Configuration
+# Monitoring Configuration
+MONITORED_REGISTERS = ["D0", "D2"]
+MONITOR_CSV_NAME = "register_monitor.csv"
 
 def add_event(event: str, event_type: str = "info"):
     """Add an event to the recent events list."""
@@ -201,13 +211,10 @@ MOTION_COMMANDS = {
 
 def poll_plc_thread():
     """Background polling using the shared manager."""
+    global count, county, click
     last_Y14 = 0
     last_Y15 = 0
     last_m101 = 1
-    count = 1
-    county=1
-    start= 0
-    passleft = 0
     while True:
         try:
             # Status check (Heartbeat)
@@ -222,8 +229,9 @@ def poll_plc_thread():
                     current_Y15 = resp_y[1]
                     
                     # Rising Edge (0 -> 1)
-                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (passleft == 1):
-                        passleft = 0
+                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (click == 1):
+                        click = 0
+                        time.sleep(0.4)
                         current_m101 = manager.read_bit("M101", 1)
                         if last_m101 != current_m101[0]:
                             county += 1
@@ -236,6 +244,37 @@ def poll_plc_thread():
                         # Use batch folder if set, otherwise create one
                         if current_batch_folder:
                             save_dir = current_batch_folder
+                            
+                            # --- Register Monitoring & CSV Logging ---
+                            try:
+                                # Read configured registers
+                                monitor_values = {}
+                                for reg in MONITORED_REGISTERS:
+                                    # Assuming standard signed dword for now as per D0/D2 usage
+                                    # If registers vary, might need a more complex config (e.g. tuples with type)
+                                    val = manager.read_sign_dword(reg, 1)
+                                    monitor_values[reg] = val[0] if val else "N/A"
+                                
+                                csv_path = os.path.join(save_dir, MONITOR_CSV_NAME)
+                                file_exists = os.path.exists(csv_path)
+                                
+                                with open(csv_path, 'a', newline='') as csvfile:
+                                    writer = csv.writer(csvfile)
+                                    # Write header if new file
+                                    if not file_exists:
+                                        header = ["Timestamp"] + MONITORED_REGISTERS
+                                        writer.writerow(header)
+                                    
+                                    # Write row
+                                    row = [datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+                                    for reg in MONITORED_REGISTERS:
+                                        row.append(monitor_values.get(reg, ""))
+                                    writer.writerow(row)
+                                    
+                            except Exception as csv_err:
+                                print(f"Monitor Log Error: {csv_err}")
+                            # -----------------------------------------
+
                         else:
                             # Fallback: create new batch folder
                             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -270,18 +309,16 @@ def poll_plc_thread():
                                         except Exception as ie:
                                             pass
                                     
-                                    # Feedback M77 - Now Immediate!
                                     try:
                                         time.sleep(0.2) # Small buffer
                                         manager.write_bit("M77", [1])
                                         count += 1
                                         
-                                        # Restore X0 Logic (Double Scan if X0 is High)
-                                        # We put this in a nested try to ensure M77 failure logic doesn't trigger if this fails
                                         try:
-                                            x0_resp = manager.read_bit("X0", 1)
-                                            if x0_resp and x0_resp[0] == 1:
-                                                passleft = 1
+                                            x0_resp = manager.read_bit("X0", 2)
+                                            if x0_resp and (x0_resp[0] == 1 or x0_resp[1] == 1):
+                                                click = 1
+                                                time.sleep(1)
                                         except Exception:
                                             pass # Ignore X0 read failure
                                             
@@ -461,11 +498,13 @@ async def toggle_pulse(req: TogglePulseRequest):
 @router.post("/plc/scan-start")
 async def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
-    global current_batch_folder, current_scan_user
+    global current_batch_folder, current_scan_user, count, county
     try:
         current_scan_user = username
 
-        
+        # Reset counters for new batch
+        count = 1
+        county = 1
         # Create new batch folder with timestamp if not already set
         if not current_batch_folder:
             backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -504,10 +543,7 @@ async def scan_start(username: str = "operator"):
         await asyncio.sleep(0.1)
         manager.write_bit("M5", [1])
         await asyncio.sleep(0.1)
-        # manager.write_bit("Y14", [1])
-        manager.write_bit("M77", [1])
-        await asyncio.sleep(0.1)
-        manager.write_bit("M77", [0])
+        click=1
         add_event("Scan started", "success")
         return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
     except Exception as e:
@@ -643,7 +679,8 @@ async def set_light_direction(req: LightDirectRequest):
         
     try:
         bit = dir_map[req.direction]
-        val = 1 if req.state else 0
+        # Inverted logic: 0 = ON, 1 = OFF
+        val = 0 if req.state else 1
         manager.write_bit(bit, [val])
         return {"success": True, "bit": bit, "state": val}
     except Exception as e:
