@@ -79,8 +79,8 @@ const InfoCard = ({ title, description, icon: Icon }: {
 const Dashboard = ({ onPageChange }: DashboardProps) => {
   return (
     <div className="h-full grid grid-cols-3 grid-rows-2 gap-6">
-      {/* Top-Left: 3D Model Viewer (spans 2 columns) */}
-      <div className="col-span-2 industrial-panel overflow-hidden relative">
+      {/* Left Side: 3D Model Viewer (spans 2 rows) */}
+      <div className="col-span-2 row-span-2 industrial-panel overflow-hidden relative">
         <div className="absolute top-4 left-4 z-10">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">MACHINE VIEW</h3>
           <p className="text-xs text-muted-foreground font-mono">Spectra-Scan</p>
@@ -105,8 +105,8 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         </Canvas>
       </div>
 
-      {/* Right Side: About Spectra-Scan (spanning both rows) */}
-      <div className="row-span-2 industrial-panel p-6 overflow-y-auto">
+      {/* Top-Right: About Spectra-Scan */}
+      <div className="industrial-panel p-6 overflow-y-auto">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
             <Cpu className="w-5 h-5 text-primary" />
@@ -115,11 +115,11 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mb-4">
           Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">CON-SOL-E club</span>.
-          It utilizes cutting-edge computer vision and machine learning algorithms for real-time defect detection.
+          {/* It utilizes cutting-edge computer vision and machine learning algorithms for real-time defect detection. */}
           The system features a precision gantry mechanism with high-resolution imaging capabilities, specifically
           designed for industrial quality control applications.
         </p>
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-secondary/40 rounded-lg p-3 border border-border">
             <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Resolution</div>
             <div className="text-base font-bold text-foreground">4K Ultra HD</div>
@@ -128,7 +128,7 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
             <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Processing Speed</div>
             <div className="text-base font-bold text-foreground">60 FPS</div>
           </div>
-        </div>
+        </div> */}
 
         {/* MECUP Competition Badge */}
         <div className="mt-6 pt-4 border-t border-border">
@@ -146,8 +146,8 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Bottom-Left: Key Features (spans 2 columns) */}
-      <div className="col-span-2 row-span-0.5 industrial-panel p-6 overflow-y-auto">
+      {/* Bottom-Right: Key Features */}
+      <div className="industrial-panel p-6 overflow-y-auto">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
             <Zap className="w-6 h-6 text-primary" />
