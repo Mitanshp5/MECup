@@ -1,4 +1,4 @@
-import { Bell, MessageCircle, User, Wifi, WifiOff, LogOut, LogIn } from "lucide-react";
+import { MessageCircle, User, Wifi, WifiOff, LogOut, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -73,16 +73,23 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Nirma University Logo */}
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded border border-border">
+          <img 
+            src="/assets/nu_short_logo.png" 
+            alt="Nirma University" 
+            className="h-8 w-8 object-contain"
+          />
+          <div className="border-l border-border pl-2">
+            <div className="text-xs font-semibold text-foreground">Nirma University</div>
+            <div className="text-[10px] text-muted-foreground">Institute of Technology</div>
+          </div>
+        </div>
+
         {/* System time */}
         <div className="font-mono text-sm text-muted-foreground px-3 py-1.5 bg-secondary/30 rounded border border-border">
           <SystemTime />
         </div>
-
-        {/* Notifications */}
-        <button className="relative p-2 rounded-md hover:bg-secondary transition-colors">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
-        </button>
 
         {/* Chatbot toggle */}
         <button
