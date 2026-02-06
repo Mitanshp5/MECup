@@ -12,7 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -30,7 +29,10 @@ MVSPython/
 captured_images/
 result_images/
 
-# Large model files
 backend/inference/openvino_model/
 *.bin
 *.blob
+
+mecup.db
+mecup.db-shm
+mecup.db-wal

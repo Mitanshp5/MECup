@@ -40,6 +40,8 @@ const HeartbeatPage = () => {
 
   // Fetch real data from backend
   useEffect(() => {
+    // Fetch real data from backend
+    let timeoutId: NodeJS.Timeout;
     const fetchHeartbeatData = async () => {
       try {
         // Fetch camera FPS
@@ -102,11 +104,13 @@ const HeartbeatPage = () => {
       } catch (error) {
         console.error("Failed to fetch heartbeat data:", error);
       }
+
+      timeoutId = setTimeout(fetchHeartbeatData, 2000);
     };
 
     fetchHeartbeatData();
-    const interval = setInterval(fetchHeartbeatData, 2000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchHeartbeatData, 2000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Update uptime

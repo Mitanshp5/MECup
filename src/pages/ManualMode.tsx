@@ -25,18 +25,13 @@ const ManualMode = () => {
 
   // Poll PLC connection status and read current speeds
   useEffect(() => {
+    // checkPlc definition
+    let timeoutId: NodeJS.Timeout;
     const checkPlc = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/plc/control-status`);
         const data = await res.json();
 
-        // Check m5/m4 etc but primarily we need m99 for servo
-        // If control-status endpoint returns m99, use it.
-        // Or if we need connection status, we might need to check how backend handles it.
-        // Wait, get_plc_status is /plc/status (endpoints line 216).
-        // control-status is /plc/control-status (endpoints line 347).
-        // The original checkPlc used /plc/status which returns connection info.
-        // We should probably call control-status as well to get M99.
 
         const statusRes = await fetch(`${API_BASE_URL}/plc/status`);
         const statusData = await statusRes.json();
@@ -60,10 +55,10 @@ const ManualMode = () => {
             }
             if (ctrlData.m68 !== undefined) {
               setDirectionState({
-                up: ctrlData.m68 === 1,
-                down: ctrlData.m69 === 1,
-                right: ctrlData.m70 === 1,
-                left: ctrlData.m71 === 1
+                up: ctrlData.m68 === 0,
+                down: ctrlData.m69 === 0,
+                right: ctrlData.m70 === 0,
+                left: ctrlData.m71 === 0
               });
             }
           } catch (e) { console.error("Control status poll failed", e); }
@@ -80,11 +75,14 @@ const ManualMode = () => {
       } catch (e) {
         setPlcConnected(false);
       }
+
+      // Schedule next poll
+      timeoutId = setTimeout(checkPlc, 2000);
     };
 
     checkPlc();
-    const interval = setInterval(checkPlc, 2000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(checkPlc, 2000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const [servoEnabled, setServoEnabled] = useState(false);
@@ -477,7 +475,7 @@ const LightPanel = ({ active, disabled, onClick, orientation }: { active: boolea
       disabled={disabled}
       className={`
                 relative flex items-center justify-center transition-all duration-300
-                ${orientation === 'horizontal' ? 'w-24 h-14' : 'w-14 h-24'}
+                ${orientation === 'vertical' ? 'w-24 h-14' : 'w-14 h-24'}
                 ${disabled ? 'opacity-30 cursor-not-allowed grayscale' : 'cursor-pointer'}
             `}
     >
@@ -494,7 +492,7 @@ const LightPanel = ({ active, disabled, onClick, orientation }: { active: boolea
       <div className={`
                 absolute bg-current transition-all duration-300 rounded-full
                 ${active ? 'opacity-100' : 'opacity-20'}
-                ${orientation === 'horizontal'
+                ${orientation === 'vertical'
           ? 'bottom-2 left-2 right-2 h-1'
           : 'right-2 top-2 bottom-2 w-1'
         }
