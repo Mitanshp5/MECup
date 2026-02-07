@@ -75,9 +75,9 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
       <div className="flex items-center gap-3">
         {/* Nirma University Logo */}
         <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded border border-border">
-          <img 
-            src="/assets/nu_short_logo.png" 
-            alt="Nirma University" 
+          <img
+            src="/assets/nu_short_logo.png"
+            alt="Nirma University"
             className="h-8 w-8 object-contain"
           />
           <div className="border-l border-border pl-2">
@@ -139,10 +139,10 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
 const SystemTime = () => {
   const [time, setTime] = useState(new Date());
 
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
-  });
+  }, []);
 
   return <span>{time.toLocaleTimeString("en-US", { hour12: false })}</span>;
 };

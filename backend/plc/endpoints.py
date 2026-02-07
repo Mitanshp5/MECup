@@ -474,22 +474,35 @@ async def error_reset(req: ErrorResetRequest):
 
 @router.post("/plc/toggle-pulse")
 async def toggle_pulse(req: TogglePulseRequest):
-    """Pulse M104 (White) or M103 (Black) for 0.2s."""
+    """Cycle M103/M104 based on mode."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     
     try:
-        bit = "M103" if req.mode.lower() == "white" else "M104" if req.mode.lower() == "black" else None
-        bit2= "M104" if req.mode.lower() == "white" else "M103" if req.mode.lower() == "black" else None
-        if not bit:
-            return {"success": False, "error": "Invalid Mode (use 'white' or 'black')"}
+        # White=M103, Green=M104 (following ManualMode logic)
+        bit_on = None
+        bit_off = None
 
-        # Pulse ON
-        manager.write_bit(bit, [1])
-        manager.write_bit(bit2, [0])
+        if req.mode.lower() == "white":
+            bit_on = "M103"
+            bit_off = "M104"
+        elif req.mode.lower() == "green":
+            bit_on = "M104"
+            bit_off = "M103"
+        elif req.mode.lower() == "off":
+            # Both off
+            manager.write_bit("M103", [0])
+            manager.write_bit("M104", [0])
+            return {"success": True, "message": "Lights OFF"}
+        else:
+             return {"success": False, "error": "Invalid Mode"}
+
+        # Switch
+        manager.write_bit(bit_on, [1])
+        manager.write_bit(bit_off, [0])
         
-        add_event(f"Pulse sent: {req.mode} ({bit})", "info")
-        return {"success": True, "message": f"Pulsed {bit}"}
+        add_event(f"Pulse sent: {req.mode} ({bit_on})", "info")
+        return {"success": True, "message": f"Set {bit_on}"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -498,15 +511,16 @@ async def toggle_pulse(req: TogglePulseRequest):
 @router.post("/plc/scan-start")
 async def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
-    global current_batch_folder, current_scan_user, count, county
+    global current_batch_folder, current_scan_user, count, county, click
     try:
         current_scan_user = username
 
-        # Reset counters for new batch
-        count = 1
-        county = 1
         # Create new batch folder with timestamp if not already set
         if not current_batch_folder:
+            # Reset counters for new batch ONLY
+            count = 1
+            county = 1
+            
             backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             current_batch_folder = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
@@ -570,11 +584,13 @@ async def grid_one():
 @router.post("/plc/cycle-reset")
 async def cycle_reset():
     """Reset cycle by setting M120 to ON and clearing batch folder."""
-    global current_batch_folder
+    global current_batch_folder, count, county
     try:
         manager.write_bit("M120", [1])
         # Clear batch folder so new scan creates a new folder
         current_batch_folder = None
+        count = 1
+        county = 1
         add_event("Cycle reset completed", "info")
         return {"success": True, "message": "Cycle Reset (M120 ON) - Batch cleared"}
     except Exception as e:
