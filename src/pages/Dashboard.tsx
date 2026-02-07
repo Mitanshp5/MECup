@@ -1,67 +1,35 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, useGLTF, Html } from "@react-three/drei";
 import { motion } from "framer-motion";
-import { Activity, TrendingUp, Shield, Zap, Award, Users, Target, Cpu } from "lucide-react";
+import { Activity, TrendingUp, Shield, Zap, Award, Users, Target, Cpu, Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
 interface DashboardProps {
   onPageChange: (page: string) => void;
 }
 
-const MachineModel = () => {
+// Loading component for 3D model
+const Loader = () => {
   return (
-    <group>
-      <mesh position={[0, -1.5, 0]}>
-        <boxGeometry args={[4, 0.2, 3]} />
-        <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
-      </mesh>
+    <Html center>
+      <div className="flex flex-col items-center gap-3 bg-background/80 backdrop-blur-sm px-6 py-4 rounded-lg border border-primary/20">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-sm font-medium text-foreground">Loading 3D Model...</p>
+      </div>
+    </Html>
+  );
+};
 
-      <mesh position={[-1.8, -0.5, 0]}>
-        <boxGeometry args={[0.1, 2, 0.1]} />
-        <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
-      </mesh>
-      <mesh position={[1.8, -0.5, 0]}>
-        <boxGeometry args={[0.1, 2, 0.1]} />
-        <meshStandardMaterial color="#2a3441" metalness={0.3} roughness={0.6} />
-      </mesh>
+// GLB Model component
+const GLBModel = () => {
+  const { scene } = useGLTF("/assets/DoorChecker.glb");
 
-      <mesh position={[0, 0.5, 0]}>
-        <boxGeometry args={[3.8, 0.15, 0.15]} />
-        <meshStandardMaterial color="#3a4555" metalness={0.3} roughness={0.6} />
-      </mesh>
-
-      <group position={[0, 0.5, 0]}>
-        <mesh position={[0, -0.3, 0.2]}>
-          <boxGeometry args={[0.4, 0.5, 0.3]} />
-          <meshStandardMaterial color="#0d1117" metalness={0.3} roughness={0.7} />
-        </mesh>
-        <mesh position={[0, -0.4, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.08, 0.1, 0.15, 16]} />
-          <meshStandardMaterial color="#00d4ff" emissive="#00d4ff" emissiveIntensity={0.5} />
-        </mesh>
-        <mesh position={[0, -0.4, 0.36]}>
-          <torusGeometry args={[0.15, 0.02, 8, 24]} />
-          <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={0.8} />
-        </mesh>
-      </group>
-
-      <mesh position={[2.3, -0.8, 1]}>
-        <boxGeometry args={[0.5, 1.2, 0.4]} />
-        <meshStandardMaterial color="#1a1f2e" metalness={0.2} roughness={0.7} />
-      </mesh>
-
-      <mesh position={[2.05, -0.4, 1.05]}>
-        <sphereGeometry args={[0.04, 16, 16]} />
-        <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={1} />
-      </mesh>
-      <mesh position={[2.05, -0.55, 1.05]}>
-        <sphereGeometry args={[0.04, 16, 16]} />
-        <meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={1} />
-      </mesh>
-      <mesh position={[2.05, -0.7, 1.05]}>
-        <sphereGeometry args={[0.04, 16, 16]} />
-        <meshStandardMaterial color="#00d4ff" emissive="#00d4ff" emissiveIntensity={1} />
-      </mesh>
-    </group>
+  return (
+    <primitive
+      object={scene}
+      scale={1}
+      position={[0, 0, 0]}
+    />
   );
 };
 
@@ -111,31 +79,34 @@ const InfoCard = ({ title, description, icon: Icon }: {
 const Dashboard = ({ onPageChange }: DashboardProps) => {
   return (
     <div className="h-full grid grid-cols-3 grid-rows-2 gap-6">
-      {/* Top-Left: 3D Model Viewer (spans 2 columns) */}
-      <div className="col-span-2 industrial-panel overflow-hidden relative">
+      {/* Left Side: 3D Model Viewer (spans 2 rows) */}
+      <div className="col-span-2 row-span-2 industrial-panel overflow-hidden relative">
         <div className="absolute top-4 left-4 z-10">
           <h3 className="text-sm font-medium text-muted-foreground mb-1">MACHINE VIEW</h3>
           <p className="text-xs text-muted-foreground font-mono">Spectra-Scan</p>
         </div>
 
         <Canvas className="w-full h-full">
-          <PerspectiveCamera makeDefault position={[4, 2, 4]} />
+          <PerspectiveCamera makeDefault position={[5, 3, 5]} />
           <OrbitControls
             enablePan={false}
-            minDistance={3}
-            maxDistance={10}
+            minDistance={2}
+            maxDistance={15}
             autoRotate
-            autoRotateSpeed={0.5}
+            autoRotateSpeed={0.8}
           />
-          <ambientLight intensity={0.3} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
-          <pointLight position={[-3, 3, -3]} intensity={0.5} color="#00d4ff" />
-          <MachineModel />
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1.2} />
+          <pointLight position={[-3, 3, -3]} intensity={0.6} color="#00d4ff" />
+          <spotLight position={[0, 10, 0]} intensity={0.5} angle={0.3} penumbra={1} />
+          <Suspense fallback={<Loader />}>
+            <GLBModel />
+          </Suspense>
         </Canvas>
       </div>
 
-      {/* Right Side: About Spectra-Scan (spanning both rows) */}
-      <div className="row-span-2 industrial-panel p-6 overflow-y-auto">
+      {/* Top-Right: About Spectra-Scan */}
+      <div className="industrial-panel p-6 overflow-y-auto">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
             <Cpu className="w-5 h-5 text-primary" />
@@ -143,12 +114,12 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
           <h3 className="text-base font-bold text-foreground uppercase tracking-wide">About Spectra-Scan</h3>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-          Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">CON-SOL-E club</span>. 
-          It utilizes cutting-edge computer vision and machine learning algorithms for real-time defect detection. 
-          The system features a precision gantry mechanism with high-resolution imaging capabilities, specifically 
+          Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">CON-SOL-E club</span>.
+          {/* It utilizes cutting-edge computer vision and machine learning algorithms for real-time defect detection. */}
+          The system features a precision gantry mechanism with high-resolution imaging capabilities, specifically
           designed for industrial quality control applications.
         </p>
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-secondary/40 rounded-lg p-3 border border-border">
             <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Resolution</div>
             <div className="text-base font-bold text-foreground">4K Ultra HD</div>
@@ -157,14 +128,14 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
             <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Processing Speed</div>
             <div className="text-base font-bold text-foreground">60 FPS</div>
           </div>
-        </div>
-        
+        </div> */}
+
         {/* MECUP Competition Badge */}
         <div className="mt-6 pt-4 border-t border-border">
           <div className="flex items-center gap-3 bg-secondary/30 rounded-lg p-3 border border-border">
-            <img 
-              src="/assets/MECUP_logo.png" 
-              alt="MECUP Competition" 
+            <img
+              src="/assets/MECUP_logo.png"
+              alt="MECUP Competition"
               className="h-12 w-12 object-contain flex-shrink-0"
             />
             <div>
@@ -175,8 +146,8 @@ const Dashboard = ({ onPageChange }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Bottom-Left: Key Features (spans 2 columns) */}
-      <div className="col-span-2 row-span-0.5 industrial-panel p-6 overflow-y-auto">
+      {/* Bottom-Right: Key Features */}
+      <div className="industrial-panel p-6 overflow-y-auto">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
             <Zap className="w-6 h-6 text-primary" />
