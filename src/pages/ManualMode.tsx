@@ -122,19 +122,27 @@ const ManualMode = () => {
   };
 
   const toggleDirection = async (direction: string, currentState: boolean) => {
+    // Optimistic update
+    setDirectionState(prev => ({ ...prev, [direction]: !currentState }));
+
     try {
-      await fetch(`${API_BASE_URL}/plc/light-direction`, {
+      const res = await fetch(`${API_BASE_URL}/plc/light-direction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ direction, state: !currentState })
       });
-    } catch (e) { console.error(e); }
+      if (!res.ok) throw new Error("Failed to toggle light");
+    } catch (e) {
+      console.error(e);
+      // Revert on failure
+      setDirectionState(prev => ({ ...prev, [direction]: currentState }));
+    }
   };
 
   return (
     <div className="h-full grid grid-cols-12 gap-6 relative">
       {/* Blocking Overlay */}
-      {/* {!plcConnected && (
+      {!plcConnected && (
         <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg border border-destructive/50">
           <div className="text-center space-y-4 p-8 bg-card border border-destructive rounded-xl shadow-lg">
             <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto animate-pulse">
@@ -147,7 +155,7 @@ const ManualMode = () => {
             </div>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Main Control Panel */}
       <div className="col-span-8 space-y-6">
@@ -377,12 +385,12 @@ const ManualMode = () => {
             {/* Controls Grid - Rotated 45deg to fit or just standard cross? Standard cross for now based on previous requests */}
             <div className="relative z-10 grid grid-cols-3 grid-rows-3 gap-4 w-full h-full">
 
-              {/* Top Center: UP */}
+              {/* Top Center: Controls DOWN */}
               <div className="col-start-2 row-start-1 flex justify-center items-end">
                 <LightPanel
-                  active={directionState.up}
+                  active={directionState.down}
                   disabled={lightMode === 'off'}
-                  onClick={() => toggleDirection('up', directionState.up)}
+                  onClick={() => toggleDirection('down', directionState.down)}
                   orientation="vertical"
                 />
               </div>
@@ -437,12 +445,12 @@ const ManualMode = () => {
                 />
               </div>
 
-              {/* Bottom Center: DOWN */}
+              {/* Bottom Center: Controls UP */}
               <div className="col-start-2 row-start-3 flex justify-center items-start">
                 <LightPanel
-                  active={directionState.down}
+                  active={directionState.up}
                   disabled={lightMode === 'off'}
-                  onClick={() => toggleDirection('down', directionState.down)}
+                  onClick={() => toggleDirection('up', directionState.up)}
                   orientation="vertical"
                 />
               </div>

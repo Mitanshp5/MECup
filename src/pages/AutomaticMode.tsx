@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
@@ -45,13 +45,21 @@ const AutomaticMode = () => {
   const [selectedDefectImage, setSelectedDefectImage] = useState<string | null>(null);
   const [isInferencing, setIsInferencing] = useState(false);
   const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
-  const [pulseMode, setPulseMode] = useState<'white' | 'black'>('white');
+  const [pulseMode, setPulseMode] = useState<'off' | 'white' | 'green'>('off');
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
+  const isMounted = useRef(true);
 
   // Persist defects to session storage
   useEffect(() => {
     sessionStorage.setItem("mecup-defects", JSON.stringify(defects));
   }, [defects]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
@@ -62,10 +70,11 @@ const AutomaticMode = () => {
     // Sync scan state loop
     let scanTimeout: NodeJS.Timeout;
     const syncScanState = async () => {
-      if (MOCK_MODE) return;
+      if (MOCK_MODE || !isMounted.current) return;
 
       try {
         const res = await fetch('http://localhost:5001/plc/control-status');
+        if (!isMounted.current) return;
         const data = await res.json();
         if (data.m5 !== null && data.m5 !== undefined) {
           const plcScanning = data.m5 === 1;
@@ -76,9 +85,9 @@ const AutomaticMode = () => {
           }
         }
       } catch (err) {
-        console.error("Failed to sync scan state:", err);
+        if (isMounted.current) console.error("Failed to sync scan state:", err);
       }
-      scanTimeout = setTimeout(syncScanState, 2000);
+      if (isMounted.current) scanTimeout = setTimeout(syncScanState, 2000);
     };
 
     syncScanState();
@@ -87,16 +96,17 @@ const AutomaticMode = () => {
     // Poll Camera Status loop
     let camTimeout: NodeJS.Timeout;
     const checkCamera = async () => {
-      if (MOCK_MODE) return;
+      if (MOCK_MODE || !isMounted.current) return;
       try {
         const res = await fetch('http://localhost:5001/camera/status');
+        if (!isMounted.current) return;
         const data = await res.json();
         // If is_grabbing is true, we consider it connected and streaming
         setCameraConnected(data.is_grabbing);
       } catch (e) {
-        setCameraConnected(false);
+        if (isMounted.current) setCameraConnected(false);
       }
-      camTimeout = setTimeout(checkCamera, 3000);
+      if (isMounted.current) camTimeout = setTimeout(checkCamera, 3000);
     };
     checkCamera();
     // const camInterval = setInterval(checkCamera, 3000); // Check every 3 seconds
@@ -131,12 +141,14 @@ const AutomaticMode = () => {
     let pollTimeout: NodeJS.Timeout;
 
     const pollLatestInference = async () => {
+      if (!isMounted.current) return;
       try {
         const endpoint = MOCK_MODE
           ? 'http://localhost:5001/inference/mock-latest'
           : 'http://localhost:5001/plc/latest-inference';
 
         const res = await fetch(endpoint);
+        if (!isMounted.current) return;
         const data = await res.json();
 
         if (data.has_result && data.timestamp !== lastInferenceTimestamp) {
@@ -182,7 +194,7 @@ const AutomaticMode = () => {
         // Silent fail for polling
       }
       // Schedule next poll - strictly serial
-      pollTimeout = setTimeout(pollLatestInference, 500);
+      if (isMounted.current) pollTimeout = setTimeout(pollLatestInference, 500);
     };
 
     // Kick off
@@ -321,12 +333,12 @@ const AutomaticMode = () => {
   const handlePulseToggle = async () => {
     if (isScanning) return;
 
-    const newMode = pulseMode === 'white' ? 'black' : 'white';
+    const newMode = pulseMode === 'off' ? 'white' : pulseMode === 'white' ? 'green' : 'off';
 
     if (MOCK_MODE) {
       setPulseMode(newMode);
       toast.success(`Pulse: ${newMode.toUpperCase()}`, {
-        description: `Simulated ${newMode === 'white' ? 'M104' : 'M103'} Pulse`
+        description: `Simulated ${newMode} Mode`
       });
       return;
     }
@@ -345,7 +357,7 @@ const AutomaticMode = () => {
       if (data.success) {
         setPulseMode(newMode);
         toast.success(`Pulse: ${newMode.toUpperCase()}`, {
-          description: `Triggered ${newMode === 'white' ? 'M104' : 'M103'}`
+          description: `Triggered ${newMode}`
         });
       } else {
         toast.error("Pulse Failed", { description: data.error || "PLC Error" });
@@ -543,7 +555,9 @@ const AutomaticMode = () => {
                 ? "bg-secondary/50 text-muted-foreground cursor-not-allowed border border-border/50"
                 : pulseMode === 'white'
                   ? "bg-white text-black border-2 border-gray-200 hover:bg-gray-50"
-                  : "bg-black text-white border-2 border-gray-700 hover:bg-gray-900"
+                  : pulseMode === 'green'
+                    ? "bg-emerald-600 text-white border-2 border-emerald-500 hover:bg-emerald-500"
+                    : "bg-zinc-800 text-zinc-400 border-2 border-zinc-700 hover:bg-zinc-700"
                 }`}
             >
               <Zap className={`w-5 h-5 ${isScanning ? '' : 'drop-shadow-sm'}`} />
