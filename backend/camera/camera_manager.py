@@ -155,8 +155,10 @@ class CameraManager:
         return True
 
     def start_grabbing(self):
-        if not self.is_open or self.is_grabbing:
+        if not self.is_open:
             return False
+        if self.is_grabbing:
+            return True
 
         # Get payload size
         stParam = MVCC_INTVALUE()
@@ -370,19 +372,27 @@ class CameraManager:
             min_exp, max_exp, cur_exp = self.get_exposure_range()
             
             if max_exp > 0:
-                # Set AutoExposureTimeUpperLimit to maximum to increase auto-exposure range
+                # 1. Set AutoExposureTimeUpperLimit to FULL MAXIMUM supported by camera
+                # This corresponds to the "slider" in MVS being maxed out
                 ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeUpperLimit", float(max_exp))
                 if ret == 0:
-                    print(f"[Camera Manager] AutoExposureTimeUpperLimit set to: {max_exp} µs")
+                    print(f"[Camera Manager] AutoExposureTimeUpperLimit set to MAX: {max_exp} µs")
                 else:
                     print(f"[Camera Manager] Failed to set AutoExposureTimeUpperLimit: {hex(ret)}")
                 
+                # 2. IMPORTANT: Disable Frame Rate Limit
+                # This allows the camera to slow down automatically ("freerun") if exposure time needs to be long.
+                # If this is True, exposure is capped by the fixed frame rate (e.g. 5840us at 170FPS).
+                ret = self.cam.MV_CC_SetBoolValue("AcquisitionFrameRateEnable", False)
+                if ret == 0:
+                    print(f"[Camera Manager] AcquisitionFrameRateEnable set to False (Freerun mode)")
+                else:
+                     print(f"[Camera Manager] Failed to disable AcquisitionFrameRateEnable: {hex(ret)}")
+
                 # Optionally set lower limit to minimum
                 ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeLowerLimit", float(min_exp))
                 if ret == 0:
                     print(f"[Camera Manager] AutoExposureTimeLowerLimit set to: {min_exp} µs")
-                else:
-                    print(f"[Camera Manager] Failed to set AutoExposureTimeLowerLimit: {hex(ret)}")
             
             # Enable auto exposure (continuous mode)
             ret = self.cam.MV_CC_SetEnumValue("ExposureAuto", MV_EXPOSURE_AUTO_MODE_CONTINUOUS)

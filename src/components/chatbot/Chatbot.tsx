@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, User } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api-config";
 
 interface ChatMessage {
   id: string;
@@ -42,7 +43,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/health");
+        const response = await fetch(`${API_BASE_URL}/api/health`);
         if (response.ok) {
           const data = await response.json();
           setIsOnline(data.agent_loaded);
@@ -75,7 +76,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5001/api/troubleshoot", {
+      const response = await fetch(`${API_BASE_URL}/api/troubleshoot`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +96,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
         content: data.response,
         timestamp: new Date(),
       };
-      
+
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       setError("Failed to connect to troubleshooting agent. Please ensure the backend server is running.");
@@ -165,7 +166,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                     }`}
                 >
                   {message.role === "assistant" ? (
-                    <div 
+                    <div
                       className="assistant-message"
                       dangerouslySetInnerHTML={{ __html: message.content }}
                     />

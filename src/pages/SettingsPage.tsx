@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
+import { API_BASE_URL } from "@/lib/api-config";
 
 const SettingsPage = () => {
   const [plcSettings, setPlcSettings] = useState({
@@ -21,29 +22,39 @@ const SettingsPage = () => {
 
   // Sync settings from backend on mount
   useEffect(() => {
+    const abortController = new AbortController();
+
     // Fetch PLC Settings
-    fetch("http://localhost:5001/plc/status")
+    fetch(`${API_BASE_URL}/plc/status`, { signal: abortController.signal })
       .then(res => res.json())
       .then(data => {
-        console.log("Fetched PLC Settings:", data);
         if (data.ip && data.port) {
           setPlcSettings(prev => ({ ...prev, ip: data.ip, port: String(data.port) }));
         }
       })
-      .catch(err => console.error("Failed to fetch PLC settings:", err));
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch PLC settings:", err);
+        }
+      });
 
     // Fetch Camera Settings
-    fetch("http://localhost:5001/camera/settings")
+    fetch(`${API_BASE_URL}/camera/settings`, { signal: abortController.signal })
       .then(res => res.json())
       .then(data => {
-        console.log("Fetched Camera Settings:", data);
         setCameraSettings({
           exposure: String(data.exposure),
           gain: String(data.gain),
           auto_exposure: data.auto_exposure || false,
         });
       })
-      .catch(err => console.error("Failed to fetch camera settings:", err));
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch camera settings:", err);
+        }
+      });
+
+    return () => abortController.abort();
   }, []);
 
   const handleSave = async () => {
@@ -51,7 +62,7 @@ const SettingsPage = () => {
       // Create promises for both saves
       const plcPromise = (async () => {
         try {
-          const res = await fetch("http://localhost:5001/plc/connect", {
+          const res = await fetch(`${API_BASE_URL}/plc/connect`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -70,7 +81,7 @@ const SettingsPage = () => {
 
       const camPromise = (async () => {
         try {
-          const res = await fetch("http://localhost:5001/camera/settings", {
+          const res = await fetch(`${API_BASE_URL}/camera/settings`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

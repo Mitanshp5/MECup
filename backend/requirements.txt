@@ -1,7 +1,3 @@
-# --extra-index-url https://pypi.nvidia.com
-# --find-links https://pypi.nvidia.com/tensorrt/
-# tensorrt
-
 flask>=3.0.0
 flask-cors>=4.0.0
 fastapi>=0.109.0
@@ -14,21 +10,12 @@ langgraph
 openvino>=2024.0.0
 pillow>=10.0.0
 numpy>=1.24.0
-
-# For CUDA inference (RTX GPUs)
-# Standard version (RTX 40 series and older):
-# onnxruntime-gpu>=1.17.0
-#
-# For RTX 50 series (Blackwell/sm_120), install nightly:
-# pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
 onnxruntime-gpu
-# tensorrt (Manually installed for RTX 5080)
-# cuda-python (Constrained for Driver compatibility)
 cuda-python<13.0.0
-
-# User Management / Auth
 python-dotenv
 sqlalchemy
 passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
+psutil
+WMI

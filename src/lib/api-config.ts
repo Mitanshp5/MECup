@@ -1,11 +1,5 @@
-export const API_CONFIG = {
-    // Default to 5001 for web development if not set
-    BASE_URL: "http://127.0.0.1:5001",
-};
+// Centralized API configuration
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
-export const getBaseUrl = () => API_CONFIG.BASE_URL;
-
-export const setBaseUrl = (url: string) => {
-    console.log(`[Config] Updating API Base URL to: ${url}`);
-    API_CONFIG.BASE_URL = url;
-};
+// Helper function to construct API URLs
+export const getApiUrl = (path: string) => `${API_BASE_URL}${path}`;

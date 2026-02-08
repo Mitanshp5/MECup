@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Activity, Camera, Lightbulb, Move, Cpu, Thermometer, Zap, Wifi } from "lucide-react";
+import { Activity, Camera, Lightbulb, Move, Cpu, Zap } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api-config";
 
 interface SystemComponent {
   id: string;
@@ -13,6 +14,7 @@ interface SystemComponent {
 }
 
 const HeartbeatPage = () => {
+  const isMounted = useRef(true);
   const [components, setComponents] = useState<SystemComponent[]>([
     { id: "camera", name: "Camera System", icon: Camera, status: "warning", value: "--", unit: "FPS", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
     { id: "lights", name: "LED Lights", icon: Lightbulb, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
@@ -20,8 +22,6 @@ const HeartbeatPage = () => {
     { id: "gantry-y", name: "Gantry Y-Axis", icon: Move, status: "ok", value: "0.01", unit: "mm/s", trend: [0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01] },
     { id: "gantry-z", name: "Gantry Z-Axis", icon: Move, status: "warning", value: "0.15", unit: "mm/s", trend: [0.1, 0.12, 0.14, 0.13, 0.15, 0.14, 0.15, 0.15] },
     { id: "plc", name: "PLC Controller", icon: Cpu, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
-    { id: "temp", name: "System Temperature", icon: Thermometer, status: "ok", value: "42", unit: "°C", trend: [38, 39, 40, 41, 42, 41, 42, 42] },
-    { id: "network", name: "Network Latency", icon: Wifi, status: "ok", value: "2.1", unit: "ms", trend: [2.0, 2.1, 2.0, 2.1, 2.2, 2.1, 2.1, 2.1] },
   ]);
 
   const [uptime, setUptime] = useState("00:00:00");
@@ -37,26 +37,41 @@ const HeartbeatPage = () => {
   });
   const [plcConnected, setPlcConnected] = useState(false);
   const [events, setEvents] = useState<{ time: string; event: string; type: string }[]>([]);
+  const [systemResources, setSystemResources] = useState({ cpu: 0, gpu: 0, memory: 0, disk: 0, network: 0 });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Fetch real data from backend
   useEffect(() => {
-    // Fetch real data from backend
     let timeoutId: NodeJS.Timeout;
     const fetchHeartbeatData = async () => {
+      if (!isMounted.current) return;
+
       try {
         // Fetch camera FPS
-        const cameraRes = await fetch("http://localhost:5001/camera/fps");
+        const cameraRes = await fetch(`${API_BASE_URL}/camera/fps`);
+        if (!isMounted.current) return;
         const cameraData = await cameraRes.json();
 
         // Fetch PLC heartbeat (Y1 for LED)
-        const plcRes = await fetch("http://localhost:5001/plc/heartbeat");
+        const plcRes = await fetch(`${API_BASE_URL}/plc/heartbeat`);
+        if (!isMounted.current) return;
         const plcData = await plcRes.json();
 
         // Fetch PLC status with latency measurement
         const plcStartTime = performance.now();
-        const plcStatusRes = await fetch("http://localhost:5001/plc/status");
+        const plcStatusRes = await fetch(`${API_BASE_URL}/plc/status`);
+        if (!isMounted.current) return;
         const plcStatusData = await plcStatusRes.json();
         const plcLatency = Math.round(performance.now() - plcStartTime);
+
+        if (!isMounted.current) return;
 
         // Update PLC connection state
         setPlcConnected(plcStatusData.connected);
@@ -96,20 +111,29 @@ const HeartbeatPage = () => {
         }));
 
         // Fetch events
-        const eventsRes = await fetch("http://localhost:5001/events");
+        const eventsRes = await fetch(`${API_BASE_URL}/events`);
+        if (!isMounted.current) return;
         const eventsData = await eventsRes.json();
         if (eventsData.events) {
           setEvents(eventsData.events);
         }
+
+        // Fetch System Resources
+        const sysRes = await fetch(`${API_BASE_URL}/system/resources`);
+        if (!isMounted.current) return;
+        const sysData = await sysRes.json();
+        setSystemResources(sysData);
+
       } catch (error) {
         console.error("Failed to fetch heartbeat data:", error);
       }
 
-      timeoutId = setTimeout(fetchHeartbeatData, 2000);
+      if (isMounted.current) {
+        timeoutId = setTimeout(fetchHeartbeatData, 2000);
+      }
     };
 
     fetchHeartbeatData();
-    // const interval = setInterval(fetchHeartbeatData, 2000);
     return () => clearTimeout(timeoutId);
   }, []);
 
@@ -162,10 +186,11 @@ const HeartbeatPage = () => {
         <div className="industrial-panel p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">SYSTEM RESOURCES</h3>
           <div className="space-y-4">
-            <ResourceBar label="CPU Usage" value={50} />
-            <ResourceBar label="Memory" value={50} />
-            <ResourceBar label="Disk Space" value={50} />
-            <ResourceBar label="Network I/O" value={50} />
+            <ResourceBar label="CPU Usage" value={Math.round(systemResources.cpu)} />
+            <ResourceBar label="GPU Usage" value={Math.round(systemResources.gpu)} />
+            <ResourceBar label="Memory" value={Math.round(systemResources.memory)} />
+            <ResourceBar label="Disk Space" value={Math.round(systemResources.disk)} />
+            <ResourceBar label="Ethernet I/O" value={Math.round(systemResources.network)} />
           </div>
         </div>
 
@@ -254,8 +279,14 @@ const ComponentCard = ({ component }: { component: SystemComponent }) => {
 };
 
 const ResourceBar = ({ label, value }: { label: string; value: number }) => (
-  <div>
-    <div className="flex justify-between text-sm mb-1">
+  <div
+    role="progressbar"
+    aria-label={label}
+    aria-valuenow={value}
+    aria-valuemin={0}
+    aria-valuemax={100}
+  >
+    <div className="flex justify-between text-sm mb-1" aria-hidden="true">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-mono text-foreground">{value}%</span>
     </div>

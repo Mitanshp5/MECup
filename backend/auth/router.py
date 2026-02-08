@@ -94,3 +94,30 @@ def read_users(
 @router.get("/users/me", response_model=schemas.UserResponse)
 async def read_users_me(current_user: models.User = Depends(dependencies.get_current_active_user)):
     return current_user
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_admin_user)
+):
+    """Delete a user (Admin only)."""
+    user_to_delete = db.query(models.User).filter(models.User.id == user_id).first()
+    
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Prevent deleting yourself
+    if user_to_delete.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    # Prevent deleting the last admin
+    if user_to_delete.role == "admin":
+        admin_count = db.query(models.User).filter(models.User.role == "admin").count()
+        if admin_count <= 1:
+            raise HTTPException(status_code=400, detail="Cannot delete the last admin user")
+    
+    db.delete(user_to_delete)
+    db.commit()
+    
+    return {"success": True, "message": f"User {user_to_delete.username} deleted successfully"}
