@@ -118,13 +118,19 @@ class CameraManager:
         return devices
 
     def open_device(self, index=0):
+        """
+        Open the selected camera using the handle created in enumerate_devices.
+        Follows MVS Python Sample BasicDemo logic.
+        """
         if self.is_open:
+            print("Camera already open.")
             return True
 
         if index >= self.device_list.nDeviceNum:
+            print(f"Invalid device index: {index}. Max: {self.device_list.nDeviceNum - 1}")
             return False
 
-        # Select device
+        # Select device and create handle
         st_device_list = cast(self.device_list.pDeviceInfo[int(index)], POINTER(MV_CC_DEVICE_INFO)).contents
         
         ret = self.cam.MV_CC_CreateHandle(st_device_list)
@@ -132,57 +138,96 @@ class CameraManager:
             print(f"Create handle failed! ret: {hex(ret)}")
             return False
 
+        # Open Device
         ret = self.cam.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
         if ret != 0:
             print(f"Open device failed! ret: {hex(ret)}")
+            self.cam.MV_CC_DestroyHandle() # Clean up handle if open fails
             return False
-        
-        # Detect packet size for GigE
-        if st_device_list.nTLayerType == MV_GIGE_DEVICE or st_device_list.nTLayerType == MV_GENTL_GIGE_DEVICE:
-            nPacketSize = self.cam.MV_CC_GetOptimalPacketSize()
-            if int(nPacketSize) > 0:
-                ret = self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
-                if ret != 0:
-                    print(f"Warning: Set Packet Size fail! ret: {hex(ret)}")
-            else:
-                print(f"Warning: Get Packet Size fail! ret: {hex(nPacketSize)}")
 
+        print("Camera opened successfully.")
+
+        # --- Packet Size Configuration (Crucial for GigE) ---
+        # Get optimal packet size from the driver
+        nPacketSize = self.cam.MV_CC_GetOptimalPacketSize()
+        if int(nPacketSize) > 0:
+            ret = self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
+            if ret != 0:
+                print(f"Warning: Failed to set GevSCPSPacketSize to {nPacketSize}! ret: {hex(ret)}")
+            else:
+                print(f"Set GevSCPSPacketSize to {nPacketSize}")
+        else:
+            print(f"Warning: GetOptimalPacketSize failed or returned 0. ret: {hex(nPacketSize)}")
+            # Fallback to a safe default if detection fails (e.g. 1500 or jumbo 9000 if supported)
+            # MVS sample just prints warning. We will try to set 1500 as a safe baseline.
+            self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", 1500)
+
+        # --- Trigger Mode Off (Continuous) ---
+        ret = self.cam.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
+        if ret != 0:
+             print(f"Set TriggerMode Off failed! ret: {hex(ret)}")
+             
+        # --- Remove Failing Settings (Exposure, FPS) ---
+        # As requested, removing Max/Min Exposure and FPS settings that were failing.
+        # User reported these causes issues. We leave them at default or auto.
+        
+        # Turn off ExposureAuto first (if we want manual control later, but for now defaults are fine)
+        # self.cam.MV_CC_SetEnumValue("ExposureAuto", MV_EXPOSURE_AUTO_OFF) 
+        
         self.is_open = True
-        
-        # Configure exposure settings on connection
-        self._configure_exposure_on_connect()
-        
         return True
 
     def start_grabbing(self):
-        if not self.is_open:
-            return False
+        """
+        Start the image grabbing thread.
+        Allocates buffer based on PayloadSize.
+        """
         if self.is_grabbing:
+            print("Already grabbing.")
             return True
 
-        # Get payload size
+        if not self.is_open:
+            print("Camera not open. Call open_device() first.")
+            return False
+
+        # 1. Get Payload Size (Data buffer size)
         stParam = MVCC_INTVALUE()
         memset(byref(stParam), 0, sizeof(MVCC_INTVALUE))
+        
         ret = self.cam.MV_CC_GetIntValue("PayloadSize", stParam)
         if ret != 0:
-            print(f"Get PayloadSize fail! ret: {hex(ret)}")
-            return False
-        
-        self.n_payload_size = stParam.nCurValue
+            print(f"Get PayloadSize failed! ret: {hex(ret)}")
+            # Fallback: Use a large buffer (20MB) to prevent crashing
+            print("Using fallback payload size (20MB)")
+            self.n_payload_size = 20 * 1024 * 1024
+        else:
+            self.n_payload_size = stParam.nCurValue
+            
+        if self.n_payload_size <= 0:
+             self.n_payload_size = 20 * 1024 * 1024 # Double check
+
+        # 2. Allocate Buffer
         self.data_buf = (c_ubyte * self.n_payload_size)()
 
+        # 3. Start Grabbing
         ret = self.cam.MV_CC_StartGrabbing()
         if ret != 0:
-            print(f"Start grabbing fail! ret: {hex(ret)}")
+            print(f"StartGrabbing failed! ret: {hex(ret)}")
             return False
 
         self.is_grabbing = True
+        self.quit_event.clear()
         
-        # Start thread
-        self.thread = threading.Thread(target=self.work_thread)
-        self.thread.daemon = True
-        self.thread.start()
-        return True
+        # Start Thread
+        try:
+            self.thread = threading.Thread(target=self.work_thread, daemon=True)
+            self.thread.start()
+            print("Grabbing thread started.")
+            return True
+        except Exception as e:
+            print(f"Failed to start thread: {e}")
+            self.is_grabbing = False
+            return False
 
     def stop_grabbing(self):
         if not self.is_grabbing:
@@ -264,74 +309,7 @@ class CameraManager:
         except Exception as e:
             print(f"Image conversion error: {e}")
 
-    def set_exposure(self, value):
-        if not self.is_open: return False
-        # Turn off auto exposure first
-        self.cam.MV_CC_SetEnumValue("ExposureAuto", MV_EXPOSURE_AUTO_MODE_OFF)
-        return self.cam.MV_CC_SetFloatValue("ExposureTime", float(value)) == 0
-
-    def set_gain(self, value):
-        if not self.is_open: return False
-        self.cam.MV_CC_SetEnumValue("GainAuto", MV_GAIN_MODE_OFF)
-        return self.cam.MV_CC_SetFloatValue("Gain", float(value)) == 0
-
-    def set_exposure_mode(self, auto_enabled):
-        """Sets exposure mode: True for Auto (Continuous), False for Manual (Off)."""
-        if not self.is_open: return False
-        mode = MV_EXPOSURE_AUTO_MODE_CONTINUOUS if auto_enabled else MV_EXPOSURE_AUTO_MODE_OFF
-        return self.cam.MV_CC_SetEnumValue("ExposureAuto", mode) == 0
-
-    def get_exposure_mode(self):
-        """Returns True if Auto Exposure is enabled, False otherwise."""
-        if not self.is_open: return False
-        stEnumParam = MVCC_INTVALUE() # Enum values are often retrieved as Int or specialized Enum struct
-        # MVS SDK usually uses GetEnumValue for enums, but python wrapper might vary.
-        # Checking dummy class, we have SetEnumValue. Let's assume GetEnumValue exists or we use GetIntValue for enum underlying value.
-        # The MvImport usually generates MV_CC_GetEnumValue. 
-        # For safety with the provided dummy class which doesn't list GetEnumValue, let's try GetEnumValue if available, else GetIntValue.
-        
-        # Actually, let's look at how we might get it. 
-        # Standard GenICam: ExposureAuto is Enum.
-        
-        # If we look at set_exposure, we turn it OFF.
-        
-        # Let's add a safe retrieval.
-        try:
-             # Need a buffer for enum value
-             stEnumValue = MVCC_INTVALUE() # Reusing int value struct for simplicity if specific enum struct missing in this view
-             # Correct struct is likely MVCC_ENUMVALUE
-             
-             # Let's try to assume we can track it manually or read it.
-             # Given we don't have the full SDK definition here, let's implement a 'best effort' read or just rely on the set value if we tracked it?
-             # Better to read from camera.
-             pass
-        except:
-            pass
-
-        # Since I can't verify the exact GetEnumValue signature from the file view alone (it was cut off or not fully shown in dummy),
-        # making a best guess based on SetEnumValue.
-        
-        # Let's stick to the plan: Add the method.
-        # I'll use MV_CC_GetEnumValue if it exists in the real SDK.
-        
-        # Re-reading line 26: `from MvCameraControl_class import *`
-        # I'll rely on the SDK being there.
-        
-        # BUT for the dummy class (lines 35-52), I need to add GetEnumValue if I want to be consistent?
-        # The dummy class in lines 35-52 does NOT have GetEnumValue. 
-        # user didn't ask me to fix dummy, but for correctness I should.
-        
-        # Implementing basic get based on what we see.
-        
-        # Warning: I don't see MVCC_ENUMVALUE in the dummy imports.
-        # I will assume it's `MVCC_ENUMVALUE` based on naming convention.
-        
-        # To be safe, let's just implement `set_exposure_mode` which is the critical part for the toggle.
-        # For `get_exposure_mode`, if we can't easily read it, we might default to False or track state.
-        # However, checking `MV_CC_GetEnumValue` usage is standard.
-        
-        return False # Placeholder if we can't read it, but let's try to implement properly below.
-
+    # Remove old/duplicate methods
     def get_exposure_mode_status(self):
         # Helper to actually called by API
         if not self.is_open: return False
@@ -363,47 +341,6 @@ class CameraManager:
             return (stFloatParam.fMin, stFloatParam.fMax, stFloatParam.fCurValue)
         return (0, 0, 0)
 
-    def _configure_exposure_on_connect(self):
-        """Internal: Configure exposure settings on device open."""
-        if not self.is_open:
-            return False
-        try:
-            # Get exposure range from camera
-            min_exp, max_exp, cur_exp = self.get_exposure_range()
-            
-            if max_exp > 0:
-                # 1. Set AutoExposureTimeUpperLimit to FULL MAXIMUM supported by camera
-                # This corresponds to the "slider" in MVS being maxed out
-                ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeUpperLimit", float(max_exp))
-                if ret == 0:
-                    print(f"[Camera Manager] AutoExposureTimeUpperLimit set to MAX: {max_exp} µs")
-                else:
-                    print(f"[Camera Manager] Failed to set AutoExposureTimeUpperLimit: {hex(ret)}")
-                
-                # 2. IMPORTANT: Disable Frame Rate Limit
-                # This allows the camera to slow down automatically ("freerun") if exposure time needs to be long.
-                # If this is True, exposure is capped by the fixed frame rate (e.g. 5840us at 170FPS).
-                ret = self.cam.MV_CC_SetBoolValue("AcquisitionFrameRateEnable", False)
-                if ret == 0:
-                    print(f"[Camera Manager] AcquisitionFrameRateEnable set to False (Freerun mode)")
-                else:
-                     print(f"[Camera Manager] Failed to disable AcquisitionFrameRateEnable: {hex(ret)}")
-
-                # Optionally set lower limit to minimum
-                ret = self.cam.MV_CC_SetFloatValue("AutoExposureTimeLowerLimit", float(min_exp))
-                if ret == 0:
-                    print(f"[Camera Manager] AutoExposureTimeLowerLimit set to: {min_exp} µs")
-            
-            # Enable auto exposure (continuous mode)
-            ret = self.cam.MV_CC_SetEnumValue("ExposureAuto", MV_EXPOSURE_AUTO_MODE_CONTINUOUS)
-            if ret == 0:
-                print(f"[Camera Manager] Auto exposure enabled")
-                return True
-            else:
-                print(f"[Camera Manager] Failed to enable auto exposure: {hex(ret)}")
-        except Exception as e:
-            print(f"[Camera Manager] Error configuring exposure: {e}")
-        return False
 
     def get_gain(self):
         if not self.is_open: return 0
@@ -428,6 +365,47 @@ class CameraManager:
         if ret == 0:
             return round(stFloatParam.fCurValue, 2)
         return 0
+
+    def set_exposure_mode(self, auto_exposure: bool):
+        """
+        Set Exposure Auto Mode.
+        True: Continuous (2) - Camera adjusts exposure automatically.
+        False: Off (0) - Manual exposure time used.
+        """
+        if not self.is_open:
+            return False
+        
+        mode = MV_EXPOSURE_AUTO_MODE_CONTINUOUS if auto_exposure else MV_EXPOSURE_AUTO_OFF
+        ret = self.cam.MV_CC_SetEnumValue("ExposureAuto", mode)
+        if ret != 0:
+            print(f"Failed to set ExposureAuto to {mode}: {hex(ret)}")
+            return False
+        return True
+
+    def set_exposure(self, exposure_time: float):
+        """
+        Set Manual Exposure Time (us).
+        Requires ExposureAuto to be OFF.
+        """
+        if not self.is_open:
+            return False
+        
+        ret = self.cam.MV_CC_SetFloatValue("ExposureTime", float(exposure_time))
+        if ret != 0:
+            print(f"Failed to set ExposureTime to {exposure_time}: {hex(ret)}")
+            return False
+        return True
+
+    def set_gain(self, gain: float):
+        """Set Gain."""
+        if not self.is_open:
+            return False
+            
+        ret = self.cam.MV_CC_SetFloatValue("Gain", float(gain))
+        if ret != 0:
+            print(f"Failed to set Gain to {gain}: {hex(ret)}")
+            return False
+        return True
 
     def save_current_frame(self, filepath):
         """Saves the latest frame to the specified filepath."""

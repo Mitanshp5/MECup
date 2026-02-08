@@ -2,7 +2,7 @@ import { MessageCircle, User, Wifi, WifiOff, LogOut, LogIn } from "lucide-react"
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/lib/api-config";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface HeaderProps {
   onChatbotToggle: () => void;
@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 const pageTitles: Record<string, string> = {
-  "/": "Dashboard",
+  "/": "Home",
   "/automatic": "Automatic Mode",
   "/manual": "Manual Mode",
   "/maintenance": "Maintenance Mode",
@@ -24,6 +24,7 @@ const pageTitles: Record<string, string> = {
 const Header = ({ onChatbotToggle, chatbotOpen, onLoginClick }: HeaderProps) => {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [plcStatus, setPlcStatus] = useState<{ connected: boolean; error?: string }>({
     connected: false,
   });

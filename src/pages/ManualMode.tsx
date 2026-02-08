@@ -11,6 +11,84 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
+const JogButton = ({ icon: Icon, onClick, label, disabled }: { icon: React.ElementType; onClick: () => void; label: string; disabled?: boolean }) => (
+  <motion.button
+    whileHover={!disabled ? { scale: 1.05 } : {}}
+    whileTap={!disabled ? { scale: 0.95 } : {}}
+    onClick={() => !disabled && onClick()}
+    disabled={disabled}
+    className={`p-4 border rounded-md transition-colors ${disabled
+      ? 'bg-secondary/50 border-border/50 text-muted-foreground/50 cursor-not-allowed'
+      : 'bg-secondary border-border text-foreground hover:bg-secondary/80 hover:border-primary/50 cursor-pointer'
+      }`}
+    title={label}
+  >
+    <Icon className="w-5 h-5 mx-auto" />
+  </motion.button>
+);
+
+const LightPanel = ({ active, disabled, onClick, mode, orientation, barSide }: { active: boolean, disabled: boolean, onClick: () => void, mode: 'off' | 'white' | 'green', orientation: 'horizontal' | 'vertical', barSide: 'top' | 'bottom' | 'left' | 'right' }) => {
+
+  // Determine color based on mode
+  const activeColor = mode === 'green' ? 'bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] border-emerald-400 text-emerald-500' :
+    'bg-white shadow-[0_0_20px_rgba(255,255,255,0.5)] border-white text-white';
+
+  return (
+    <motion.button
+      onClick={() => !disabled && onClick()}
+      whileTap={!disabled ? { scale: 0.95 } : {}}
+      disabled={disabled}
+      className={`
+                relative flex items-center justify-center transition-all duration-300
+                ${orientation === 'horizontal' ? 'w-24 h-10' : 'w-10 h-24'}
+                ${disabled ? 'opacity-30 cursor-not-allowed grayscale' : 'cursor-pointer'}
+            `}
+    >
+      {/* Base Glass Layer */}
+      <div className={`
+                absolute inset-0 rounded-xl border backdrop-blur-md transition-all duration-300
+                ${active
+          ? activeColor
+          : 'bg-card/40 border-white/5 hover:bg-card/60'
+        }
+            `} />
+
+      {/* Brightness Indicator Bar - Faces Center */}
+      <div className={`
+                absolute bg-current transition-all duration-300 rounded-full
+                ${active ? 'opacity-100' : 'opacity-20'}
+                ${active ? 'shadow-[0_0_10px_currentColor]' : 'bg-muted-foreground'}
+                ${barSide === 'top' ? 'top-2 left-2 right-2 h-1' : ''}
+                ${barSide === 'bottom' ? 'bottom-2 left-2 right-2 h-1' : ''}
+                ${barSide === 'left' ? 'left-2 top-2 bottom-2 w-1' : ''}
+                ${barSide === 'right' ? 'right-2 top-2 bottom-2 w-1' : ''}
+            `} />
+
+      {/* Glow Core */}
+      {active && (
+        <div className={`absolute inset-0 rounded-xl animate-pulse ${mode === 'green' ? 'bg-emerald-500/20' : 'bg-white/20'}`} />
+      )}
+
+    </motion.button>
+  );
+};
+
+const JogButtonPress = ({ icon: Icon, onDown, onUp, label }: { icon: React.ElementType; onDown: () => void; onUp: () => void; label: string }) => (
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onMouseDown={onDown}
+    onMouseUp={onUp}
+    onMouseLeave={onUp} // Safety: stop if mouse leaves button
+    onTouchStart={onDown} // Touch support
+    onTouchEnd={onUp}
+    className="p-4 bg-orange-100 dark:bg-orange-950/30 border border-orange-500/50 rounded-md text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
+    title={label}
+  >
+    <Icon className="w-5 h-5 mx-auto" />
+  </motion.button>
+);
+
 const ManualMode = () => {
   const { hasRole } = useAuth();
   const canControl = hasRole(['admin', 'operator']);
@@ -22,6 +100,7 @@ const ManualMode = () => {
   const [lightsOn, setLightsOn] = useState(false);
   const [lightMode, setLightMode] = useState<'off' | 'white' | 'green'>('off');
   const [directionState, setDirectionState] = useState({ up: false, down: false, left: false, right: false });
+  const [isHomed, setIsHomed] = useState(false);
 
   // Ref to track mount status
   const isMounted = useRef(true);
@@ -76,6 +155,20 @@ const ManualMode = () => {
                 left: ctrlData.m71 === 0
               });
             }
+
+            // Sync Homing Status
+            if (ctrlData.m46 !== undefined) {
+              setIsHomed(ctrlData.m46 === 1);
+            }
+
+            // Update Coordinates
+            if (ctrlData.x_pos !== undefined) {
+              setPosition({
+                x: ctrlData.x_pos,
+                y: ctrlData.y_pos,
+                z: ctrlData.z_pos
+              });
+            }
           } catch (e) {
             if (isMounted.current) console.error("Control status poll failed", e);
           }
@@ -107,16 +200,47 @@ const ManualMode = () => {
   const [servoEnabled, setServoEnabled] = useState(false);
 
   const handleServoToggle = async () => {
+    if (!canControl) return; // Add check
+    const originalState = servoEnabled;
+    const newState = !servoEnabled;
+
+    // True optimistic update: Update UI first
+    setServoEnabled(newState);
+
     try {
       await fetch(`${API_BASE_URL}/servo/enable`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enable: true })
+        body: JSON.stringify({ enable: newState })
       });
-      // State updated via polling
+      // State will also be updated via polling later, which is fine
     } catch (error) {
       console.error("Failed to toggle servo:", error);
+      // Revert on failure
+      setServoEnabled(originalState);
     }
+  };
+
+  const handleJogStart = async (command: string) => {
+    if (!canControl || !servoEnabled) return;
+    try {
+      await fetch(`${API_BASE_URL}/servo/jog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command, state: true })
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  const handleJogStop = async (command: string) => {
+    if (!canControl) return;
+    try {
+      await fetch(`${API_BASE_URL}/servo/jog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command, state: false })
+      });
+    } catch (e) { console.error(e); }
   };
 
   const handleMove = async (command: string) => {
@@ -161,7 +285,7 @@ const ManualMode = () => {
   return (
     <div className="h-full grid grid-cols-12 gap-6 relative">
       {/* Blocking Overlay */}
-      {!plcConnected && (
+      {/* {!plcConnected && (
         <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg border border-destructive/50">
           <div className="text-center space-y-4 p-8 bg-card border border-destructive rounded-xl shadow-lg">
             <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto animate-pulse">
@@ -174,57 +298,95 @@ const ManualMode = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Main Control Panel */}
-      <div className="col-span-8 space-y-6">
+      <div className="col-span-8 space-y-4">
         {/* Position Display */}
-        <div className="industrial-panel p-6">
+        <div className="industrial-panel p-4">
           <h3 className="text-sm font-medium text-muted-foreground mb-4">CURRENT POSITION</h3>
-          <div className="grid grid-cols-3 gap-6">
-            {["X", "Y", "Z"].map((axis) => (
-              <div key={axis} className="text-center">
-                <div className="data-display text-2xl font-bold text-primary mb-2">
-                  {position[axis.toLowerCase() as "x" | "y" | "z"].toFixed(2)}
-                  <span className="text-sm text-muted-foreground ml-1">mm</span>
+          {!isHomed ? (
+            <div className="flex items-center justify-center h-24 bg-destructive/10 rounded border border-destructive/20">
+              <span className="text-xl font-bold text-destructive animate-pulse">NOT HOME</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-6">
+              {["X", "Y", "Z"].map((axis) => (
+                <div key={axis} className="text-center">
+                  <div className="data-display text-2xl font-bold text-primary mb-2">
+                    {position[axis.toLowerCase() as "x" | "y" | "z"].toFixed(2)}
+                    <span className="text-sm text-muted-foreground ml-1">mm</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{axis}-Axis</p>
                 </div>
-                <p className="text-sm text-muted-foreground">{axis}-Axis</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Jog Controls */}
-        <div className={`industrial-panel p-6 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">JOG CONTROLS</h3>
+        <div className={`industrial-panel p-4 ${!canControl || !servoEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              {isHomed ? "POSITION CONTROLS" : "JOG CONTROLS"}
+            </h3>
             {!canControl && <span className="text-xs text-destructive font-bold">READ ONLY</span>}
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-4">
             {/* XY Control */}
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">X/Y AXIS</p>
               <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
                 <div />
-                <div /> {/* Placeholder for Up */}
-                {/* <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_12.5")} label="Y+ (12.5mm)" /> */}
+                {/* UP */}
+                {isHomed ? (
+                  <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_pos")} label="Y Forward (Pos)" />
+                ) : (
+                  <JogButton icon={ArrowUp} onClick={() => { }} label="Forward Disabled" disabled />
+                )}
                 <div />
 
-                <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_17")} label="X- (17mm)" />
-                <div /> {/* Placeholder for Center */}
-                {/* <button
-                  onClick={() => handleMove("x_home")}
+                {/* LEFT */}
+                {isHomed ? (
+                  <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_pos")} label="X Left (Pos)" />
+                ) : (
+                  <JogButtonPress
+                    icon={ArrowLeft}
+                    onDown={() => handleJogStart("x_left_jog")}
+                    onUp={() => handleJogStop("x_left_jog")}
+                    label="X Left (Jog)"
+                  />
+                )}
+
+                {/* CENTER (HOME) */}
+                <button
+                  onClick={() => handleMove("home_cmd")}
                   className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
-                  title="X Home"
+                  title="Home (M1)"
                 >
                   <Home className="w-5 h-5 mx-auto" />
-                </button> */}
-                <div /> {/* Placeholder for Right */}
-                {/* <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_17")} label="X+ (17mm)" /> */}
+                </button>
+
+                {/* RIGHT */}
+                {isHomed ? (
+                  <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_pos")} label="X Right (Pos)" />
+                ) : (
+                  <JogButton icon={ArrowRight} onClick={() => { }} label="Right Disabled" disabled />
+                )}
 
                 <div />
-                <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_12.5")} label="Y- (12.5mm)" />
+                {/* DOWN */}
+                {isHomed ? (
+                  <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_pos")} label="Y Back (Pos)" />
+                ) : (
+                  <JogButtonPress
+                    icon={ArrowDown}
+                    onDown={() => handleJogStart("y_back_jog")}
+                    onUp={() => handleJogStop("y_back_jog")}
+                    label="Y Back (Jog)"
+                  />
+                )}
                 <div />
               </div>
             </div>
@@ -233,16 +395,31 @@ const ManualMode = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">Z AXIS</p>
               <div className="flex flex-col gap-2 items-center">
-                {/* <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_5")} label="Z+ (5mm)" /> */}
+                {isHomed ? (
+                  <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_pos")} label="Z Up (Pos)" />
+                ) : (
+                  <JogButton icon={ArrowUp} onClick={() => { }} label="Z Up Disabled" disabled />
+                )}
+
                 <div className="h-8" />
-                <JogButton icon={ArrowDown} onClick={() => handleMove("z_down_5")} label="Z- (5mm)" />
+
+                {isHomed ? (
+                  <JogButton icon={ArrowDown} onClick={() => handleMove("z_down_pos")} label="Z Down (Pos)" />
+                ) : (
+                  <JogButtonPress
+                    icon={ArrowDown}
+                    onDown={() => handleJogStart("z_down_jog")}
+                    onUp={() => handleJogStop("z_down_jog")}
+                    label="Z Down (Jog)"
+                  />
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Speed & Servo Control Grid */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4">
           {/* Axis Speeds */}
           <div className={`industrial-panel p-4 ${!canControl ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="flex items-center justify-between mb-3">
@@ -348,7 +525,6 @@ const ManualMode = () => {
       <div className="col-span-4 space-y-4">
         {/* Live Camera View */}
         <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">LIVE CAMERA VIEW</h3>
           <div className="aspect-[4/3] bg-black rounded-md overflow-hidden border border-border relative">
             <img
               src={`${API_BASE_URL}/camera/stream`}
@@ -381,11 +557,9 @@ const ManualMode = () => {
         </div>
 
         {/* Advanced Light Control Panel */}
-        <div className="industrial-panel p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+        <div className="industrial-panel p-2 relative overflow-hidden flex flex-col items-center justify-center min-h-[200px]">
           {/* Background Grid/Effect */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-50 pointer-events-none" />
-
-          <h3 className="text-xs font-bold tracking-widest text-muted-foreground/70 mb-8 z-10">LIGHTING ARRAY CONTROL</h3>
 
           <div className="relative w-full max-w-[300px] aspect-square flex items-center justify-center">
 
@@ -408,9 +582,11 @@ const ManualMode = () => {
               <div className="col-start-2 row-start-1 flex justify-center items-end">
                 <LightPanel
                   active={directionState.down}
-                  disabled={lightMode === 'off'}
+                  disabled={lightMode === 'off' || !plcConnected}
                   onClick={() => toggleDirection('down', directionState.down)}
-                  orientation="vertical"
+                  mode={lightMode}
+                  orientation="horizontal"
+                  barSide="bottom"
                 />
               </div>
 
@@ -418,9 +594,11 @@ const ManualMode = () => {
               <div className="col-start-1 row-start-2 flex justify-end items-center">
                 <LightPanel
                   active={directionState.left}
-                  disabled={lightMode === 'off'}
+                  disabled={lightMode === 'off' || !plcConnected}
                   onClick={() => toggleDirection('left', directionState.left)}
-                  orientation="horizontal"
+                  mode={lightMode}
+                  orientation="vertical"
+                  barSide="right"
                 />
               </div>
 
@@ -428,6 +606,7 @@ const ManualMode = () => {
               <div className="col-start-2 row-start-2 flex justify-center items-center">
                 <button
                   onClick={async () => {
+                    if (!plcConnected) return; // Prevent action if disconnected
                     const nextMode = lightMode === 'off' ? 'white' : lightMode === 'white' ? 'green' : 'off';
                     try {
                       await fetch(`${API_BASE_URL}/plc/light-mode`, {
@@ -438,7 +617,9 @@ const ManualMode = () => {
                       setLightMode(nextMode); // Optimistic update
                     } catch (e) { console.error(e); }
                   }}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border-2 z-20 relative overflow-hidden group
+                  disabled={!plcConnected}
+                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border-2 z-20 relative overflow-hidden group
+                            ${!plcConnected ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer'}
                             ${lightMode === 'off' ? 'bg-zinc-800 border-zinc-700 text-zinc-600' :
                       lightMode === 'white' ? 'bg-white border-white text-zinc-900 shadow-[0_0_30px_rgba(255,255,255,0.4)]' :
                         'bg-emerald-500 border-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.4)]'
@@ -458,9 +639,11 @@ const ManualMode = () => {
               <div className="col-start-3 row-start-2 flex justify-start items-center">
                 <LightPanel
                   active={directionState.right}
-                  disabled={lightMode === 'off'}
+                  disabled={lightMode === 'off' || !plcConnected}
                   onClick={() => toggleDirection('right', directionState.right)}
-                  orientation="horizontal"
+                  mode={lightMode}
+                  orientation="vertical"
+                  barSide="left"
                 />
               </div>
 
@@ -468,9 +651,11 @@ const ManualMode = () => {
               <div className="col-start-2 row-start-3 flex justify-center items-start">
                 <LightPanel
                   active={directionState.up}
-                  disabled={lightMode === 'off'}
+                  disabled={lightMode === 'off' || !plcConnected}
                   onClick={() => toggleDirection('up', directionState.up)}
-                  orientation="vertical"
+                  mode={lightMode}
+                  orientation="horizontal"
+                  barSide="top"
                 />
               </div>
 
@@ -482,57 +667,5 @@ const ManualMode = () => {
   );
 };
 
-const JogButton = ({ icon: Icon, onClick, label }: { icon: React.ElementType; onClick: () => void; label: string }) => (
-  <motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={onClick}
-    className="p-4 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 hover:border-primary/50 transition-colors"
-    title={label}
-  >
-    <Icon className="w-5 h-5 mx-auto" />
-  </motion.button>
-);
-
-const LightPanel = ({ active, disabled, onClick, orientation }: { active: boolean, disabled: boolean, onClick: () => void, orientation: 'horizontal' | 'vertical' }) => {
-  return (
-    <motion.button
-      onClick={() => !disabled && onClick()}
-      whileTap={!disabled ? { scale: 0.95 } : {}}
-      disabled={disabled}
-      className={`
-                relative flex items-center justify-center transition-all duration-300
-                ${orientation === 'vertical' ? 'w-24 h-14' : 'w-14 h-24'}
-                ${disabled ? 'opacity-30 cursor-not-allowed grayscale' : 'cursor-pointer'}
-            `}
-    >
-      {/* Base Glass Layer */}
-      <div className={`
-                absolute inset-0 rounded-xl border backdrop-blur-md transition-all duration-300
-                ${active
-          ? 'bg-primary/20 border-primary shadow-[0_0_20px_rgba(var(--primary),0.2)]'
-          : 'bg-card/40 border-white/5 hover:bg-card/60'
-        }
-            `} />
-
-      {/* Brightness Indicator Bar */}
-      <div className={`
-                absolute bg-current transition-all duration-300 rounded-full
-                ${active ? 'opacity-100' : 'opacity-20'}
-                ${orientation === 'vertical'
-          ? 'bottom-2 left-2 right-2 h-1'
-          : 'right-2 top-2 bottom-2 w-1'
-        }
-                ${active ? 'bg-primary shadow-[0_0_10px_currentColor]' : 'bg-muted-foreground'}
-            `} />
-
-      {/* Glow Core */}
-      {active && (
-        <div className="absolute inset-0 rounded-xl bg-primary/10 animate-pulse" />
-      )}
-
-    </motion.button>
-  );
-};
 
 export default ManualMode;

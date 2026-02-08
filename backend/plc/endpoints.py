@@ -67,7 +67,7 @@ recent_events = []
 MAX_EVENTS = 50
 
 # Monitoring Configuration
-MONITORED_REGISTERS = ["D10", "D11", "D12", "D13"]
+MONITORED_REGISTERS = ["D21", "D25"]
 MONITOR_CSV_NAME = "register_monitor.csv"
 
 def add_event(event: str, event_type: str = "info"):
@@ -185,18 +185,24 @@ class ErrorResetRequest(BaseModel):
 MOTION_COMMANDS = {
     # Control
     "servo_on": "M0",
-    # X Axis
-    "x_left_17": "M10",
-    "x_right_17": "M200",
-    "x_home": "M1",
-    # Y Axis
-    "y_back_12.5": "M20",
-    # "y_fwd_12.5": "M600",
-    # Z Axis
-    # "z_up_5": "M800",
-    "z_down_5": "M30",
-    # "z_up_jog": "M8",
-    "z_down_jog": "M30"
+    # M46 is Homing Completed Flag (Read Only generally)
+    
+    # --- POSITION MODE (M46=1) ---
+    "x_left_pos": "M433",
+    "x_right_pos": "M434",
+    "y_fwd_pos": "M432",
+    "y_back_pos": "M431",
+    "z_up_pos": "M435",
+    "z_down_pos": "M436",
+
+    # --- JOG MODE (M46=0) ---
+    "x_left_jog": "M10",
+    # "x_right_jog": "M???", # User didn't specify right jog, assuming not needed or M200?
+    "y_back_jog": "M20",
+    "z_down_jog": "M30",
+    
+    # Legacy/Misc
+    "home_cmd": "M1"
 }
 
 # ------------- Polling Logic -------------
@@ -274,6 +280,48 @@ def poll_plc_thread():
                                 logging.error(f"Monitor Log Error: {csv_err}")
                             # -----------------------------------------
                         
+                        # --- Grid Location Logging ---
+                        try:
+                            # Read Coordinates (D25=X, D21=Y, D27=Z) - 1 Angstrom = 1e-4 mm
+                            loc_raw = manager.read_sign_dword("D21", 10) # Read block covering D21-D30 to get D21, D25, D27
+                            # D21 is index 0 (Y)
+                            # D25 is index 4 (X) - 32-bit registers, check addressing?
+                            # Wait, read_sign_dword("D21", 10) returns list of 10 DWORDs usually.
+                            
+                            # Let's read individually to be safe and consistent with get_control_status
+                            x_raw = manager.read_sign_dword("D25", 1)
+                            y_raw = manager.read_sign_dword("D21", 1)
+                            z_raw = manager.read_sign_dword("D27", 1)
+                            
+                            def to_mm(raw_list):
+                                return round(raw_list[0] * 1e-4, 2) if raw_list else 0.0
+                                
+                            x_mm = to_mm(x_raw)
+                            y_mm = to_mm(y_raw)
+                            z_mm = to_mm(z_raw)
+                            
+                            grid_csv = os.path.join(save_dir, "grid_locations.csv")
+                            file_exists = os.path.exists(grid_csv)
+                            
+                            with open(grid_csv, 'a', newline='') as f:
+                                writer = csv.writer(f)
+                                if not file_exists:
+                                    writer.writerow(["Filename", "Grid_Y", "Grid_X", "X", "Y", "Z", "Timestamp"])
+                                
+                                filename = f"grid_{state['county']}_{state['count']}.jpg"
+                                writer.writerow([
+                                    filename, 
+                                    state['county'], 
+                                    state['count'], 
+                                    x_mm, 
+                                    y_mm, 
+                                    z_mm,
+                                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                ])
+                        except Exception as loc_err:
+                            logging.error(f"Failed to log grid location: {loc_err}")
+                        # -----------------------------
+
                         filepath = os.path.join(save_dir, f"grid_{state['county']}_{state['count']}.jpg")
                         
                         if camera_manager:
@@ -583,7 +631,7 @@ def cycle_reset():
 
 @router.post("/plc/homing-start")
 def homing_start():
-    """Start homing sequence by setting X6 to ON."""
+    """Start homing sequence by setting M1 to ON."""
     try:
         manager.write_bit("M1", [1])
         add_event("Homing sequence started", "info")
@@ -600,21 +648,37 @@ def get_control_status():
             "error": "PLC Not Connected", 
             "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, 
             "m190": None, "y0": None,
-            "m103": None, "m104": None, 
-            "m68": None, "m69": None, "m70": None, "m71": None
+            "m103": get_bit(103), "m104": get_bit(104), 
+            "m68": get_bit(68), "m69": get_bit(69), "m70": get_bit(70), "m71": get_bit(71)
         }
     try:
-        # Optimize: Read combined range if possible or separate blocks
-        # We need M0-M120 range roughly. M190 is further.
-        # Let's read M0-M121 covers M0, M1, M4, M5, M68-71, M103, M104, M120
-        # M68 is index 68. M103 is index 103.
-        m_block = manager.read_bit("M0", 125) # Extend to cover M120
+        m_block = manager.read_bit("M0", 125) 
         
-        # Read Y0 separately
+        # Read Y0 separately (Output)
         y0 = manager.read_bit("Y0", 1)
         
-        # Read M190 separately
+        # Read M190 separately for reliable servo status
         m190 = manager.read_bit("M190", 1)
+        
+        # Read Coordinates D21-D28 in one block of 4 DWORDs (D21, D23, D25, D27)
+        # D21=Y, D25=X, D27=Z
+        d_block = manager.read_sign_dword("D21", 4)
+
+        def to_mm(raw_val):
+            if not raw_val: return 0.0
+            # Convert Angstrom to mm (1e-4) -> value * 0.0001
+            return round(raw_val * 1e-4, 2)
+
+        # Parse D-block
+        # d_block indices: 0=(D21,D22)[Y], 1=(D23,D24), 2=(D25,D26)[X], 3=(D27,D28)[Z]
+        y_mm = 0.0
+        x_mm = 0.0
+        z_mm = 0.0
+        
+        if d_block and len(d_block) >= 4:
+            y_mm = to_mm(d_block[0])
+            x_mm = to_mm(d_block[2])
+            z_mm = to_mm(d_block[3])
         
         def get_bit(idx):
             return m_block[idx] if m_block and len(m_block) > idx else None
@@ -625,15 +689,19 @@ def get_control_status():
             "m120": get_bit(120),
             "m1": get_bit(1),
             "m0": get_bit(0),
+            "m190": get_bit(190), # Servo Enable
+            "y0": y0[0] if y0 else None,
             "m68": get_bit(68), # Up
             "m69": get_bit(69), # Down
             "m70": get_bit(70), # Right
             "m71": get_bit(71), # Left
-            "m103": get_bit(103), # White
-            "m104": get_bit(104), # Green
-            "m190": m190[0] if m190 else None,
-            "y0": y0[0] if y0 else None
+            "m103": get_bit(103), "m104": get_bit(104),
+            "m46": get_bit(46), # Homing Done Flag
+            "x_pos": x_mm,
+            "y_pos": y_mm,
+            "z_pos": z_mm
         }
+
     except Exception as e:
          return {"error": str(e), "connected": False}
 
@@ -771,17 +839,34 @@ def get_servo_speeds():
     except Exception as e:
         return {"connected": False, "x": 0, "y": 0, "z": 0, "error": str(e)}
 
+class JogMoveRequest(BaseModel):
+    command: str
+    state: bool # True = Press (ON), False = Release (OFF)
+
+@router.post("/servo/jog")
+def jog_move(req: JogMoveRequest):
+    """Handle Jog Move (Press/Release)."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    
+    cmd_bit = MOTION_COMMANDS.get(req.command)
+    if not cmd_bit:
+        return {"success": False, "error": f"Invalid Command: {req.command}"}
+    
+    try:
+        val = 1 if req.state else 0
+        manager.write_bit(cmd_bit, [val])
+        return {"success": True, "bit": cmd_bit, "state": val}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @router.post("/servo/enable")
 def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
     if not manager.connected:
         raise HTTPException(status_code=503, detail="PLC Not Connected")
     try:
-        # Read current status of M190
-        current = manager.read_bit("M190", 1)
-        current_val = current[0] if current else 0
-        
-        # Toggle
-        new_val = 1 if current_val == 0 else 0
+        # Use explicit state from request
+        new_val = 1 if req.enable else 0
         
         manager.write_bit("M190", [new_val])
         return {"status": "success", "message": f"Servo {'Enabled' if new_val else 'Disabled'}", "enabled": bool(new_val)}

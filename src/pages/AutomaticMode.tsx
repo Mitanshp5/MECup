@@ -94,6 +94,15 @@ const AutomaticMode = () => {
           if (!plcScanning) {
             setGridTriggered(false);
           }
+
+          // Sync Light State
+          if (data.m103 === 1) {
+            setPulseMode('white');
+          } else if (data.m104 === 1) {
+            setPulseMode('green');
+          } else {
+            setPulseMode('off');
+          }
         }
       } catch (err) {
         if (isMounted.current) console.error("Failed to sync scan state:", err);
