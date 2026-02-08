@@ -748,3 +748,102 @@ ConnectionResetError: [WinError 10054] An existing connection was forcibly close
 2026-02-08 12:18:34,624 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-08 12:18:37,701 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-08 12:18:40,782 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:36:56,100 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:36:56,393 [INFO] [Inference] Using GPU
+2026-02-08 12:36:56,393 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:36:57,002 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:36:57,188 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:36:58,012 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:36:58,248 [INFO] [Inference] Using GPU
+2026-02-08 12:36:58,248 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:36:58,814 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:36:58,985 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:36:59,198 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:02,277 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:05,354 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:08,452 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:11,543 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:14,645 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:17,732 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:20,834 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:37:23,926 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:39:09,936 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:39:21,070 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:39:31,786 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:39:33,807 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:39:38,872 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:43:48,985 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:43:49,303 [INFO] [Inference] Using GPU
+2026-02-08 12:43:49,303 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:43:49,914 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:43:50,098 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:43:50,962 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:43:51,202 [INFO] [Inference] Using GPU
+2026-02-08 12:43:51,202 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:43:51,835 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:43:52,022 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:50:31,153 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:50:31,419 [INFO] [Inference] Using GPU
+2026-02-08 12:50:31,419 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:50:31,984 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:50:32,149 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:50:33,050 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:50:33,284 [INFO] [Inference] Using GPU
+2026-02-08 12:50:33,284 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:50:33,885 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:50:34,074 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:54:06,729 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:54:06,993 [INFO] [Inference] Using GPU
+2026-02-08 12:54:06,993 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:54:07,577 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:54:07,746 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:54:08,537 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:54:08,767 [INFO] [Inference] Using GPU
+2026-02-08 12:54:08,767 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:54:09,327 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:54:09,497 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:55:51,245 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:55:51,489 [INFO] [Inference] Using GPU
+2026-02-08 12:55:51,489 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:55:52,084 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:55:52,272 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:55:53,096 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:55:53,343 [INFO] [Inference] Using GPU
+2026-02-08 12:55:53,345 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:55:53,943 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:55:54,141 [INFO] [Inference] Model ready (openvino)

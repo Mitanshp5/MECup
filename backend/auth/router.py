@@ -13,7 +13,7 @@ from . import models, schemas, security, dependencies
 router = APIRouter(tags=["Authentication"])
 
 @router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(
+def login_for_access_token(
     username: str = Form(...),
     password: str = Form(""), 
     db: Session = Depends(get_db)
@@ -92,7 +92,7 @@ def read_users(
     return users
 
 @router.get("/users/me", response_model=schemas.UserResponse)
-async def read_users_me(current_user: models.User = Depends(dependencies.get_current_active_user)):
+def read_users_me(current_user: models.User = Depends(dependencies.get_current_active_user)):
     return current_user
 
 @router.delete("/users/{user_id}")

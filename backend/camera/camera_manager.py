@@ -431,17 +431,21 @@ class CameraManager:
 
     def save_current_frame(self, filepath):
         """Saves the latest frame to the specified filepath."""
+        frame_data = None
         with self.lock:
             if self.current_frame:
-                try:
-                    # Make sure directory exists
-                    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-                    with open(filepath, 'wb') as f:
-                        f.write(self.current_frame)
-                    return True
-                except Exception as e:
-                    print(f"Failed to save image: {e}")
-                    return False
+                frame_data = self.current_frame
+        
+        if frame_data:
+            try:
+                # Make sure directory exists
+                os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                with open(filepath, 'wb') as f:
+                    f.write(frame_data)
+                return True
+            except Exception as e:
+                print(f"Failed to save image: {e}")
+                return False
         return False
 
 # Global instance

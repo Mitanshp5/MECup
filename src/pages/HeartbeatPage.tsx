@@ -190,7 +190,7 @@ const HeartbeatPage = () => {
             <ResourceBar label="GPU Usage" value={Math.round(systemResources.gpu)} />
             <ResourceBar label="Memory" value={Math.round(systemResources.memory)} />
             <ResourceBar label="Disk Space" value={Math.round(systemResources.disk)} />
-            <ResourceBar label="Ethernet I/O" value={Math.round(systemResources.network)} />
+
           </div>
         </div>
 

@@ -14,7 +14,7 @@ class CameraSettings(BaseModel):
     auto_exposure: bool = False
 
 @router.post("/camera/connect")
-async def connect_camera():
+def connect_camera():
     devices = camera_manager.enum_devices()
     if not devices:
         return {"success": False, "message": "No devices found"}
@@ -35,19 +35,19 @@ async def connect_camera():
     return {"success": False, "message": "Failed to open device or start grabbing"}
 
 @router.post("/camera/disconnect")
-async def disconnect_camera():
+def disconnect_camera():
     camera_manager.close_device()
     return {"success": True, "message": "Camera disconnected"}
 
 @router.get("/camera/status")
-async def get_status():
+def get_status():
     return {
         "is_open": camera_manager.is_open,
         "is_grabbing": camera_manager.is_grabbing
     }
 
 @router.get("/camera/settings")
-async def get_settings():
+def get_settings():
     if camera_manager.is_open:
         # Get live values
         return {
@@ -60,14 +60,14 @@ async def get_settings():
         return load_camera_settings()
 
 @router.get("/camera/fps")
-async def get_fps():
+def get_fps():
     """Get the current camera frame rate."""
     if camera_manager.is_open:
         return {"fps": camera_manager.get_fps(), "is_open": True}
     return {"fps": 0, "is_open": False}
 
 @router.post("/camera/settings")
-async def update_settings(settings: CameraSettings):
+def update_settings(settings: CameraSettings):
     # Save to file
     save_camera_settings(settings.exposure, settings.gain, settings.auto_exposure)
     
@@ -84,6 +84,8 @@ async def update_settings(settings: CameraSettings):
 def get_image_stream():
     """Generator for MJPEG stream."""
     while True:
+        if not camera_manager.is_grabbing:
+            break
         frame_bytes = camera_manager.get_latest_frame_jpeg()
         if frame_bytes:
             yield (b'--frame\r\n'
@@ -94,7 +96,7 @@ def get_image_stream():
         time.sleep(0.033) # ~30 FPS limit check
 
 @router.get("/camera/stream")
-async def stream():
+def stream():
     if not camera_manager.is_grabbing:
         # Try to auto-connect
         print("[Stream] Camera not grabbing, attempting connect...")

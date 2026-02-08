@@ -48,6 +48,7 @@ const AutomaticMode = () => {
   const [lastInferenceTime, setLastInferenceTime] = useState<number | null>(null);
   const [pulseMode, setPulseMode] = useState<'off' | 'white' | 'green'>('off');
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
+  const [streamTimestamp, setStreamTimestamp] = useState<number>(Date.now());
   const isMounted = useRef(true);
 
   // Persist defects to session storage (debounced to reduce write frequency)
@@ -78,7 +79,12 @@ const AutomaticMode = () => {
       if (MOCK_MODE || !isMounted.current) return;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/plc/control-status`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(`${API_BASE_URL}/plc/control-status`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!isMounted.current) return;
         const data = await res.json();
         if (data.m5 !== null && data.m5 !== undefined) {
@@ -103,7 +109,12 @@ const AutomaticMode = () => {
     const checkCamera = async () => {
       if (MOCK_MODE || !isMounted.current) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/camera/status`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(`${API_BASE_URL}/camera/status`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!isMounted.current) return;
         const data = await res.json();
         // If is_grabbing is true, we consider it connected and streaming
@@ -141,6 +152,7 @@ const AutomaticMode = () => {
 
   // Poll for latest inference results (PLC or Mock) - ONLY when scanning
   const [lastInferenceTimestamp, setLastInferenceTimestamp] = useState<string | null>(null);
+  const lastInferenceTimestampRef = useRef<string | null>(null);
   const lastToastTimeRef = useRef<number>(0);
 
   useEffect(() => {
@@ -148,75 +160,91 @@ const AutomaticMode = () => {
     if (!isScanning) return;
 
     let pollTimeout: NodeJS.Timeout;
+    let isPolling = false;
 
     const pollLatestInference = async () => {
-      if (!isMounted.current) return;
+      if (!isMounted.current || isPolling) return;
+      isPolling = true;
+
       try {
         const endpoint = MOCK_MODE
           ? `${API_BASE_URL}/inference/mock-latest`
           : `${API_BASE_URL}/plc/latest-inference`;
 
-        const res = await fetch(endpoint);
+        // Timeout to prevent hanging requests piling up
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(endpoint, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!isMounted.current) return;
-        const data = await res.json();
 
-        if (data.has_result && data.timestamp !== lastInferenceTimestamp) {
-          // New result available
-          setLastInferenceTimestamp(data.timestamp);
-          setLastInferenceTime(data.inference_time_ms);
+        if (res.ok) {
+          const data = await res.json();
 
-          // Set result image
-          if (data.overlay_url) {
-            setResultImageUrl(`${API_BASE_URL}${data.overlay_url}`);
-          }
+          if (data.has_result && data.timestamp !== lastInferenceTimestampRef.current) {
+            // New result available
+            lastInferenceTimestampRef.current = data.timestamp;
+            setLastInferenceTimestamp(data.timestamp);
+            setLastInferenceTime(data.inference_time_ms);
 
-          // Add defects
-          if (data.defects && data.defects.length > 0) {
-            const timestamp = new Date().toLocaleTimeString();
-            const imageUrl = data.overlay_url ? `${API_BASE_URL}${data.overlay_url}` : undefined;
-            // Show only one image entry per inference (regardless of defect count/types)
-            const newDefect: Defect = {
-              id: `${Date.now()}`,
-              type: "Defect",
-              location: "Detected",
-              timestamp,
-              imageUrl,
-            };
+            // Set result image
+            if (data.overlay_url) {
+              setResultImageUrl(`${API_BASE_URL}${data.overlay_url}`);
+            }
 
-            setDefects(prev => {
-              // Prevent adding duplicate images (compare base URL without query params)
-              const newBaseUrl = imageUrl?.split('?')[0];
-              const prevBaseUrl = prev.length > 0 ? prev[0].imageUrl?.split('?')[0] : null;
+            // Add defects
+            if (data.defects && data.defects.length > 0) {
+              const timestamp = new Date().toLocaleTimeString();
+              const imageUrl = data.overlay_url ? `${API_BASE_URL}${data.overlay_url}` : undefined;
+              // Show only one image entry per inference (regardless of defect count/types)
+              const newDefect: Defect = {
+                id: `${Date.now()}`,
+                type: "Defect",
+                location: "Detected",
+                timestamp,
+                imageUrl,
+              };
 
-              if (newBaseUrl && prevBaseUrl && newBaseUrl === prevBaseUrl) {
-                return prev;
-              }
-              return [newDefect, ...prev].slice(0, 50);
-            });
-            setTotalDefectCount(prev => prev + data.defects.length);
+              setDefects(prev => {
+                // Prevent adding duplicate images (compare base URL without query params)
+                const newBaseUrl = imageUrl?.split('?')[0];
+                const prevBaseUrl = prev.length > 0 ? prev[0].imageUrl?.split('?')[0] : null;
 
-            // Debounced toast notifications - minimum 2 seconds between toasts
-            const now = Date.now();
-            if (now - lastToastTimeRef.current > 2000) {
-              toast.success(`${data.defects.length} Defect(s) Found`, {
-                description: `Inference: ${data.inference_time_ms.toFixed(1)}ms (${MOCK_MODE ? 'Mock' : 'Live'})`
+                if (newBaseUrl && prevBaseUrl && newBaseUrl === prevBaseUrl) {
+                  return prev;
+                }
+                return [newDefect, ...prev].slice(0, 50);
               });
-              lastToastTimeRef.current = now;
+              setTotalDefectCount(prev => prev + data.defects.length);
+
+              // Debounced toast notifications - minimum 2 seconds between toasts
+              const now = Date.now();
+              if (now - lastToastTimeRef.current > 2000) {
+                toast.success(`${data.defects.length} Defect(s) Found`, {
+                  description: `Inference: ${data.inference_time_ms.toFixed(1)}ms (${MOCK_MODE ? 'Mock' : 'Live'})`
+                });
+                lastToastTimeRef.current = now;
+              }
             }
           }
         }
       } catch (err) {
         // Silent fail for polling
+        console.warn("Poll failed", err);
+      } finally {
+        isPolling = false;
+        // Schedule next poll - strictly 1000ms AFTER completion
+        if (isMounted.current) pollTimeout = setTimeout(pollLatestInference, 1000);
       }
-      // Schedule next poll - increased from 500ms to 1000ms to reduce load
-      if (isMounted.current) pollTimeout = setTimeout(pollLatestInference, 1000);
     };
 
     // Kick off
     pollLatestInference();
 
     return () => clearTimeout(pollTimeout);
-  }, [lastInferenceTimestamp, MOCK_MODE, isScanning]);
+  }, [MOCK_MODE, isScanning]);
 
   const handleStartScan = async () => {
     if (MOCK_MODE) {
@@ -468,7 +496,7 @@ const AutomaticMode = () => {
               <div className="w-full h-full max-w-full max-h-full" style={{ aspectRatio: '4/3' }}>
                 {cameraConnected ? (
                   <img
-                    src={`${API_BASE_URL}/camera/stream?t=${Date.now()}`} // Cache bust if needed, handled by stream MIME usually
+                    src={`${API_BASE_URL}/camera/stream?t=${streamTimestamp}`}
                     className="w-full h-full object-contain"
                     alt="Live Feed"
                     onError={(e) => {
@@ -481,7 +509,10 @@ const AutomaticMode = () => {
                     <Camera className="w-12 h-12 mb-2 opacity-50" />
                     <span className="text-sm font-mono font-bold">CAMERA OFFLINE</span>
                     <button
-                      onClick={() => fetch(`${API_BASE_URL}/camera/connect`, { method: 'POST' })}
+                      onClick={() => {
+                        setStreamTimestamp(Date.now()); // Force refresh
+                        fetch(`${API_BASE_URL}/camera/connect`, { method: 'POST' });
+                      }}
                       className="mt-4 px-3 py-1 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs rounded border border-destructive/30"
                     >
                       Retry Connection
