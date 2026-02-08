@@ -611,3 +611,140 @@ ConnectionResetError: [WinError 10054] An existing connection was forcibly close
 2026-02-08 10:39:46,147 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
 2026-02-08 10:39:47,010 [INFO] [Inference] Using OpenVINO backend on GPU
 2026-02-08 10:39:47,330 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:07:34,933 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:07:35,232 [INFO] [Inference] Using GPU
+2026-02-08 12:07:35,232 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:07:35,826 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:07:36,029 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:07:36,868 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-08 12:07:37,095 [INFO] [Inference] Using GPU
+2026-02-08 12:07:37,095 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-08 12:07:37,684 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-08 12:07:37,843 [INFO] [Inference] Model ready (openvino)
+2026-02-08 12:08:48,435 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:09:11,984 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:09:23,497 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:09:33,641 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:10:22,790 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:10:31,957 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:11:03,401 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:11:20,648 [ERROR] Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Mitansh\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:15:29,362 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-08 12:15:32,461 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:35,561 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:38,657 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:41,745 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:44,835 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:47,938 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:51,033 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:54,131 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:15:57,229 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:00,326 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:03,409 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:06,506 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:09,596 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:12,702 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:15,790 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:18,887 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:21,986 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:25,087 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:28,187 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:31,281 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:34,384 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:37,477 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:40,562 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:43,658 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:46,746 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:49,844 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:52,939 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:56,027 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:16:59,133 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:02,220 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:05,312 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:08,390 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:11,470 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:14,548 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:17,626 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:20,705 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:23,783 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:26,863 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:29,942 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:33,021 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:36,100 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:39,179 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:42,259 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:45,339 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:48,423 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:51,503 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:54,595 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:17:57,673 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:00,752 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:03,834 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:06,913 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:09,991 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:13,069 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:16,148 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:19,227 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:22,307 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:25,386 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:28,465 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:31,545 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:34,624 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:37,701 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-08 12:18:40,782 [ERROR] Polling thread error: PLC disconnected: timed out
