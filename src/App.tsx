@@ -15,6 +15,7 @@ import UserManagement from "@/pages/UserManagement";
 import HeartbeatPage from "@/pages/HeartbeatPage";
 
 import { AuthProvider } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -29,12 +30,43 @@ const App = () => (
             <Routes>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/automatic" element={<AutomaticMode />} />
-                <Route path="/manual" element={<ManualMode />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/scans" element={<PastScans />} />
-                <Route path="/users" element={<UserManagement />} />
-                <Route path="/heartbeat" element={<HeartbeatPage />} />
+
+                <Route path="/automatic" element={
+                  <ProtectedRoute allowedRoles={['admin', 'operator']}>
+                    <AutomaticMode />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/manual" element={
+                  <ProtectedRoute allowedRoles={['admin', 'operator']}>
+                    <ManualMode />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/settings" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/scans" element={
+                  <ProtectedRoute allowedRoles={['admin', 'operator', 'viewer']}>
+                    <PastScans />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/users" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/heartbeat" element={
+                  <ProtectedRoute allowedRoles={['admin', 'operator', 'viewer']}>
+                    <HeartbeatPage />
+                  </ProtectedRoute>
+                } />
+
                 {/* Fallback for old routes or typos */}
                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
               </Route>

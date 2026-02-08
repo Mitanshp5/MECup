@@ -12,6 +12,7 @@ interface AuthContextType {
     login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
     logout: () => void;
     isAuthenticated: boolean;
+    isLoading: boolean;
     hasRole: (roles: string[]) => boolean;
 }
 
@@ -20,6 +21,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
+
+    const [isLoading, setIsLoading] = useState(true);
 
     // Load token from localStorage on startup
     useEffect(() => {
@@ -34,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 role: (storedRole as any) || 'viewer'
             });
         }
+        setIsLoading(false);
     }, []);
 
     const login = async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
@@ -103,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user, hasRole }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, isLoading, hasRole }}>
             {children}
         </AuthContext.Provider>
     );

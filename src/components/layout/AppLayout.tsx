@@ -8,10 +8,11 @@ import Chatbot from "../chatbot/Chatbot";
 import LoginModal from "../LoginModal";
 
 const AppLayout = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const location = useLocation();
+  // Default to collapsed unless on Dashboard (root path)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(location.pathname !== '/');
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const location = useLocation();
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

@@ -102,13 +102,17 @@ def stream():
         print("[Stream] Camera not grabbing, attempting connect...")
         devices = camera_manager.enum_devices()
         if devices:
-            camera_manager.open_device(0)
-            settings = load_camera_settings()
-            camera_manager.set_exposure_mode(settings['auto_exposure'])
-            if not settings['auto_exposure']:
-                camera_manager.set_exposure(settings['exposure'])
-            camera_manager.set_gain(settings['gain'])
-            camera_manager.start_grabbing()
+            # Double check inside lock if implemented, but here just check is_open
+            if not camera_manager.is_open:
+                if camera_manager.open_device(0):
+                    settings = load_camera_settings()
+                    camera_manager.set_exposure_mode(settings['auto_exposure'])
+                    if not settings['auto_exposure']:
+                        camera_manager.set_exposure(settings['exposure'])
+                    camera_manager.set_gain(settings['gain'])
+            
+            if camera_manager.is_open and not camera_manager.is_grabbing:
+                camera_manager.start_grabbing()
             
     if not camera_manager.is_grabbing:
         raise HTTPException(status_code=503, detail="Camera Not Connected")

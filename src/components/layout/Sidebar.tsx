@@ -21,13 +21,13 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home, path: "/" },
-  { id: "automatic", label: "Automatic Mode", icon: Play, path: "/automatic" },
-  { id: "manual", label: "Manual Mode", icon: Hand, path: "/manual" },
-  { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
-  { id: "scans", label: "Past Scans", icon: History, path: "/scans" },
-  { id: "users", label: "User Management", icon: Users, path: "/users" },
-  { id: "heartbeat", label: "System Heartbeat", icon: Activity, path: "/heartbeat" },
+  { id: "dashboard", label: "Home", icon: Home, path: "/", roles: ['admin', 'operator', 'viewer'] },
+  { id: "automatic", label: "Automatic Mode", icon: Play, path: "/automatic", roles: ['admin', 'operator'] },
+  { id: "manual", label: "Manual Mode", icon: Hand, path: "/manual", roles: ['admin', 'operator'] },
+  { id: "settings", label: "Settings", icon: Settings, path: "/settings", roles: ['admin'] },
+  { id: "scans", label: "Past Scans", icon: History, path: "/scans", roles: ['admin', 'operator', 'viewer'] },
+  { id: "users", label: "User Management", icon: Users, path: "/users", roles: ['admin'] },
+  { id: "heartbeat", label: "System Heartbeat", icon: Activity, path: "/heartbeat", roles: ['admin', 'operator', 'viewer'] },
 ];
 
 const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
@@ -41,7 +41,10 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
     // Hide everything else if not logged in
     if (!user) return false;
 
-    // Show everything if logged in
+    // Check role permissions
+    if (item.roles && !item.roles.includes(user.role)) return false;
+
+    // Show if role matches
     return true;
   });
 
