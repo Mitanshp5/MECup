@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-// API Base URL
-const API_BASE_URL = "http://127.0.0.1:5001";
+import { API_BASE_URL } from '@/lib/api-config';
 
 interface User {
     username: string;

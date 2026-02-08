@@ -4,9 +4,7 @@ import { motion } from "framer-motion";
 import { Activity, TrendingUp, Shield, Zap, Award, Users, Target, Cpu, Loader2 } from "lucide-react";
 import { Suspense } from "react";
 
-interface DashboardProps {
-  onPageChange: (page: string) => void;
-}
+
 
 // Loading component for 3D model
 const Loader = () => {
@@ -20,7 +18,7 @@ const Loader = () => {
   );
 };
 
-// GLB Model component
+
 const GLBModel = () => {
   const { scene } = useGLTF("/assets/DoorChecker.glb");
 
@@ -33,32 +31,56 @@ const GLBModel = () => {
   );
 };
 
+type ColorKey = "primary" | "success" | "muted";
+
+const colorStyles = {
+  primary: {
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/20",
+  },
+  success: {
+    bg: "bg-success/10",
+    text: "text-success",
+    border: "border-success/30",
+  },
+  muted: {
+    bg: "bg-muted",
+    text: "text-muted-foreground",
+    border: "border-border",
+  },
+};
+
 const MetricCard = ({ title, value, trend, icon: Icon, color = "primary" }: {
   title: string;
   value: string;
   trend?: string;
   icon: React.ElementType;
-  color?: string;
-}) => (
-  <motion.div
-    whileHover={{ scale: 1.02, y: -2 }}
-    className="industrial-panel p-5 transition-all hover:border-primary/50"
-  >
-    <div className="flex items-start justify-between mb-3">
-      <div className={`w-11 h-11 rounded-lg bg-${color}/10 flex items-center justify-center border border-${color}/20`}>
-        <Icon className={`w-6 h-6 text-${color}`} />
-      </div>
-      {trend && (
-        <div className="flex items-center gap-1 text-xs font-medium text-success">
-          <TrendingUp className="w-3 h-3" />
-          {trend}
+  color?: ColorKey;
+}) => {
+  const styles = colorStyles[color] || colorStyles.primary;
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02, y: -2 }}
+      className="industrial-panel p-5 transition-all hover:border-primary/50"
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className={`w-11 h-11 rounded-lg ${styles.bg} flex items-center justify-center border ${styles.border}`}>
+          <Icon className={`w-6 h-6 ${styles.text}`} />
         </div>
-      )}
-    </div>
-    <h3 className="text-3xl font-bold text-foreground font-mono mb-1">{value}</h3>
-    <p className="text-sm text-muted-foreground">{title}</p>
-  </motion.div>
-);
+        {trend && (
+          <div className="flex items-center gap-1 text-xs font-medium text-success">
+            <TrendingUp className="w-3 h-3" />
+            {trend}
+          </div>
+        )}
+      </div>
+      <h3 className="text-3xl font-bold text-foreground font-mono mb-1">{value}</h3>
+      <p className="text-sm text-muted-foreground">{title}</p>
+    </motion.div>
+  );
+};
 
 const InfoCard = ({ title, description, icon: Icon }: {
   title: string;
@@ -76,7 +98,7 @@ const InfoCard = ({ title, description, icon: Icon }: {
   </div>
 );
 
-const Dashboard = ({ onPageChange }: DashboardProps) => {
+const Dashboard = () => {
   return (
     <div className="h-full grid grid-cols-3 grid-rows-2 gap-6">
       {/* Left Side: 3D Model Viewer (spans 2 rows) */}

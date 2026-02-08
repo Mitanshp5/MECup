@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   Play,
@@ -12,34 +13,26 @@ import {
   ChevronRight,
   MessageSquare
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SidebarProps {
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
-  currentPage: string;
-  onPageChange: (page: string) => void;
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "automatic", label: "Automatic Mode", icon: Play },
-  { id: "manual", label: "Manual Mode", icon: Hand },
-  { id: "maintenance", label: "Maintenance", icon: Wrench },
-  { id: "settings", label: "Settings", icon: Settings },
-  { id: "scans", label: "Past Scans", icon: History },
-  { id: "users", label: "User Management", icon: Users },
-  { id: "heartbeat", label: "System Heartbeat", icon: Activity },
+  { id: "dashboard", label: "Dashboard", icon: Home, path: "/" },
+  { id: "automatic", label: "Automatic Mode", icon: Play, path: "/automatic" },
+  { id: "manual", label: "Manual Mode", icon: Hand, path: "/manual" },
+  { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
+  { id: "scans", label: "Past Scans", icon: History, path: "/scans" },
+  { id: "users", label: "User Management", icon: Users, path: "/users" },
+  { id: "heartbeat", label: "System Heartbeat", icon: Activity, path: "/heartbeat" },
 ];
 
-import { useAuth } from "@/context/AuthContext";
-// ... imports
-
-// ... interface
-
-// ... navItems
-
-const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarProps) => {
+const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
   const { user } = useAuth();
+  const location = useLocation();
 
   const filteredNavItems = navItems.filter(item => {
     // Always show Dashboard
@@ -55,7 +48,6 @@ const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarPr
   return (
     <motion.aside
       initial={false}
-      // ... same props
       animate={{ width: collapsed ? 72 : 240 }}
       transition={{ duration: 0.2 }}
       className="h-full bg-sidebar border-r border-sidebar-border flex flex-col"
@@ -64,9 +56,9 @@ const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarPr
       <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/30 p-1.5">
-            <img 
-              src="/assets/icon.ico" 
-              alt="CON-SOL-E" 
+            <img
+              src="/assets/icon.ico"
+              alt="CON-SOL-E"
               className="w-full h-full object-contain"
             />
           </div>
@@ -88,12 +80,15 @@ const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarPr
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPage === item.id;
+          // Exact match for root, startsWith for others to handle nested routes if any
+          const isActive = item.path === "/"
+            ? location.pathname === "/"
+            : location.pathname.startsWith(item.path);
 
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => onPageChange(item.id)}
+              to={item.path}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200
                 ${isActive
@@ -119,7 +114,7 @@ const Sidebar = ({ collapsed, onCollapse, currentPage, onPageChange }: SidebarPr
                   style={{ boxShadow: "0 0 8px hsl(var(--primary))" }}
                 />
               )}
-            </button>
+            </Link>
           );
         })}
       </nav>

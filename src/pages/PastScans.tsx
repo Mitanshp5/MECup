@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Download, Eye, Calendar, User, CheckCircle, AlertTriangle, X, Image as ImageIcon, Trash2 } from "lucide-react";
 import {
@@ -11,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { API_BASE_URL } from "@/lib/api-config";
 
 interface ScanRecord {
   id: string;
@@ -42,6 +43,7 @@ interface ScanDetails {
 }
 
 const PastScans = () => {
+  const isMounted = useRef(true);
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,17 +54,29 @@ const PastScans = () => {
 
   const [showFullDetails, setShowFullDetails] = useState(false);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Fetch scans on mount
   useEffect(() => {
     const fetchScans = async () => {
       try {
-        const res = await fetch("http://localhost:5001/scans/list");
+        const res = await fetch(`${API_BASE_URL}/scans/list`);
+        if (!isMounted.current) return;
         const data = await res.json();
+        if (!isMounted.current) return;
         setScans(data.scans || []);
       } catch (e) {
         console.error("Failed to fetch scans:", e);
       } finally {
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
     fetchScans();
@@ -71,8 +85,10 @@ const PastScans = () => {
   // Fetch scan details when selected
   const handleSelectScan = async (scanId: string) => {
     try {
-      const res = await fetch(`http://localhost:5001/scans/${scanId}`);
+      const res = await fetch(`${API_BASE_URL}/scans/${scanId}`);
+      if (!isMounted.current) return;
       const data = await res.json();
+      if (!isMounted.current) return;
       setSelectedScan(data);
       setShowFullDetails(false); // Reset to list view when selecting new scan
     } catch (e) {
@@ -84,7 +100,7 @@ const PastScans = () => {
     if (!scanToDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5001/scans/${scanToDelete}`, {
+      const res = await fetch(`${API_BASE_URL}/scans/${scanToDelete}`, {
         method: "DELETE",
       });
 
@@ -274,13 +290,17 @@ const PastScans = () => {
                     {selectedScan!.defects.map((defect, i) => (
                       <button
                         key={i}
-                        onClick={() => setSelectedImage(`http://localhost:5001${defect.overlay_url}`)}
+                        onClick={() => setSelectedImage(`${API_BASE_URL}${defect.overlay_url}`)}
                         className="aspect-square bg-secondary rounded border border-border hover:border-primary/50 overflow-hidden relative group"
                       >
                         <img
-                          src={`http://localhost:5001${defect.overlay_url}`}
+                          src={`${API_BASE_URL}${defect.overlay_url}`}
                           alt={defect.image}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+                            e.currentTarget.className = 'w-full h-full object-contain opacity-20';
+                          }}
                         />
                         <div className="absolute top-1 right-1">
                           <span className="flex items-center justify-center w-5 h-5 bg-black/60 rounded-full backdrop-blur-sm">
@@ -309,13 +329,17 @@ const PastScans = () => {
                     {selectedScan!.images.map((img, i) => (
                       <button
                         key={i}
-                        onClick={() => setSelectedImage(`http://localhost:5001/scans/${selectedScan!.id}/image/${img}`)}
+                        onClick={() => setSelectedImage(`${API_BASE_URL}/scans/${selectedScan!.id}/image/${img}`)}
                         className="aspect-square bg-secondary rounded border border-border hover:border-primary/50 overflow-hidden"
                       >
                         <img
-                          src={`http://localhost:5001/scans/${selectedScan!.id}/image/${img}`}
+                          src={`${API_BASE_URL}/scans/${selectedScan!.id}/image/${img}`}
                           alt={img}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+                            e.currentTarget.className = 'w-full h-full object-contain opacity-20';
+                          }}
                         />
                       </button>
                     ))}

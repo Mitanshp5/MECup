@@ -2,6 +2,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 // import LoginModal from "@/components/LoginModal"; 
 import { X, Lock, UserPlus, Edit2, Trash2, User, Search, Shield } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api-config";
+import { toast } from "sonner";
 
 // Update interface to match API response more closely
 interface SystemUser {
@@ -13,7 +15,17 @@ interface SystemUser {
   status: "active" | "inactive";
 }
 
-const API_BASE_URL = "http://127.0.0.1:5001";
+const RoleCard = ({ role, description, count, color }: { role: string; description: string; count: number; color: string }) => (
+  <div className="p-3 bg-secondary/50 rounded-md border border-border">
+    <div className="flex items-center justify-between mb-1">
+      <span className={`font-medium ${color === "primary" ? "text-primary" : color === "success" ? "text-success" : "text-muted-foreground"}`}>
+        {role}
+      </span>
+      <span className="text-sm font-mono text-foreground">{count}</span>
+    </div>
+    <p className="text-xs text-muted-foreground">{description}</p>
+  </div>
+);
 
 const AddUserModal = ({ onClose, onSuccess, token }: { onClose: () => void, onSuccess: () => void, token: string }) => {
   const [username, setUsername] = useState("");
@@ -84,7 +96,7 @@ const AddUserModal = ({ onClose, onSuccess, token }: { onClose: () => void, onSu
 };
 
 const UserManagement = () => {
-  const { token, hasRole, logout } = useAuth();
+  const { token, hasRole, logout, user: currentUser } = useAuth();
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -100,7 +112,6 @@ const UserManagement = () => {
       const res = await fetch(`${API_BASE_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log("[UserManagement] Fetch Users Response:", res.status);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -132,6 +143,34 @@ const UserManagement = () => {
       setError(err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: number, username: string) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        toast.success('User Deleted', {
+          description: `${username} has been deleted successfully`
+        });
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        toast.error('Delete Failed', {
+          description: data.detail || 'Failed to delete user'
+        });
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error('Error', {
+        description: 'Failed to delete user'
+      });
     }
   };
 
@@ -214,18 +253,34 @@ const UserManagement = () => {
                   <span className={`px-3 py-1 text-xs font-medium rounded border capitalize ${getRoleBadge(user.role)}`}>
                     {user.role}
                   </span>
-                  <span className={`flex items-center gap-1.5 text-xs ${user.status === "active" ? "text-success" : "text-muted-foreground"
+                  <span className={`flex items-center gap-1.5 text-xs ${user.username === currentUser?.username ? "text-success" : "text-muted-foreground"
                     }`}>
-                    <span className={`w-2 h-2 rounded-full ${user.status === "active" ? "bg-success" : "bg-muted-foreground"
+                    <span className={`w-2 h-2 rounded-full ${user.username === currentUser?.username ? "bg-success" : "bg-muted-foreground"
                       }`} />
-                    {user.status}
+                    {user.username === currentUser?.username ? 'active' : 'offline'}
                   </span>
 
                   <div className="flex items-center gap-1">
-                    <button className="p-2 hover:bg-secondary rounded-md transition-colors">
+                    <button
+                      className="p-2 hover:bg-secondary rounded-md transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // TODO: Implement edit user functionality
+                        toast.info('Edit User', {
+                          description: `Edit functionality for ${user.username} coming soon`
+                        });
+                      }}
+                    >
                       <Edit2 className="w-4 h-4 text-muted-foreground" />
                     </button>
-                    <button className="p-2 hover:bg-secondary rounded-md transition-colors">
+                    <button
+                      className="p-2 hover:bg-secondary rounded-md transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Call delete function
+                        handleDeleteUser(user.id, user.username);
+                      }}
+                    >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
                   </div>
@@ -275,53 +330,30 @@ const UserManagement = () => {
             </div>
             <div className="p-3 bg-secondary/50 rounded-md text-center">
               <p className="text-2xl font-bold text-success font-mono">
-                {users.filter(u => u.status === "active").length}
+                {currentUser ? 1 : 0}
               </p>
               <p className="text-xs text-muted-foreground">Active</p>
             </div>
           </div>
         </div>
-
-        <div className="industrial-panel p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">QUICK ACTIONS</h3>
-          <div className="space-y-2">
-            <button className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors">
-              <Shield className="w-5 h-5 text-primary" />
-              <span className="text-sm">Manage Permissions</span>
-            </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-md text-foreground hover:bg-secondary/80 transition-colors">
-              <UserPlus className="w-5 h-5" />
-              <span className="text-sm">Bulk Import Users</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Add User Modal */}
-      {showAddModal && (
+      {showAddModal && token && (
         <AddUserModal
           onClose={() => setShowAddModal(false)}
           onSuccess={() => {
             setShowAddModal(false);
             fetchUsers();
           }}
-          token={token!}
+          token={token}
         />
       )}
     </div>
   );
 };
 
-const RoleCard = ({ role, description, count, color }: { role: string; description: string; count: number; color: string }) => (
-  <div className="p-3 bg-secondary/50 rounded-md border border-border">
-    <div className="flex items-center justify-between mb-1">
-      <span className={`font-medium ${color === "primary" ? "text-primary" : color === "success" ? "text-success" : "text-muted-foreground"}`}>
-        {role}
-      </span>
-      <span className="text-sm font-mono text-foreground">{count}</span>
-    </div>
-    <p className="text-xs text-muted-foreground">{description}</p>
-  </div>
-);
+
+
 
 export default UserManagement;

@@ -3,6 +3,29 @@ import os
 import logging
 from contextlib import asynccontextmanager
 
+# Load .env file manually to avoid dependency issues
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+if not os.path.exists(env_path):
+    try:
+        with open(env_path, "w") as f:
+            f.write("MECUP_ADMIN_USER=mee\n")
+            f.write("MECUP_ADMIN_PASSWORD=1234\n")
+            f.write("SECRET_KEY=change_me_to_random_secret\n")
+        print(f"[Backend] Created default .env file at {env_path}")
+    except Exception as e:
+        print(f"[Backend] Failed to create .env file: {e}")
+else:
+    # Simple .env parser
+    try:
+        with open(env_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ[key] = value
+    except Exception as e:
+        print(f"[Backend] Failed to load .env file: {e}")
+
 # Reduce logging verbosity
 logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
@@ -31,29 +54,32 @@ async def lifespan(app: FastAPI):
     # Create Default Admin User
     try:
         db = next(get_db())
-        # Check for 'mee' user
-        user = db.query(auth_models.User).filter(auth_models.User.username == "mee").first()
         
-        # Calculate expected hash for empty password
-        hashed_pwd = auth_security.get_password_hash("")
+        admin_user = os.getenv("MECUP_ADMIN_USER", "mee")
+        admin_pass = os.getenv("MECUP_ADMIN_PASSWORD", "1234")
+        
+        # Check for admin user
+        user = db.query(auth_models.User).filter(auth_models.User.username == admin_user).first()
+        
+        hashed_pwd = auth_security.get_password_hash(admin_pass)
         
         if not user:
-            print("[Backend] Creating default user 'mee'...", flush=True)
+            print(f"[Backend] Creating default user '{admin_user}'...", flush=True)
             new_user = auth_models.User(
-                username="mee",
+                username=admin_user,
                 hashed_password=hashed_pwd,
                 role="admin"
             )
             db.add(new_user)
             db.commit()
-            print("[Backend] Default user created: mee / (empty)", flush=True)
+            print(f"[Backend] Default user created: {admin_user}", flush=True)
         else:
-            # Force update password to ensure it matches current security scheme
+            # Force update password to ensure it matches current security scheme or env var change
             user.hashed_password = hashed_pwd
             # Ensure role is admin
             user.role = "admin"
             db.commit()
-            print("[Backend] User 'mee' password reset to empty (sync with security scheme).", flush=True)
+            print(f"[Backend] User '{admin_user}' synced with environment credentials.", flush=True)
     except Exception as e:
         print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
 
@@ -119,6 +145,102 @@ async def root():
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
+
+# Global state for network rate calculation
+net_state = {"last_time": 0, "last_bytes": 0}
+
+@app.get("/system/resources")
+def get_system_resources():
+    global net_state
+    try:
+        import psutil
+        import time
+        
+        # CPU & Mem
+        cpu = psutil.cpu_percent(interval=None)
+        mem = psutil.virtual_memory().percent
+        disk = psutil.disk_usage('/').percent
+        
+        # Network - Filter for Ethernet
+        net_io = psutil.net_io_counters(pernic=True)
+        ethernet_stats = None
+        
+        # Try to find "Ethernet" specifically, or fallback to sensible default
+        for interface, stats in net_io.items():
+            if "ethernet" in interface.lower() or "eth" in interface.lower():
+                ethernet_stats = stats
+                break
+        
+        if not ethernet_stats and net_io:
+             # Just take the first one that isn't Loopback?
+             for interface, stats in net_io.items():
+                 if "loopback" not in interface.lower():
+                     ethernet_stats = stats
+                     break
+        
+        network_usage = 0
+        if ethernet_stats:
+            current_bytes = ethernet_stats.bytes_sent + ethernet_stats.bytes_recv
+            current_time = time.time()
+            
+            if net_state["last_time"] > 0:
+                time_diff = current_time - net_state["last_time"]
+                if time_diff > 0:
+                    bytes_diff = current_bytes - net_state["last_bytes"]
+                    # Bytes per second
+                    rate = bytes_diff / time_diff
+                    # Convert to Mbps
+                    mbps = (rate * 8) / 1_000_000
+                    # usage percent of 100Mbps link for visualization (scales better than 1Gbps for typical loads)
+                    # Cap at 100%
+                    network_usage = min(100.0, (mbps / 100.0) * 100.0)
+            
+            net_state["last_time"] = current_time
+            net_state["last_bytes"] = current_bytes
+
+        # GPU - Generic Windows via typeperf
+        gpu_usage = 0
+        try:
+            import subprocess
+            # Query 3D engines.
+            cmd = ['typeperf', r'\GPU Engine(*engtype_3D*)\Utilization Percentage', '-sc', '1']
+            # timeout is critical as typeperf can hang if counters are broken
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=2)
+            
+            if result.returncode == 0:
+                output = result.stdout.strip().split('\n')
+                # Find the data line (usually the last one with quotes)
+                data_lines = [line for line in output if line and '"' in line]
+                if data_lines:
+                    data_line = data_lines[-1]
+                    # Parse values: "time","val1","val2"...
+                    parts = data_line.split(',')
+                    if len(parts) > 1:
+                        values = []
+                        for v in parts[1:]:
+                            try:
+                                values.append(float(v.replace('"', '')))
+                            except ValueError:
+                                pass
+                        if values:
+                            gpu_usage = max(values)
+        except Exception as e:
+            # print(f"GPU poll error: {e}") # Reduce noise
+            pass
+
+        return {
+            "cpu": cpu,
+            "gpu": round(gpu_usage, 1),
+            "memory": mem,
+            "disk": disk,
+            "network": round(network_usage, 1)
+        }
+
+    except ImportError:
+        return {"cpu": 0, "memory": 0, "disk": 0, "network": 0, "error": "psutil not installed"}
+    except Exception as e:
+        print(f"System resource error: {e}")
+        return {"cpu": 0, "memory": 0, "disk": 0, "network": 0}
 
 if __name__ == "__main__":
     print("[Backend] Starting MECup Backend on port 5001...", flush=True)

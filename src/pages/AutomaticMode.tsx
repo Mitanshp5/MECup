@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap, X, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/lib/api-config";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Defect {
@@ -49,9 +50,13 @@ const AutomaticMode = () => {
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
   const isMounted = useRef(true);
 
-  // Persist defects to session storage
+  // Persist defects to session storage (debounced to reduce write frequency)
   useEffect(() => {
-    sessionStorage.setItem("mecup-defects", JSON.stringify(defects));
+    const timeoutId = setTimeout(() => {
+      sessionStorage.setItem("mecup-defects", JSON.stringify(defects));
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
   }, [defects]);
 
   useEffect(() => {
@@ -63,7 +68,7 @@ const AutomaticMode = () => {
 
   useEffect(() => {
     // Connect to camera on mount (Skip in mock mode if no camera needed, but kept for realism)
-    fetch('http://localhost:5001/camera/connect', { method: 'POST' })
+    fetch(`${API_BASE_URL}/camera/connect`, { method: 'POST' })
       .catch(err => console.error("Failed to connect camera:", err));
 
     // Sync scan state from PLC on mount and periodically
@@ -73,7 +78,7 @@ const AutomaticMode = () => {
       if (MOCK_MODE || !isMounted.current) return;
 
       try {
-        const res = await fetch('http://localhost:5001/plc/control-status');
+        const res = await fetch(`${API_BASE_URL}/plc/control-status`);
         if (!isMounted.current) return;
         const data = await res.json();
         if (data.m5 !== null && data.m5 !== undefined) {
@@ -98,7 +103,7 @@ const AutomaticMode = () => {
     const checkCamera = async () => {
       if (MOCK_MODE || !isMounted.current) return;
       try {
-        const res = await fetch('http://localhost:5001/camera/status');
+        const res = await fetch(`${API_BASE_URL}/camera/status`);
         if (!isMounted.current) return;
         const data = await res.json();
         // If is_grabbing is true, we consider it connected and streaming
@@ -123,7 +128,7 @@ const AutomaticMode = () => {
 
     const runMockInference = async () => {
       try {
-        await fetch('http://localhost:5001/inference/mock-run', { method: 'POST' });
+        await fetch(`${API_BASE_URL}/inference/mock-run`, { method: 'POST' });
       } catch (e) {
         console.error("Mock run error:", e);
       }
@@ -134,18 +139,22 @@ const AutomaticMode = () => {
   }, [MOCK_MODE, isScanning]);
 
 
-  // Poll for latest inference results (PLC or Mock)
+  // Poll for latest inference results (PLC or Mock) - ONLY when scanning
   const [lastInferenceTimestamp, setLastInferenceTimestamp] = useState<string | null>(null);
+  const lastToastTimeRef = useRef<number>(0);
 
   useEffect(() => {
+    // Only poll when scanning or in mock mode with scanning enabled
+    if (!isScanning) return;
+
     let pollTimeout: NodeJS.Timeout;
 
     const pollLatestInference = async () => {
       if (!isMounted.current) return;
       try {
         const endpoint = MOCK_MODE
-          ? 'http://localhost:5001/inference/mock-latest'
-          : 'http://localhost:5001/plc/latest-inference';
+          ? `${API_BASE_URL}/inference/mock-latest`
+          : `${API_BASE_URL}/plc/latest-inference`;
 
         const res = await fetch(endpoint);
         if (!isMounted.current) return;
@@ -158,13 +167,13 @@ const AutomaticMode = () => {
 
           // Set result image
           if (data.overlay_url) {
-            setResultImageUrl(`http://localhost:5001${data.overlay_url}`);
+            setResultImageUrl(`${API_BASE_URL}${data.overlay_url}`);
           }
 
           // Add defects
           if (data.defects && data.defects.length > 0) {
             const timestamp = new Date().toLocaleTimeString();
-            const imageUrl = data.overlay_url ? `http://localhost:5001${data.overlay_url}` : undefined;
+            const imageUrl = data.overlay_url ? `${API_BASE_URL}${data.overlay_url}` : undefined;
             // Show only one image entry per inference (regardless of defect count/types)
             const newDefect: Defect = {
               id: `${Date.now()}`,
@@ -185,23 +194,29 @@ const AutomaticMode = () => {
               return [newDefect, ...prev].slice(0, 50);
             });
             setTotalDefectCount(prev => prev + data.defects.length);
-            toast.success(`${data.defects.length} Defect(s) Found`, {
-              description: `Inference: ${data.inference_time_ms.toFixed(1)}ms (${MOCK_MODE ? 'Mock' : 'Live'})`
-            });
+
+            // Debounced toast notifications - minimum 2 seconds between toasts
+            const now = Date.now();
+            if (now - lastToastTimeRef.current > 2000) {
+              toast.success(`${data.defects.length} Defect(s) Found`, {
+                description: `Inference: ${data.inference_time_ms.toFixed(1)}ms (${MOCK_MODE ? 'Mock' : 'Live'})`
+              });
+              lastToastTimeRef.current = now;
+            }
           }
         }
       } catch (err) {
         // Silent fail for polling
       }
-      // Schedule next poll - strictly serial
-      if (isMounted.current) pollTimeout = setTimeout(pollLatestInference, 500);
+      // Schedule next poll - increased from 500ms to 1000ms to reduce load
+      if (isMounted.current) pollTimeout = setTimeout(pollLatestInference, 1000);
     };
 
     // Kick off
     pollLatestInference();
 
     return () => clearTimeout(pollTimeout);
-  }, [lastInferenceTimestamp, MOCK_MODE]);
+  }, [lastInferenceTimestamp, MOCK_MODE, isScanning]);
 
   const handleStartScan = async () => {
     if (MOCK_MODE) {
@@ -212,7 +227,7 @@ const AutomaticMode = () => {
 
     try {
       const username = user?.username || "operator";
-      const res = await fetch(`http://localhost:5001/plc/scan-start?username=${encodeURIComponent(username)}`, {
+      const res = await fetch(`${API_BASE_URL}/plc/scan-start?username=${encodeURIComponent(username)}`, {
         method: "POST",
       });
       const data = await res.json();
@@ -243,7 +258,7 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/scan-stop", {
+      const res = await fetch(`${API_BASE_URL}/plc/scan-stop`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -273,7 +288,7 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/grid-one", { method: "POST" });
+      const res = await fetch(`${API_BASE_URL}/plc/grid-one`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
         setGridTriggered(true);
@@ -297,7 +312,7 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/cycle-reset", { method: "POST" });
+      const res = await fetch(`${API_BASE_URL}/plc/cycle-reset`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
         toast.success("Cycle Reset", { description: "M120 set to ON" });
@@ -317,7 +332,7 @@ const AutomaticMode = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/plc/homing-start", { method: "POST" });
+      const res = await fetch(`${API_BASE_URL}/plc/homing-start`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
         toast.success("Homing Started", { description: "M1 set to ON" });
@@ -348,7 +363,7 @@ const AutomaticMode = () => {
       // but for UI responsiveness, optimistic is often better. 
       // However, we need to send the PULSE for the NEW mode.
 
-      const res = await fetch("http://localhost:5001/plc/toggle-pulse", {
+      const res = await fetch(`${API_BASE_URL}/plc/toggle-pulse`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: newMode }),
@@ -372,7 +387,7 @@ const AutomaticMode = () => {
     if (isInferencing) return;
     setIsInferencing(true);
     try {
-      const endpoint = MOCK_MODE ? "http://localhost:5001/inference/mock-run" : "http://localhost:5001/inference/run";
+      const endpoint = MOCK_MODE ? `${API_BASE_URL}/inference/mock-run` : `${API_BASE_URL}/inference/run`;
       const res = await fetch(endpoint, { method: "POST" });
       const data = await res.json();
 
@@ -380,7 +395,7 @@ const AutomaticMode = () => {
         setLastInferenceTime(data.inference_time_ms);
 
         const imageUrl = data.overlay_url
-          ? `http://localhost:5001${data.overlay_url}?t=${Date.now()}`
+          ? `${API_BASE_URL}${data.overlay_url}?t=${Date.now()}`
           : null;
 
         if (imageUrl) {
@@ -453,7 +468,7 @@ const AutomaticMode = () => {
               <div className="w-full h-full max-w-full max-h-full" style={{ aspectRatio: '4/3' }}>
                 {cameraConnected ? (
                   <img
-                    src={`http://localhost:5001/camera/stream?t=${Date.now()}`} // Cache bust if needed, handled by stream MIME usually
+                    src={`${API_BASE_URL}/camera/stream?t=${Date.now()}`} // Cache bust if needed, handled by stream MIME usually
                     className="w-full h-full object-contain"
                     alt="Live Feed"
                     onError={(e) => {
@@ -466,7 +481,7 @@ const AutomaticMode = () => {
                     <Camera className="w-12 h-12 mb-2 opacity-50" />
                     <span className="text-sm font-mono font-bold">CAMERA OFFLINE</span>
                     <button
-                      onClick={() => fetch('http://localhost:5001/camera/connect', { method: 'POST' })}
+                      onClick={() => fetch(`${API_BASE_URL}/camera/connect`, { method: 'POST' })}
                       className="mt-4 px-3 py-1 bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs rounded border border-destructive/30"
                     >
                       Retry Connection

@@ -4,11 +4,13 @@ import asyncio
 import datetime
 import os
 import csv
+import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 from .settings import save_plc_settings, load_plc_settings
 from .connection import manager
+from .scan_manager import scan_session
 from . import models as plc_models
 try:
     from database import SessionLocal
@@ -35,7 +37,7 @@ except ImportError:
     except ImportError:
         pass
 except Exception:
-    pass
+    logging.warning("Camera manager import failed")
 
 # ------------- inference imports -------------
 get_predictor = None
@@ -48,7 +50,7 @@ except ImportError:
     except ImportError:
         pass
 except Exception:
-    pass
+    logging.warning("Inference service import failed")
 
 # Store last inference result for frontend polling
 last_inference_result = {
@@ -63,14 +65,9 @@ last_inference_result = {
 # Event log for recent events
 recent_events = []
 MAX_EVENTS = 50
- 
- # Global Counters (for Grid Naming)
-count = 1
-county = 1
- 
- # Monitoring Configuration
+
 # Monitoring Configuration
-MONITORED_REGISTERS = ["D0", "D2"]
+MONITORED_REGISTERS = ["D10", "D11", "D12", "D13"]
 MONITOR_CSV_NAME = "register_monitor.csv"
 
 def add_event(event: str, event_type: str = "info"):
@@ -130,13 +127,12 @@ def save_inference_callback(future):
             db.commit()
             db.close()
         except Exception as db_err:
-            print(f"DB Error saving result: {db_err}")
+            logging.error(f"DB Error saving result: {db_err}")
             
     except Exception as e:
-        print(f"Inference Task Failed: {e}")
+        logging.error(f"Inference Task Failed: {e}")
 
 def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id):
-    """Wrapper to return filepath and scan_id along with results."""
     """Wrapper to return filepath and scan_id along with results."""
     from inference.inference_service import run_inference_task
     res = run_inference_task(filepath, result_dir, save_overlay)
@@ -145,18 +141,14 @@ def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id):
 
 # ------------- Global / Manager -------------
 router = APIRouter()
-router = APIRouter()
 # manager = PLCManager() # Use imported manager
 
 # Global executor for inference
 from concurrent.futures import ProcessPoolExecutor
 inference_executor = ProcessPoolExecutor(max_workers=1)
 
-# Batch folder for current scan session
-current_batch_folder = None
-
 # ------------- Models -------------
-
+# ... (Keep models as is) ...
 class PLCConnectRequest(BaseModel):
     ip: str
     port: int
@@ -199,11 +191,11 @@ MOTION_COMMANDS = {
     "x_home": "M1",
     # Y Axis
     "y_back_12.5": "M20",
-    "y_fwd_12.5": "M600",
+    # "y_fwd_12.5": "M600",
     # Z Axis
-    "z_up_5": "M800",
+    # "z_up_5": "M800",
     "z_down_5": "M30",
-    "z_up_jog": "M8",
+    # "z_up_jog": "M8",
     "z_down_jog": "M30"
 }
 
@@ -211,13 +203,15 @@ MOTION_COMMANDS = {
 
 def poll_plc_thread():
     """Background polling using the shared manager."""
-    global count, county, click
+    # Use scan_session state
     last_Y14 = 0
     last_Y15 = 0
     last_m101 = 1
+    
     while True:
         try:
             # Status check (Heartbeat)
+            # manager.read_bit handles errors internally but returns None on failure
             resp = manager.read_bit("X0", 1)
             m5_status = manager.read_bit("M5", 1)
             
@@ -228,30 +222,37 @@ def poll_plc_thread():
                     current_Y14 = resp_y[0]
                     current_Y15 = resp_y[1]
                     
+                    state = scan_session.get_state()
+                    click_state = state["click"]
+
                     # Rising Edge (0 -> 1)
-                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (click == 1):
-                        click = 0
-                        time.sleep(0.4)
+                    if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (click_state == 1):
+                        scan_session.set_click(0)
+                        time.sleep(0.1)
+                        
                         current_m101 = manager.read_bit("M101", 1)
-                        if last_m101 != current_m101[0]:
-                            county += 1
-                            count = 1
+                        if current_m101 and last_m101 != current_m101[0]:
+                            scan_session.increment_county()
                             last_m101 = current_m101[0]
                             
-                        global current_batch_folder
-                        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                        # Refresh state after updates
+                        state = scan_session.get_state()
+                        current_batch = state["batch_folder"]
                         
-                        # Use batch folder if set, otherwise create one
-                        if current_batch_folder:
-                            save_dir = current_batch_folder
-                            
+                        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                        save_dir = current_batch
+
+                        # Use batch folder if set, otherwise create one (Fallback)
+                        if not save_dir:
+                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                            save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
+                            os.makedirs(save_dir, exist_ok=True)
+                        else:
                             # --- Register Monitoring & CSV Logging ---
                             try:
                                 # Read configured registers
                                 monitor_values = {}
                                 for reg in MONITORED_REGISTERS:
-                                    # Assuming standard signed dword for now as per D0/D2 usage
-                                    # If registers vary, might need a more complex config (e.g. tuples with type)
                                     val = manager.read_sign_dword(reg, 1)
                                     monitor_values[reg] = val[0] if val else "N/A"
                                 
@@ -260,29 +261,20 @@ def poll_plc_thread():
                                 
                                 with open(csv_path, 'a', newline='') as csvfile:
                                     writer = csv.writer(csvfile)
-                                    # Write header if new file
                                     if not file_exists:
                                         header = ["Timestamp"] + MONITORED_REGISTERS
                                         writer.writerow(header)
                                     
-                                    # Write row
                                     row = [datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
                                     for reg in MONITORED_REGISTERS:
                                         row.append(monitor_values.get(reg, ""))
                                     writer.writerow(row)
                                     
                             except Exception as csv_err:
-                                print(f"Monitor Log Error: {csv_err}")
+                                logging.error(f"Monitor Log Error: {csv_err}")
                             # -----------------------------------------
-
-                        else:
-                            # Fallback: create new batch folder
-                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                            save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
-                            current_batch_folder = save_dir
                         
-                        os.makedirs(save_dir, exist_ok=True)
-                        filepath = os.path.join(save_dir, f"grid_{county}_{count}.jpg")
+                        filepath = os.path.join(save_dir, f"grid_{state['county']}_{state['count']}.jpg")
                         
                         if camera_manager:
                             try:
@@ -290,48 +282,47 @@ def poll_plc_thread():
                                     # Run inference on captured image
                                     if get_predictor is not None:
                                         try:
-                                            # Use executor to run in separate process (Non-blocking)
                                             result_dir = os.path.join(save_dir, "results")
                                             os.makedirs(result_dir, exist_ok=True)
                                             
-                                            scan_id = os.path.basename(current_batch_folder)
+                                            scan_id = os.path.basename(save_dir)
                                             
                                             future = inference_executor.submit(
-                                                 run_inference_wrapper, # Use wrapper to pass context
+                                                 run_inference_wrapper, 
                                                  filepath, 
                                                  result_dir, 
-                                                 True, # save_overlay
+                                                 True, 
                                                  scan_id
                                             )
                                             
                                             future.add_done_callback(save_inference_callback)
                                             
                                         except Exception as ie:
-                                            pass
+                                            logging.error(f"Inference submission failed: {ie}")
                                     
                                     try:
-                                        time.sleep(0.2) # Small buffer
+                                        time.sleep(0.1) 
                                         manager.write_bit("M77", [1])
-                                        count += 1
+                                        scan_session.increment_counters()
                                         
                                         try:
-                                            x0_resp = manager.read_bit("X0", 2)
-                                            if x0_resp and (x0_resp[0] == 1 or x0_resp[1] == 1):
-                                                click = 1
+                                            x0_resp = manager.read_bit("X0", 1)
+                                            if x0_resp and x0_resp[0] == 1:
+                                                scan_session.set_click(1)
                                                 time.sleep(1)
-                                        except Exception:
-                                            pass # Ignore X0 read failure
+                                        except Exception as xe:
+                                            logging.error(f"Error reading X0: {xe}")
                                             
-                                    except Exception:
-                                        pass # Failed to write M77, no retry requested
-                            except Exception:
-                                pass
+                                    except Exception as we:
+                                        logging.error(f"Failed to write M77: {we}")
+                            except Exception as came:
+                                logging.error(f"Camera save frame failed: {came}")
                     
                     last_Y14 = current_Y14
                     last_Y15 = current_Y15
                 
-        except Exception:
-            # Logging suppressed for cleanliness
+        except Exception as e:
+            logging.error(f"Polling thread error: {e}")
             time.sleep(1)
             
         time.sleep(0.075)
@@ -511,64 +502,57 @@ async def toggle_pulse(req: TogglePulseRequest):
 @router.post("/plc/scan-start")
 async def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
-    global current_batch_folder, current_scan_user, count, county, click
+    # Global vars removed, using scan_session
     try:
-        current_scan_user = username
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        # Use ScanSession to initialize
+        current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir)
 
-        # Create new batch folder with timestamp if not already set
-        if not current_batch_folder:
-            # Reset counters for new batch ONLY
-            count = 1
-            county = 1
-            
-            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            current_batch_folder = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
-            os.makedirs(current_batch_folder, exist_ok=True)
-            
-            # Create DB Record for Scan
-            try:
-                db = SessionLocal()
-                new_scan = plc_models.Scan(
-                    id=f"scan_{timestamp}",
-                    start_time=datetime.datetime.now(),
-                    scanned_by=current_scan_user,
-                    batch_folder=current_batch_folder,
-                    status="pass"
-                )
-                db.add(new_scan)
-                db.commit()
-                db.close()
-            except Exception as db_err:
-                print(f"Failed to create DB record for scan: {db_err}")
+        # Create DB Record for Scan
+        try:
+            db = SessionLocal()
+            new_scan = plc_models.Scan(
+                id=f"scan_{timestamp}",
+                start_time=datetime.datetime.now(),
+                scanned_by=username,
+                batch_folder=current_batch_folder,
+                status="pass"
+            )
+            db.add(new_scan)
+            db.commit()
+            db.close()
+        except Exception as db_err:
+            logging.error(f"Failed to create DB record for scan: {db_err}")
 
-            # Save Scan Metadata having scanned_by (Legacy JSON support)
-            try:
-                import json
-                meta_file = os.path.join(current_batch_folder, "scan_info.json")
-                with open(meta_file, 'w') as f:
-                    json.dump({
-                        "scanned_by": current_scan_user,
-                        "start_time": timestamp,
-                        "role": "operator"
-                    }, f, indent=2)
-            except Exception as ex:
-                print(f"Failed to save scan info: {ex}")
+        # Save Scan Metadata having scanned_by (Legacy JSON support)
+        try:
+            import json
+            meta_file = os.path.join(current_batch_folder, "scan_info.json")
+            with open(meta_file, 'w') as f:
+                json.dump({
+                    "scanned_by": username,
+                    "start_time": timestamp,
+                    "role": "operator"
+                }, f, indent=2)
+        except Exception as ex:
+            logging.error(f"Failed to save scan info: {ex}")
+
         await asyncio.sleep(0.1)
         manager.write_bit("M5", [1])
         await asyncio.sleep(0.1)
-        click=1
+        scan_session.set_click(1)
         add_event("Scan started", "success")
         return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
     except Exception as e:
         import traceback
-        print(f"SCAN START ERROR: {e}", flush=True)
+        logging.error(f"SCAN START ERROR: {e}")
         try:
-            with open("C:/MyStuff/VS/MECup/backend/error_log.txt", "w") as log:
+            # Also keep the file logging for now as a backup/legacy expectation
+            with open("C:/MyStuff/VS/MECup/backend/error_log.txt", "a") as log:
                 traceback.print_exc(file=log)
         except:
-            print("Failed to write to error log file", flush=True)
-        traceback.print_exc()
+             logging.error("Failed to write to legacy error log file")
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/grid-one")
@@ -579,21 +563,21 @@ async def grid_one():
         manager.write_bit("M4", [1])
         return {"success": True, "message": "Grid One Triggered (M4 ON)"}
     except Exception as e:
+        logging.error(f"Grid One Error: {e}")
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/cycle-reset")
 async def cycle_reset():
     """Reset cycle by setting M120 to ON and clearing batch folder."""
-    global current_batch_folder, count, county
     try:
         manager.write_bit("M120", [1])
-        # Clear batch folder so new scan creates a new folder
-        current_batch_folder = None
-        count = 1
-        county = 1
+        # Use ScanSession to reset
+        scan_session.reset_cycle()
+        
         add_event("Cycle reset completed", "info")
         return {"success": True, "message": "Cycle Reset (M120 ON) - Batch cleared"}
     except Exception as e:
+        logging.error(f"Cycle Reset Error: {e}")
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/homing-start")
@@ -604,6 +588,7 @@ async def homing_start():
         add_event("Homing sequence started", "info")
         return {"success": True, "message": "Homing Started (M4 ON)"}
     except Exception as e:
+        logging.error(f"Homing Error: {e}")
         return {"success": False, "error": str(e)}
 
 @router.get("/plc/control-status")
@@ -761,9 +746,10 @@ async def set_servo_speeds(speeds: ServoSpeedRequest) -> Dict[str, str]:
         manager.write_sign_dword("D2", [speeds.x])
         manager.write_sign_dword("D0", [speeds.y])
         manager.write_sign_dword("D4", [speeds.z])
-        print(f"[SERVO] Speeds set: {speeds}")
+        logging.info(f"[SERVO] Speeds set: {speeds}")
         return {"status": "success", "message": "Speeds updated"}
     except Exception as e:
+        logging.error(f"Servo Speed Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/servo/speeds")
@@ -811,11 +797,12 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
     bit_addr = MOTION_COMMANDS[req.command]
     try:
         manager.write_bit(bit_addr, [1])
-        print(f"[SERVO] Triggered {req.command}")
+        logging.info(f"[SERVO] Triggered {req.command}")
         await asyncio.sleep(1)
         manager.write_bit(bit_addr, [0])
         return {"status": "success", "message": f"Triggered {req.command}"}
     except Exception as e:
+        logging.error(f"Servo Move Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ------------- Scan History Endpoints -------------
@@ -910,7 +897,7 @@ async def delete_scan(scan_id: str):
                 import shutil
                 shutil.rmtree(scan.batch_folder)
             except Exception as fe:
-                print(f"Failed to delete folder {scan.batch_folder}: {fe}")
+                logging.error(f"Failed to delete folder {scan.batch_folder}: {fe}")
         
         # 2. Delete from DB (Cascade should handle images)
         db.delete(scan)
@@ -920,6 +907,7 @@ async def delete_scan(scan_id: str):
         return {"success": True, "message": f"Scan {scan_id} deleted"}
         
     except Exception as e:
+        logging.error(f"Delete Scan Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 from fastapi.responses import FileResponse

@@ -1,31 +1,34 @@
 import { MessageCircle, User, Wifi, WifiOff, LogOut, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/lib/api-config";
+import { useLocation } from "react-router-dom";
 
 interface HeaderProps {
-  currentPage: string;
   onChatbotToggle: () => void;
   chatbotOpen: boolean;
   onLoginClick: () => void;
 }
-// ... (pageTitles map remains same, I should omit it or include it from context if I can't partial edit properly. I will include the full start of component)
 
 const pageTitles: Record<string, string> = {
-  dashboard: "Dashboard",
-  automatic: "Automatic Mode",
-  manual: "Manual Mode",
-  maintenance: "Maintenance Mode",
-  settings: "Settings",
-  scans: "Past Scans",
-  users: "User Management",
-  heartbeat: "System Heartbeat",
+  "/": "Dashboard",
+  "/automatic": "Automatic Mode",
+  "/manual": "Manual Mode",
+  "/maintenance": "Maintenance Mode",
+  "/settings": "Settings",
+  "/scans": "Past Scans",
+  "/users": "User Management",
+  "/heartbeat": "System Heartbeat",
 };
 
-const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: HeaderProps) => {
+const Header = ({ onChatbotToggle, chatbotOpen, onLoginClick }: HeaderProps) => {
   const { user, logout, isAuthenticated } = useAuth();
+  const location = useLocation();
   const [plcStatus, setPlcStatus] = useState<{ connected: boolean; error?: string }>({
     connected: false,
   });
+
+  const currentPageTitle = pageTitles[location.pathname] || "Dashboard";
 
   useEffect(() => {
     // ... (keep useEffect for polling)
@@ -33,7 +36,7 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
 
     const checkStatus = async () => {
       try {
-        const res = await fetch("http://localhost:5001/plc/status");
+        const res = await fetch(`${API_BASE_URL}/plc/status`);
         const data = await res.json();
         if (data.connected && data.error === null) {
           setPlcStatus({ connected: true });
@@ -55,7 +58,7 @@ const Header = ({ currentPage, onChatbotToggle, chatbotOpen, onLoginClick }: Hea
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
         <h2 className="text-lg font-semibold text-foreground">
-          {pageTitles[currentPage] || "Dashboard"}
+          {currentPageTitle}
         </h2>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border">
           {plcStatus.connected ? (

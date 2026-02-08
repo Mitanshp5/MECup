@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, RotateCcw, Zap, Lightbulb, AlertCircle } from "lucide-react";
 
@@ -23,24 +23,39 @@ const ManualMode = () => {
   const [lightMode, setLightMode] = useState<'off' | 'white' | 'green'>('off');
   const [directionState, setDirectionState] = useState({ up: false, down: false, left: false, right: false });
 
+  // Ref to track mount status
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Poll PLC connection status and read current speeds
   useEffect(() => {
     // checkPlc definition
     let timeoutId: NodeJS.Timeout;
     const checkPlc = async () => {
+      if (!isMounted.current) return;
+
       try {
-        const res = await fetch(`${API_BASE_URL}/plc/control-status`);
-        const data = await res.json();
-
-
+        // 1. Check connection status FIRST to unlock UI immediately
         const statusRes = await fetch(`${API_BASE_URL}/plc/status`);
+        if (!isMounted.current) return;
         const statusData = await statusRes.json();
+        if (!isMounted.current) return;
         setPlcConnected(statusData.connected);
 
+        // 2. Then fetch control status if connected
         if (statusData.connected) {
           try {
             const ctrlRes = await fetch(`${API_BASE_URL}/plc/control-status`);
+            if (!isMounted.current) return;
             const ctrlData = await ctrlRes.json();
+            if (!isMounted.current) return;
+
             if (ctrlData.m190 !== undefined && ctrlData.m190 !== null) {
               setServoEnabled(ctrlData.m190 === 1);
             }
@@ -61,23 +76,27 @@ const ManualMode = () => {
                 left: ctrlData.m71 === 0
               });
             }
-          } catch (e) { console.error("Control status poll failed", e); }
+          } catch (e) {
+            if (isMounted.current) console.error("Control status poll failed", e);
+          }
         }
 
         // Read current servo speeds from PLC
         if (statusData.connected) {
           const speedsRes = await fetch(`${API_BASE_URL}/servo/speeds`);
+          if (!isMounted.current) return;
           const speedsData = await speedsRes.json();
+          if (!isMounted.current) return;
           if (speedsData.connected) {
             setSpeeds({ x: speedsData.x, y: speedsData.y, z: speedsData.z });
           }
         }
       } catch (e) {
-        setPlcConnected(false);
+        if (isMounted.current) setPlcConnected(false);
       }
 
       // Schedule next poll
-      timeoutId = setTimeout(checkPlc, 2000);
+      if (isMounted.current) timeoutId = setTimeout(checkPlc, 2000);
     };
 
     checkPlc();
