@@ -101,9 +101,8 @@ def save_inference_callback(future):
         }
         
         # Save result to database
+        db = SessionLocal()
         try:
-            db = SessionLocal()
-            
             # Create image record
             scan_image = plc_models.ScanImage(
                 scan_id=scan_id,
@@ -125,9 +124,10 @@ def save_inference_callback(future):
                     scan.status = "fail"
             
             db.commit()
-            db.close()
         except Exception as db_err:
             logging.error(f"DB Error saving result: {db_err}")
+        finally:
+            db.close()
             
     except Exception as e:
         logging.error(f"Inference Task Failed: {e}")
@@ -376,12 +376,12 @@ def init_plc_system():
 # ------------- General PLC Endpoints -------------
 
 @router.get("/plc/status")
-async def get_plc_status():
+def get_plc_status():
     st = manager.get_status()
     return st
 
 @router.post("/plc/connect")
-async def plc_connect(req: PLCConnectRequest):
+def plc_connect(req: PLCConnectRequest):
     """Save settings and restart/configure manager."""
     try:
         # Save settings to JSON file
@@ -407,7 +407,7 @@ async def get_events():
     return {"events": recent_events[:20]}
 
 @router.post("/plc/write")
-async def plc_write(req: PLCWriteRequest):
+def plc_write(req: PLCWriteRequest):
     """Generic write endpoint."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -419,7 +419,7 @@ async def plc_write(req: PLCWriteRequest):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/lights")
-async def control_lights(req: LightControlRequest):
+def control_lights(req: LightControlRequest):
     """Control M104 lights (Toggle)."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -437,7 +437,7 @@ async def control_lights(req: LightControlRequest):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/scan-stop")
-async def scan_stop(req: ScanStopRequest):
+def scan_stop(req: ScanStopRequest):
     """Stop scan by setting M5 to OFF."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -449,14 +449,14 @@ async def scan_stop(req: ScanStopRequest):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/error-reset")
-async def error_reset(req: ErrorResetRequest):
+def error_reset(req: ErrorResetRequest):
     """Pulse M15 to reset errors."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
         # Pulse M15: ON then OFF
         manager.write_bit("M15", [1])
-        await asyncio.sleep(0.2)
+        time.sleep(0.2)
         manager.write_bit("M15", [0])
         add_event("Error reset triggered", "info")
         return {"success": True, "message": "Error Reset (M15 Pulsed)"}
@@ -464,7 +464,7 @@ async def error_reset(req: ErrorResetRequest):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/toggle-pulse")
-async def toggle_pulse(req: TogglePulseRequest):
+def toggle_pulse(req: TogglePulseRequest):
     """Cycle M103/M104 based on mode."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -500,7 +500,7 @@ async def toggle_pulse(req: TogglePulseRequest):
 # ------------- Control Endpoints -------------
 
 @router.post("/plc/scan-start")
-async def scan_start(username: str = "operator"):
+def scan_start(username: str = "operator"):
     """Start scan by setting M5 to ON and creating a new batch folder."""
     # Global vars removed, using scan_session
     try:
@@ -510,8 +510,8 @@ async def scan_start(username: str = "operator"):
         current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir)
 
         # Create DB Record for Scan
+        db = SessionLocal()
         try:
-            db = SessionLocal()
             new_scan = plc_models.Scan(
                 id=f"scan_{timestamp}",
                 start_time=datetime.datetime.now(),
@@ -521,9 +521,10 @@ async def scan_start(username: str = "operator"):
             )
             db.add(new_scan)
             db.commit()
-            db.close()
         except Exception as db_err:
             logging.error(f"Failed to create DB record for scan: {db_err}")
+        finally:
+            db.close()
 
         # Save Scan Metadata having scanned_by (Legacy JSON support)
         try:
@@ -538,9 +539,9 @@ async def scan_start(username: str = "operator"):
         except Exception as ex:
             logging.error(f"Failed to save scan info: {ex}")
 
-        await asyncio.sleep(0.1)
+        time.sleep(0.1)
         manager.write_bit("M5", [1])
-        await asyncio.sleep(0.1)
+        time.sleep(0.1)
         scan_session.set_click(1)
         add_event("Scan started", "success")
         return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
@@ -556,7 +557,7 @@ async def scan_start(username: str = "operator"):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/grid-one")
-async def grid_one():
+def grid_one():
     """Trigger Grid One by setting M4 to ON."""
     try:
         time.sleep(0.1)
@@ -567,7 +568,7 @@ async def grid_one():
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/cycle-reset")
-async def cycle_reset():
+def cycle_reset():
     """Reset cycle by setting M120 to ON and clearing batch folder."""
     try:
         manager.write_bit("M120", [1])
@@ -581,7 +582,7 @@ async def cycle_reset():
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/homing-start")
-async def homing_start():
+def homing_start():
     """Start homing sequence by setting X6 to ON."""
     try:
         manager.write_bit("M1", [1])
@@ -592,7 +593,7 @@ async def homing_start():
         return {"success": False, "error": str(e)}
 
 @router.get("/plc/control-status")
-async def get_control_status():
+def get_control_status():
     """Read current status of control bits."""
     if not manager.connected:
         return {
@@ -644,7 +645,7 @@ class LightDirectRequest(BaseModel):
     state: bool
 
 @router.post("/plc/light-mode")
-async def set_light_mode(req: LightModeRequest):
+def set_light_mode(req: LightModeRequest):
     """Set light mode: Off (M103/104=0), White (M103=1), Green (M104=1)."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -662,7 +663,7 @@ async def set_light_mode(req: LightModeRequest):
         return {"success": False, "error": str(e)}
 
 @router.post("/plc/light-direction")
-async def set_light_direction(req: LightDirectRequest):
+def set_light_direction(req: LightDirectRequest):
     """Set light direction bits (M68-M71)."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
@@ -688,7 +689,7 @@ async def set_light_direction(req: LightDirectRequest):
         return {"success": False, "error": str(e)}
 
 @router.get("/plc/heartbeat")
-async def get_heartbeat():
+def get_heartbeat():
     """Get PLC heartbeat status for system health monitoring."""
     if not manager.connected:
         return {
@@ -739,7 +740,7 @@ async def get_latest_inference():
 # ------------- Servo Endpoints (Merged) -------------
 
 @router.post("/servo/speeds")
-async def set_servo_speeds(speeds: ServoSpeedRequest) -> Dict[str, str]:
+def set_servo_speeds(speeds: ServoSpeedRequest) -> Dict[str, str]:
     if not manager.connected:
         raise HTTPException(status_code=503, detail="PLC Not Connected")
     try:
@@ -753,7 +754,7 @@ async def set_servo_speeds(speeds: ServoSpeedRequest) -> Dict[str, str]:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/servo/speeds")
-async def get_servo_speeds():
+def get_servo_speeds():
     """Read current servo speeds from PLC registers D0 (Y), D2 (X), D4 (Z)."""
     if not manager.connected:
         return {"connected": False, "x": 0, "y": 0, "z": 0}
@@ -771,7 +772,7 @@ async def get_servo_speeds():
         return {"connected": False, "x": 0, "y": 0, "z": 0, "error": str(e)}
 
 @router.post("/servo/enable")
-async def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
+def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
     if not manager.connected:
         raise HTTPException(status_code=503, detail="PLC Not Connected")
     try:
@@ -788,7 +789,7 @@ async def enable_servo(req: ServoEnableRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/servo/move")
-async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
+def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
     if req.command not in MOTION_COMMANDS:
         raise HTTPException(status_code=400, detail="Invalid Command")
     if not manager.connected:
@@ -798,20 +799,20 @@ async def trigger_motion(req: ServoMoveRequest) -> Dict[str, str]:
     try:
         manager.write_bit(bit_addr, [1])
         logging.info(f"[SERVO] Triggered {req.command}")
-        await asyncio.sleep(1)
+        time.sleep(1)
         manager.write_bit(bit_addr, [0])
         return {"status": "success", "message": f"Triggered {req.command}"}
     except Exception as e:
-        logging.error(f"Servo Move Error: {e}")
+        logging.error(f"Servo Motion Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ------------- Scan History Endpoints -------------
 
 @router.get("/scans/list")
-async def list_scans():
+def list_scans():
     """List all past scans from Database."""
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         # Get latest 50 scans
         scans_db = db.query(plc_models.Scan).order_by(plc_models.Scan.start_time.desc()).limit(50).all()
         
@@ -827,19 +828,19 @@ async def list_scans():
                 "status": s.status,
                 "scanned_by": s.scanned_by
             })
-        db.close()
         return {"scans": scans}
     except Exception as e:
         return {"scans": [], "error": str(e)}
+    finally:
+        db.close()
 
 @router.get("/scans/{scan_id}")
-async def get_scan_details(scan_id: str):
+def get_scan_details(scan_id: str):
     """Get detailed information about a specific scan from DB."""
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
         if not scan:
-             db.close()
              raise HTTPException(status_code=404, detail="Scan not found")
         
         # Get images
@@ -863,7 +864,6 @@ async def get_scan_details(scan_id: str):
                 })
         
         images.sort()
-        db.close()
         
         return {
             "id": scan.id,
@@ -877,18 +877,21 @@ async def get_scan_details(scan_id: str):
             "defects": defects,
             "status": scan.status
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 @router.delete("/scans/{scan_id}")
-async def delete_scan(scan_id: str):
+def delete_scan(scan_id: str):
     """Delete a scan record and its associated files."""
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
         
         if not scan:
-            db.close()
             raise HTTPException(status_code=404, detail="Scan not found")
         
         # 1. Delete Folder force
@@ -902,18 +905,20 @@ async def delete_scan(scan_id: str):
         # 2. Delete from DB (Cascade should handle images)
         db.delete(scan)
         db.commit()
-        db.close()
         
         return {"success": True, "message": f"Scan {scan_id} deleted"}
-        
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Delete Scan Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 from fastapi.responses import FileResponse
 
 @router.get("/scans/{scan_id}/image/{filename}")
-async def get_scan_image(scan_id: str, filename: str):
+def get_scan_image(scan_id: str, filename: str):
     """Get a specific image from a scan."""
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     file_path = os.path.join(backend_dir, "captured_images", scan_id, filename)
@@ -924,7 +929,7 @@ async def get_scan_image(scan_id: str, filename: str):
     return FileResponse(file_path, media_type="image/jpeg")
 
 @router.get("/scans/{scan_id}/results/{filename}")
-async def get_scan_result(scan_id: str, filename: str):
+def get_scan_result(scan_id: str, filename: str):
     """Get a result image from a scan."""
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     file_path = os.path.join(backend_dir, "captured_images", scan_id, "results", filename)

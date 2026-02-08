@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   Home,
   Play,
@@ -86,9 +86,12 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
             : location.pathname.startsWith(item.path);
 
           return (
-            <Link
+            <a
               key={item.id}
-              to={item.path}
+              href={`#${item.path}`}
+              onClick={() => {
+                setTimeout(() => window.location.reload(), 100);
+              }}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200
                 ${isActive
@@ -114,7 +117,7 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
                   style={{ boxShadow: "0 0 8px hsl(var(--primary))" }}
                 />
               )}
-            </Link>
+            </a>
           );
         })}
       </nav>

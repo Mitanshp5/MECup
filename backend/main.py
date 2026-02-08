@@ -161,43 +161,9 @@ def get_system_resources():
         mem = psutil.virtual_memory().percent
         disk = psutil.disk_usage('/').percent
         
-        # Network - Filter for Ethernet
-        net_io = psutil.net_io_counters(pernic=True)
-        ethernet_stats = None
-        
-        # Try to find "Ethernet" specifically, or fallback to sensible default
-        for interface, stats in net_io.items():
-            if "ethernet" in interface.lower() or "eth" in interface.lower():
-                ethernet_stats = stats
-                break
-        
-        if not ethernet_stats and net_io:
-             # Just take the first one that isn't Loopback?
-             for interface, stats in net_io.items():
-                 if "loopback" not in interface.lower():
-                     ethernet_stats = stats
-                     break
-        
+        # Network - Disabled
         network_usage = 0
-        if ethernet_stats:
-            current_bytes = ethernet_stats.bytes_sent + ethernet_stats.bytes_recv
-            current_time = time.time()
-            
-            if net_state["last_time"] > 0:
-                time_diff = current_time - net_state["last_time"]
-                if time_diff > 0:
-                    bytes_diff = current_bytes - net_state["last_bytes"]
-                    # Bytes per second
-                    rate = bytes_diff / time_diff
-                    # Convert to Mbps
-                    mbps = (rate * 8) / 1_000_000
-                    # usage percent of 100Mbps link for visualization (scales better than 1Gbps for typical loads)
-                    # Cap at 100%
-                    network_usage = min(100.0, (mbps / 100.0) * 100.0)
-            
-            net_state["last_time"] = current_time
-            net_state["last_bytes"] = current_bytes
-
+        
         # GPU - Generic Windows via typeperf
         gpu_usage = 0
         try:
@@ -233,7 +199,7 @@ def get_system_resources():
             "gpu": round(gpu_usage, 1),
             "memory": mem,
             "disk": disk,
-            "network": round(network_usage, 1)
+            "network": 0
         }
 
     except ImportError:
@@ -244,4 +210,4 @@ def get_system_resources():
 
 if __name__ == "__main__":
     print("[Backend] Starting MECup Backend on port 5001...", flush=True)
-    uvicorn.run(app, host="0.0.0.0", port=5001, log_level="warning", access_log=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=5001, log_level="warning", access_log=False, reload=True)
