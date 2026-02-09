@@ -648,8 +648,9 @@ def get_control_status():
             "error": "PLC Not Connected", 
             "m5": None, "m4": None, "m120": None, "m1": None, "m0": None, 
             "m190": None, "y0": None,
-            "m103": get_bit(103), "m104": get_bit(104), 
-            "m68": get_bit(68), "m69": get_bit(69), "m70": get_bit(70), "m71": get_bit(71)
+            "m103": None, "m104": None, 
+            "m68": None, "m69": None, "m70": None, "m71": None, 
+            "m46": None, "x_pos": 0, "y_pos": 0, "z_pos": 0
         }
     try:
         m_block = manager.read_bit("M0", 125) 

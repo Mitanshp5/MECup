@@ -150,14 +150,17 @@ class CameraManager:
         # --- Packet Size Configuration (Crucial for GigE) ---
         # Get optimal packet size from the driver
         nPacketSize = self.cam.MV_CC_GetOptimalPacketSize()
-        if int(nPacketSize) > 0:
+        # nPacketSize can return error code (large positive int) or 0 on failure
+        # Standard packet sizes are usually 1500 or 9000 (jumbo). 
+        # Anything > 20000 is likely an error code (0x800000XX).
+        if int(nPacketSize) > 0 and int(nPacketSize) < 20000:
             ret = self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
             if ret != 0:
                 print(f"Warning: Failed to set GevSCPSPacketSize to {nPacketSize}! ret: {hex(ret)}")
             else:
                 print(f"Set GevSCPSPacketSize to {nPacketSize}")
         else:
-            print(f"Warning: GetOptimalPacketSize failed or returned 0. ret: {hex(nPacketSize)}")
+            print(f"Warning: GetOptimalPacketSize failed or returned weird value: {nPacketSize} ({hex(int(nPacketSize))})")
             # Fallback to a safe default if detection fails (e.g. 1500 or jumbo 9000 if supported)
             # MVS sample just prints warning. We will try to set 1500 as a safe baseline.
             self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", 1500)
@@ -216,7 +219,6 @@ class CameraManager:
             return False
 
         self.is_grabbing = True
-        self.quit_event.clear()
         
         # Start Thread
         try:
@@ -375,7 +377,7 @@ class CameraManager:
         if not self.is_open:
             return False
         
-        mode = MV_EXPOSURE_AUTO_MODE_CONTINUOUS if auto_exposure else MV_EXPOSURE_AUTO_OFF
+        mode = MV_EXPOSURE_AUTO_MODE_CONTINUOUS if auto_exposure else MV_EXPOSURE_AUTO_MODE_OFF
         ret = self.cam.MV_CC_SetEnumValue("ExposureAuto", mode)
         if ret != 0:
             print(f"Failed to set ExposureAuto to {mode}: {hex(ret)}")
