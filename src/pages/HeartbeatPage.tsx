@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Activity, Camera, Lightbulb, Move, Cpu, Zap } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+
 
 interface SystemComponent {
   id: string;
@@ -13,14 +16,56 @@ interface SystemComponent {
   trend: number[];
 }
 
+interface AxisData {
+  load: number;
+  torque: number;
+  peak: number;
+  current: number;
+  speed: number;
+}
+
+const AxisChart = ({ title, dataKey, color, data, unit }: { title: string, dataKey: string, color: string, data: any[], unit: string }) => (
+  <div className="h-64 industrial-panel p-4 bg-card/40 border border-border/50">
+    <div className="flex justify-between items-center mb-4">
+      <h4 className="text-sm font-medium text-muted-foreground">{title}</h4>
+      <span className="text-xs font-mono text-foreground">
+        {data.length > 0 ? data[data.length - 1][dataKey] : "--"} {unit}
+      </span>
+    </div>
+    <ResponsiveContainer width="100%" height="80%">
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#888" />
+        <YAxis
+          tick={{ fontSize: 10, fill: '#888' }}
+          domain={['auto', 'auto']}
+          width={30}
+        />
+        <RechartsTooltip
+          contentStyle={{ backgroundColor: "#09090b", border: "1px solid #27272a", borderRadius: "6px" }}
+          itemStyle={{ color: "#fafafa" }}
+          labelStyle={{ color: "#a1a1a1", marginBottom: "4px" }}
+        />
+        <Line
+          type="monotone"
+          dataKey={dataKey}
+          stroke={color}
+          strokeWidth={2}
+          dot={false}
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
 const HeartbeatPage = () => {
   const isMounted = useRef(true);
   const [components, setComponents] = useState<SystemComponent[]>([
     { id: "camera", name: "Camera System", icon: Camera, status: "warning", value: "--", unit: "FPS", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
     { id: "lights", name: "LED Lights", icon: Lightbulb, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
-    { id: "gantry-x", name: "Gantry X-Axis", icon: Move, status: "ok", value: "0.02", unit: "mm/s", trend: [0, 0.01, 0.02, 0.01, 0.02, 0.01, 0.02, 0.02] },
-    { id: "gantry-y", name: "Gantry Y-Axis", icon: Move, status: "ok", value: "0.01", unit: "mm/s", trend: [0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01] },
-    { id: "gantry-z", name: "Gantry Z-Axis", icon: Move, status: "warning", value: "0.15", unit: "mm/s", trend: [0.1, 0.12, 0.14, 0.13, 0.15, 0.14, 0.15, 0.15] },
+    { id: "gantry-x", name: "Gantry X-Axis", icon: Move, status: "ok", value: "0", unit: "mm/s", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
+    { id: "gantry-y", name: "Gantry Y-Axis", icon: Move, status: "ok", value: "0", unit: "mm/s", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
+    { id: "gantry-z", name: "Gantry Z-Axis", icon: Move, status: "ok", value: "0", unit: "mm/s", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
     { id: "plc", name: "PLC Controller", icon: Cpu, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
   ]);
 
@@ -38,6 +83,10 @@ const HeartbeatPage = () => {
   const [plcConnected, setPlcConnected] = useState(false);
   const [events, setEvents] = useState<{ time: string; event: string; type: string }[]>([]);
   const [systemResources, setSystemResources] = useState({ cpu: 0, gpu: 0, memory: 0, disk: 0, network: 0 });
+
+  // Axis Monitoring State
+  const [selectedAxis, setSelectedAxis] = useState<string | null>(null);
+  const [axisHistory, setAxisHistory] = useState<Record<string, any[]>>({ x: [], y: [], z: [] });
 
   // Cleanup on unmount
   useEffect(() => {
@@ -76,6 +125,24 @@ const HeartbeatPage = () => {
         // Update PLC connection state
         setPlcConnected(plcStatusData.connected);
 
+        // Process Axis Data
+        if (plcData.axis_data) {
+          const now = new Date().toLocaleTimeString();
+          const axisData = plcData.axis_data;
+
+          setAxisHistory(prev => {
+            const updateHistory = (key: string, data: any) => {
+              const newHistory = [...(prev[key] || []), { time: now, ...data }];
+              return newHistory.slice(-50); // Keep last 50 points
+            };
+            return {
+              x: updateHistory("x", axisData.x),
+              y: updateHistory("y", axisData.y),
+              z: updateHistory("z", axisData.z)
+            };
+          });
+        }
+
         setComponents(prev => prev.map(comp => {
           if (comp.id === "camera") {
             const fps = cameraData.fps || 0;
@@ -95,6 +162,33 @@ const HeartbeatPage = () => {
               value: connected ? (y1On ? "ON" : "OFF") : "--",
               status: connected ? (y1On ? "ok" : "warning") : "error",
               trend: [...comp.trend.slice(1), y1On ? 100 : 0]
+            };
+          }
+          if (comp.id === "gantry-x" && plcData.axis_data?.x) {
+            const val = plcData.axis_data.x.speed;
+            return {
+              ...comp,
+              value: String(val),
+              status: plcStatusData.connected ? "ok" : "error",
+              trend: [...comp.trend.slice(1), val]
+            };
+          }
+          if (comp.id === "gantry-y" && plcData.axis_data?.y) {
+            const val = plcData.axis_data.y.speed;
+            return {
+              ...comp,
+              value: String(val),
+              status: plcStatusData.connected ? "ok" : "error",
+              trend: [...comp.trend.slice(1), val]
+            };
+          }
+          if (comp.id === "gantry-z" && plcData.axis_data?.z) {
+            const val = plcData.axis_data.z.speed;
+            return {
+              ...comp,
+              value: String(val),
+              status: plcStatusData.connected ? "ok" : "error",
+              trend: [...comp.trend.slice(1), val]
             };
           }
           if (comp.id === "plc") {
@@ -129,7 +223,7 @@ const HeartbeatPage = () => {
       }
 
       if (isMounted.current) {
-        timeoutId = setTimeout(fetchHeartbeatData, 2000);
+        timeoutId = setTimeout(fetchHeartbeatData, 1000); // 1 Second Polling
       }
     };
 
@@ -168,8 +262,13 @@ const HeartbeatPage = () => {
         {/* Component Grid */}
         <div className="grid grid-cols-2 gap-4">
           {components.map((component) => (
-            <ComponentCard key={component.id} component={component} />
+            <ComponentCard
+              key={component.id}
+              component={component}
+              onClick={component.id.startsWith("gantry-") ? () => setSelectedAxis(component.id.replace("gantry-", "")) : undefined}
+            />
           ))}
+
         </div>
       </div>
 
@@ -213,7 +312,54 @@ const HeartbeatPage = () => {
           </div>
         </div>
       </div>
-    </div>
+      {/* Axis Detail Modal */}
+      <Dialog open={!!selectedAxis} onOpenChange={(open) => !open && setSelectedAxis(null)}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-background/95 backdrop-blur">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Activity className="w-6 h-6 text-primary" />
+              {selectedAxis?.toUpperCase()}-Axis Real-time Monitoring
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedAxis && (
+            <div className="space-y-6 pt-4">
+              <div className="grid grid-cols-2 gap-4">
+
+                <AxisChart
+                  title="Motor Current (%)"
+                  dataKey="current"
+                  color="#3b82f6"
+                  data={axisHistory[selectedAxis]}
+                  unit="%"
+                />
+                <AxisChart
+                  title="Regenerative Load Ratio (%)"
+                  dataKey="load"
+                  color="#f59e0b"
+                  data={axisHistory[selectedAxis]}
+                  unit="%"
+                />
+                <AxisChart
+                  title="Effective Load Torque (%)"
+                  dataKey="torque"
+                  color="#ec4899"
+                  data={axisHistory[selectedAxis]}
+                  unit="%"
+                />
+                <AxisChart
+                  title="Peak Torque Ratio (%)"
+                  dataKey="peak"
+                  color="#ef4444"
+                  data={axisHistory[selectedAxis]}
+                  unit="%"
+                />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div >
   );
 };
 
@@ -228,7 +374,7 @@ const StatusOverviewCard = ({ label, value, status }: { label: string; value: st
   </div>
 );
 
-const ComponentCard = ({ component }: { component: SystemComponent }) => {
+const ComponentCard = ({ component, onClick }: { component: SystemComponent; onClick?: () => void }) => {
   const Icon = component.icon;
   const maxTrend = Math.max(...component.trend);
   const minTrend = Math.min(...component.trend);
@@ -236,9 +382,10 @@ const ComponentCard = ({ component }: { component: SystemComponent }) => {
 
   return (
     <motion.div
+      onClick={onClick}
       className={`industrial-panel p-4 border ${component.status === "ok" ? "border-border hover:border-success/30" :
         component.status === "warning" ? "border-warning/30" : "border-destructive/30"
-        } transition-colors`}
+        } transition-colors ${onClick ? "cursor-pointer hover:bg-accent/5" : ""}`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">

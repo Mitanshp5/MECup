@@ -3481,3 +3481,1400 @@ Exception: PLC disconnected: timed out
 2026-02-09 09:13:53,502 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
 2026-02-09 09:13:54,126 [INFO] [Inference] Using OpenVINO backend on GPU
 2026-02-09 09:13:54,292 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:16:17,110 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:16:17,363 [INFO] [Inference] Using GPU
+2026-02-09 09:16:17,364 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:16:17,977 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:16:18,152 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:16:18,934 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:16:19,162 [INFO] [Inference] Using GPU
+2026-02-09 09:16:19,162 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:16:19,785 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:16:19,952 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:27:19,611 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:27:19,903 [INFO] [Inference] Using GPU
+2026-02-09 09:27:19,904 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:27:20,516 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:27:20,712 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:27:21,538 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:27:21,781 [INFO] [Inference] Using GPU
+2026-02-09 09:27:21,781 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:27:22,393 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:27:22,568 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:28:28,242 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 09:28:32,244 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:35,322 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:38,399 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:41,477 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:44,555 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:47,633 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:50,711 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:53,789 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:56,867 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:28:57,956 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:28:59,044 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:00,131 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:01,212 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:02,302 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:03,390 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:04,470 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:05,551 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:06,640 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:07,727 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:08,816 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:09,897 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:13,422 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:29:13,669 [INFO] [Inference] Using GPU
+2026-02-09 09:29:13,670 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:29:14,284 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:29:14,452 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:29:14,478 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:15,235 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:29:15,474 [INFO] [Inference] Using GPU
+2026-02-09 09:29:15,474 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:29:15,566 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:16,083 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:29:16,250 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:29:16,654 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:17,745 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:29:18,834 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 09:30:59,340 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 09:31:02,416 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:05,494 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:08,571 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:11,647 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:14,725 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:17,802 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:31:59,902 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:32:00,155 [INFO] [Inference] Using GPU
+2026-02-09 09:32:00,155 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:32:00,775 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:32:00,962 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:32:01,763 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 09:32:01,999 [INFO] [Inference] Using GPU
+2026-02-09 09:32:01,999 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 09:32:02,633 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 09:32:02,818 [INFO] [Inference] Model ready (openvino)
+2026-02-09 09:34:25,241 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 09:34:28,318 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:31,396 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:34,474 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:37,551 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:40,628 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:43,706 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:46,783 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:49,860 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:52,938 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:56,015 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:34:59,092 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:35:02,168 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:35:05,245 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:35:08,322 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:36:49,396 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 09:36:53,398 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:36:56,475 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:36:59,552 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:02,629 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:05,706 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:08,782 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:11,859 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:14,938 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 09:37:18,014 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 10:27:41,632 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 10:27:41,931 [INFO] [Inference] Using GPU
+2026-02-09 10:27:41,933 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 10:27:42,569 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 10:27:42,745 [INFO] [Inference] Model ready (openvino)
+2026-02-09 10:27:43,577 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 10:27:43,809 [INFO] [Inference] Using GPU
+2026-02-09 10:27:43,810 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 10:27:44,507 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 10:27:44,695 [INFO] [Inference] Model ready (openvino)
+2026-02-09 10:32:07,014 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 10:57:12,127 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 10:57:15,222 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 10:57:18,320 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:01:51,685 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:01:54,775 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:01:57,873 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:00,976 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:04,074 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:07,161 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:10,266 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:13,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:16,454 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:19,550 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:22,634 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:25,727 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:28,826 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:31,930 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:35,023 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:38,114 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:41,206 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:44,312 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:47,420 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:50,525 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:53,622 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:56,720 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:02:59,812 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:02,919 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:06,029 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:09,122 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:12,217 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:15,323 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:18,429 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:21,524 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:24,617 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:27,708 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:30,818 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:33,918 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:37,009 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:40,114 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:43,212 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:46,307 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:49,400 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:52,502 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:55,592 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:03:58,692 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:01,790 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:04,889 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:07,982 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:11,081 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:14,174 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:17,264 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:20,358 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:23,454 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:26,547 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:29,632 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:32,725 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:35,815 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:38,901 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:42,003 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:45,096 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:48,200 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:51,299 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:54,399 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:04:57,498 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:00,582 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:03,675 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:06,783 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:09,883 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:12,973 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:16,075 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:19,171 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:22,270 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:25,356 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:28,466 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:31,572 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:34,668 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:37,758 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:40,852 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:43,956 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:47,058 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:50,159 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:53,261 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:56,364 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:05:59,468 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:02,562 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:05,656 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:08,752 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:11,845 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:14,946 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:18,041 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:21,132 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:24,229 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:27,325 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:30,417 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:33,530 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:36,624 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:39,725 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:42,814 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:45,916 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:49,005 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:52,084 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:55,161 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:06:58,241 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:01,320 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:04,400 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:07,482 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:10,561 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:13,641 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:07:16,719 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:23,361 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 11:54:23,856 [INFO] [Inference] Using GPU
+2026-02-09 11:54:23,856 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 11:54:25,102 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 11:54:25,277 [INFO] [Inference] Model ready (openvino)
+2026-02-09 11:54:27,097 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 11:54:27,302 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:27,554 [INFO] [Inference] Using GPU
+2026-02-09 11:54:27,554 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 11:54:29,147 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 11:54:29,321 [INFO] [Inference] Model ready (openvino)
+2026-02-09 11:54:30,381 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:33,459 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:36,544 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:39,622 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:42,698 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:45,775 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:48,854 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:51,931 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:55,010 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:54:58,086 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:01,174 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:04,272 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:07,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:10,465 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:13,561 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:16,659 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:19,757 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:22,848 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:25,949 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:29,046 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:32,144 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:35,235 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:38,332 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:41,429 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:44,519 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:47,619 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:50,721 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:53,818 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:55:56,926 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:00,016 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:03,120 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:06,213 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:09,311 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:12,415 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:15,509 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:18,598 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:21,693 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:24,788 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:27,883 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:30,974 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:34,077 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:37,176 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:40,267 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:43,366 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:46,458 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:49,550 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:52,644 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:55,738 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:56:58,824 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:01,916 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:05,008 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:08,099 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:11,201 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:14,301 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:17,395 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:20,495 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:23,594 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:26,695 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:29,794 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:32,897 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:35,990 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:39,094 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:42,189 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:45,290 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:48,387 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:51,487 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:54,582 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:57:57,685 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:00,784 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:03,883 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:06,990 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:10,094 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:13,192 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:16,288 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:19,385 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:22,483 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:25,582 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:28,682 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:31,780 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:34,887 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:37,980 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:41,078 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:44,178 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:47,270 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:50,374 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:53,467 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:56,561 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:58:59,658 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:02,748 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:05,849 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:08,954 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:12,055 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:15,154 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:18,250 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:21,337 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:24,424 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:27,510 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:30,610 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:33,708 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:36,802 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:39,889 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:42,976 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:46,060 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:49,158 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:52,256 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:55,355 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 11:59:58,445 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:01,548 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:04,653 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:07,744 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:10,836 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:13,930 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:17,017 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:20,113 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:23,201 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:26,287 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:29,383 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:32,489 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:35,589 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:38,674 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:41,768 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:44,874 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:47,970 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:51,062 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:54,169 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:00:57,257 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:00,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:03,452 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:06,541 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:09,629 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:12,718 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:15,815 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:18,933 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:22,041 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:25,140 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:28,242 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:31,327 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:34,421 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:37,517 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:40,606 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:43,716 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:46,816 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:49,910 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:53,004 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:56,100 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:01:59,187 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:02,282 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:05,366 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:08,469 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:11,575 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:14,664 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:17,768 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:20,871 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:23,972 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:27,058 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:30,152 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:33,242 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:36,328 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:39,417 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:42,510 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:45,606 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:48,700 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:51,801 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:54,891 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:02:57,994 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:01,091 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:04,185 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:07,272 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:10,370 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:13,468 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:16,564 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:19,658 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:22,751 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:25,845 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:28,947 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:32,046 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:35,152 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:38,252 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:41,359 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:44,448 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:47,551 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:50,641 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:53,738 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:56,837 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:03:59,925 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:03,022 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:06,128 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:09,214 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:12,303 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:15,394 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:18,490 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:21,593 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:24,687 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:27,787 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:30,875 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:33,973 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:37,064 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:40,166 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:43,273 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:46,373 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:49,471 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:52,561 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:55,647 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:04:58,751 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:01,848 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:04,947 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:08,037 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:11,126 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:14,226 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:17,319 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:20,412 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:23,516 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:26,626 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:29,721 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:32,809 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:35,894 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:38,986 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:42,091 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:45,176 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:48,272 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:51,362 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:54,452 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:05:57,550 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:00,647 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:03,743 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:06,840 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:09,934 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:13,023 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:16,113 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:19,201 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:22,281 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:25,359 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:28,437 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:31,516 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:34,599 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:37,700 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:40,785 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:43,887 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:46,989 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:50,082 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:53,180 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:06:56,275 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:05,522 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:07:06,270 [INFO] [Inference] Using GPU
+2026-02-09 12:07:06,271 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:07:07,087 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:07:07,269 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:07:08,031 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:07:08,278 [INFO] [Inference] Using GPU
+2026-02-09 12:07:08,278 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:07:08,895 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:07:09,079 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:07:09,279 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:12,371 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:15,457 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:18,551 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:21,646 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:24,737 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:27,833 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:30,931 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:34,025 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:37,123 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:40,223 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:43,311 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:46,398 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:07:49,494 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:12:05,141 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:12:05,435 [INFO] [Inference] Using GPU
+2026-02-09 12:12:05,435 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:12:06,084 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:12:06,269 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:12:07,107 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:12:07,360 [INFO] [Inference] Using GPU
+2026-02-09 12:12:07,360 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:12:07,998 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:12:08,172 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:13:13,217 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:13:13,463 [INFO] [Inference] Using GPU
+2026-02-09 12:13:13,463 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:13:14,103 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:13:14,291 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:13:15,104 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:13:15,345 [INFO] [Inference] Using GPU
+2026-02-09 12:13:15,346 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:13:15,979 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:13:16,201 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:14:12,430 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 12:28:51,487 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 12:29:32,411 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 12:29:36,427 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:39,525 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:42,623 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:45,718 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:48,821 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:51,919 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:29:55,007 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 12:30:37,754 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:30:38,027 [INFO] [Inference] Using GPU
+2026-02-09 12:30:38,027 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:30:38,644 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:30:38,821 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:30:39,685 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 12:30:39,941 [INFO] [Inference] Using GPU
+2026-02-09 12:30:39,942 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 12:30:40,556 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 12:30:40,722 [INFO] [Inference] Model ready (openvino)
+2026-02-09 12:32:35,318 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 12:42:16,183 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 19:30:47,361 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 19:30:50,028 [INFO] [Inference] Using GPU
+2026-02-09 19:30:50,030 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 19:30:52,231 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 19:30:52,405 [INFO] [Inference] Model ready (openvino)
+2026-02-09 19:30:54,384 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 19:30:54,443 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:30:54,935 [INFO] [Inference] Using GPU
+2026-02-09 19:30:54,936 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 19:30:56,219 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 19:30:56,403 [INFO] [Inference] Model ready (openvino)
+2026-02-09 19:30:57,523 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:00,603 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:03,681 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:06,766 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:09,854 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:12,961 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:16,055 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:19,157 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:22,261 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:25,352 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:28,433 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:31,513 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:34,590 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:37,681 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:40,771 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:43,865 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:46,965 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:50,058 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:53,157 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:56,249 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:31:59,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:02,459 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:05,566 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:08,662 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:11,761 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:14,875 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:17,968 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:21,076 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:24,171 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:27,278 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:30,387 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:33,488 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:36,589 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:39,688 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:42,804 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:45,895 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:48,996 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:52,097 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:55,195 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:32:58,292 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:01,395 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:04,475 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:07,554 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:10,634 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:13,715 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:16,792 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:19,878 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:22,958 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:26,036 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:29,114 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:32,190 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:35,269 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:38,350 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:41,438 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:44,516 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:47,596 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:50,674 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:53,753 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:56,831 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:33:59,909 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:02,988 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:06,072 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:09,149 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:12,230 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:16,236 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 19:34:16,789 [INFO] [Inference] Using GPU
+2026-02-09 19:34:16,791 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 19:34:18,062 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 19:34:18,246 [INFO] [Inference] Model ready (openvino)
+2026-02-09 19:34:20,279 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:23,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:26,438 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:29,516 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:32,594 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:35,674 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:38,752 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:41,831 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:44,910 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:47,988 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:51,070 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:54,149 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:34:57,240 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:00,344 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:03,439 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:06,554 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:09,653 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:12,756 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:15,861 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:18,960 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:22,052 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:25,130 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:28,211 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:31,296 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:34,376 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:37,455 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:40,534 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:43,614 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:46,691 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:49,770 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:52,850 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 19:35:55,928 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:05:22,369 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:05:22,913 [INFO] [Inference] Using GPU
+2026-02-09 20:05:22,913 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:05:24,825 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:05:25,027 [INFO] [Inference] Model ready (openvino)
+2026-02-09 20:05:27,365 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:05:27,939 [INFO] [Inference] Using GPU
+2026-02-09 20:05:27,940 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:05:30,114 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:05:30,328 [INFO] [Inference] Model ready (openvino)
+2026-02-09 20:06:33,875 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 20:07:49,260 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 20:07:52,349 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:07:55,449 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:07:58,554 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:01,646 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:04,737 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:07,838 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:10,966 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:14,060 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:17,163 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:20,260 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:23,353 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:26,448 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:29,545 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:32,656 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:35,752 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:38,850 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:41,958 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:45,053 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:48,158 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:51,253 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:54,344 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:08:57,434 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:00,533 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:03,625 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:06,715 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:09,804 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:12,901 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:15,995 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:19,091 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:22,188 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:25,282 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:28,381 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:31,478 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:34,581 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:37,676 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:40,775 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:43,876 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:46,969 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:50,073 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:53,171 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:56,275 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:09:59,374 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:02,474 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:05,574 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:08,673 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:11,780 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:14,873 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:17,969 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:21,068 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:24,163 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:27,264 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:30,367 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:33,463 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:36,564 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:39,656 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:42,765 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:45,885 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:48,991 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:52,091 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:55,193 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:10:58,297 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:01,391 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:04,486 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:07,587 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:10,687 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:13,779 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:16,885 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:19,990 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:23,093 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:26,197 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:29,293 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:32,390 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:35,499 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:38,599 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:41,697 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:44,795 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:47,897 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:50,996 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:54,092 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:11:57,191 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:00,288 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:03,398 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:06,498 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:09,597 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:12,694 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:15,791 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:18,883 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:21,986 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:25,081 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:28,178 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:31,265 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:34,356 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:37,447 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:40,550 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:43,649 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:46,750 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:49,836 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:52,937 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:56,042 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:12:59,138 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:02,233 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:05,328 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:08,428 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:11,545 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:14,646 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:17,745 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:20,844 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:23,935 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:27,034 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:30,133 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:33,237 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:36,342 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:39,440 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:42,540 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:45,640 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:48,745 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:51,852 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:54,951 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:13:58,053 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:01,153 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:04,256 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:07,357 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:10,453 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:13,546 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:16,646 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:19,747 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:22,847 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:25,954 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:14:29,045 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:27:14,270 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 20:33:14,232 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 20:33:17,323 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:20,424 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:23,521 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:26,610 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:29,710 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:32,804 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:35,895 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:38,989 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:42,077 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:45,179 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:33:46,294 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:47,398 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:48,495 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:49,595 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:50,692 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:51,790 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:52,895 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:53,994 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:55,086 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:56,194 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:57,288 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:58,389 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:33:59,490 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:34:00,591 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:34:01,681 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:34:02,781 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:34:03,888 [ERROR] Polling thread error: PLC Connection Closed
+2026-02-09 20:38:05,000 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:38:05,596 [INFO] [Inference] Using GPU
+2026-02-09 20:38:05,597 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:38:06,894 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:38:07,080 [INFO] [Inference] Model ready (openvino)
+2026-02-09 20:38:09,199 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:38:09,681 [INFO] [Inference] Using GPU
+2026-02-09 20:38:09,682 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:38:11,479 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:38:11,676 [INFO] [Inference] Model ready (openvino)
+2026-02-09 20:45:01,558 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 20:45:04,654 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:45:07,751 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:45:10,851 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:45:13,946 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 20:57:01,435 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:57:04,018 [INFO] [Inference] Using GPU
+2026-02-09 20:57:04,019 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:57:06,720 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:57:06,945 [INFO] [Inference] Model ready (openvino)
+2026-02-09 20:57:08,431 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-09 20:57:08,795 [INFO] [Inference] Using GPU
+2026-02-09 20:57:08,796 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-09 20:57:09,429 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-09 20:57:09,639 [INFO] [Inference] Model ready (openvino)
+2026-02-09 21:01:57,556 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 21:04:26,203 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-09 21:04:29,286 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 21:04:38,605 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 21:04:41,683 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 21:04:44,760 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 21:04:47,840 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-09 21:04:50,920 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-10 11:29:48,816 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 11:29:51,625 [INFO] [Inference] Using GPU
+2026-02-10 11:29:51,625 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 11:29:53,922 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 11:29:54,102 [INFO] [Inference] Model ready (openvino)
+2026-02-10 11:29:54,154 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:29:55,232 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:29:55,721 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 11:29:56,146 [INFO] [Inference] Using GPU
+2026-02-10 11:29:56,147 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 11:29:56,320 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:29:57,351 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 11:29:57,409 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:29:57,527 [INFO] [Inference] Model ready (openvino)
+2026-02-10 11:29:58,499 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:29:59,588 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:00,676 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:01,763 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:02,843 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:03,922 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:05,002 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:06,091 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:07,170 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:08,257 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:09,346 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:10,424 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:11,514 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:12,612 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:13,700 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:14,789 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:15,876 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:16,956 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:18,035 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:19,114 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:20,205 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:21,293 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:22,371 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:23,459 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:24,546 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:25,637 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:26,726 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:27,803 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:28,891 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:29,979 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:31,058 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:32,139 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:33,229 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:34,320 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:35,411 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:36,498 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:37,595 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:38,683 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:39,770 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:40,858 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:41,946 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:43,032 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:44,120 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:45,196 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:46,283 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:47,360 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:48,437 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:49,525 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:50,625 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:51,715 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:52,803 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:53,890 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:54,978 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:56,065 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:57,151 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:58,229 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:30:59,317 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:00,404 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:01,491 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:02,568 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:03,657 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:04,766 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:05,853 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:06,953 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:08,055 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:09,160 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:10,250 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:11,352 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:12,458 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:13,546 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:14,631 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:15,723 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:16,806 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:17,895 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:18,995 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:20,100 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:21,201 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:22,298 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:23,378 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:24,461 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:25,564 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:26,655 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:27,742 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:28,830 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:29,917 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:31,022 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:32,125 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:33,211 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:34,293 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:35,377 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:36,482 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:37,566 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:38,667 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:39,760 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:40,840 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:41,927 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:43,017 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:44,100 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:45,185 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:46,271 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:47,357 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:48,456 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:49,544 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:50,642 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:51,727 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:52,812 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:53,923 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:55,010 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:56,104 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:57,191 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:58,268 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:31:59,356 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:00,433 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:01,521 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:02,608 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:03,696 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:04,784 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:05,871 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:06,958 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:08,045 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:09,133 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:10,220 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:11,307 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:12,395 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:13,482 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:14,570 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:15,657 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:16,743 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:17,830 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:18,916 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:19,994 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:21,071 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:22,158 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:23,237 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:24,324 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:25,401 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:26,488 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:27,577 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:28,665 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:29,741 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:30,818 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:31,906 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:32,993 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:34,080 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:35,167 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:36,243 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:37,332 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:38,418 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:39,506 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:40,583 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:41,660 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:42,736 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:43,823 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:44,901 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:45,987 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:47,073 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:48,160 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:49,247 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:50,334 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:51,411 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:52,500 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:53,588 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:54,675 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:55,763 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:56,851 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:57,939 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:32:59,025 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:00,111 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:01,198 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:02,286 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:03,372 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:04,459 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:05,535 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:06,612 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:07,699 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:08,786 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:09,873 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:10,960 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:12,046 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:13,133 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:14,220 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:15,307 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:16,393 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:17,481 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:18,567 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:19,654 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:20,741 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:21,827 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:22,911 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:24,000 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:25,090 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:26,197 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:27,286 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:28,368 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:29,458 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:30,556 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:31,652 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:32,739 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:33,826 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:34,904 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:35,992 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:37,079 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:38,167 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:39,255 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:40,342 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:41,430 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:42,517 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:43,606 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:44,694 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:45,782 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:46,870 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:47,959 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:49,047 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:50,134 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:51,210 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:52,301 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:33:53,388 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 11:36:42,615 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 11:36:42,898 [INFO] [Inference] Using GPU
+2026-02-10 11:36:42,898 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 11:36:43,470 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 11:36:43,633 [INFO] [Inference] Model ready (openvino)
+2026-02-10 11:36:44,383 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 11:36:44,624 [INFO] [Inference] Using GPU
+2026-02-10 11:36:44,624 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 11:36:45,188 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 11:36:45,353 [INFO] [Inference] Model ready (openvino)
+2026-02-10 11:46:43,681 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 11:46:44,764 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:45,857 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:46,958 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:48,040 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:49,137 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:50,220 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:51,307 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:52,391 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:53,478 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:54,578 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:55,675 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:56,758 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:57,863 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:46:58,952 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:00,054 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:01,156 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:02,253 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:03,351 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:04,436 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:05,519 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:06,619 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:07,722 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:08,822 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:09,924 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:11,026 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:12,126 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:13,214 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:14,291 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:15,379 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:16,467 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:17,543 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:18,630 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:19,717 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:20,805 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:21,882 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:22,970 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:24,059 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:25,135 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:26,222 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:27,321 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:28,408 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:29,495 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:30,589 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:31,690 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:32,793 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:33,881 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:34,981 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:36,078 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:37,160 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:38,263 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:39,365 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 11:47:40,468 [ERROR] Polling thread error: PLC disconnected: [WinError 10065] A socket operation was attempted to an unreachable host
+2026-02-10 12:04:34,876 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:04:35,185 [INFO] [Inference] Using GPU
+2026-02-10 12:04:35,185 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:04:35,744 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:04:35,903 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:04:36,624 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:04:36,870 [INFO] [Inference] Using GPU
+2026-02-10 12:04:36,871 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:04:37,434 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:04:37,595 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:12:31,859 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:12:32,938 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:34,040 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:35,141 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:36,230 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:37,319 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:38,427 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:39,511 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:40,597 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:12:41,683 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:05,599 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:21:06,038 [INFO] [Inference] Using GPU
+2026-02-10 12:21:06,039 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:21:07,201 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:21:07,389 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:21:07,417 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:08,494 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:09,010 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:21:09,386 [INFO] [Inference] Using GPU
+2026-02-10 12:21:09,387 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:21:09,581 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:10,502 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:21:10,660 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:10,680 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:21:11,738 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:12,824 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:13,911 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:14,997 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:16,085 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:17,173 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:18,250 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:19,339 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:20,426 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:21,514 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:22,603 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:23,693 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:24,780 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:25,867 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:26,954 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:28,034 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:29,122 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:30,209 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:31,286 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:32,374 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:33,451 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:34,539 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:35,617 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:36,695 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:37,783 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:38,860 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:39,948 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:41,036 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:42,125 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:43,212 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:44,289 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:45,378 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:46,465 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:47,552 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:48,630 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:49,716 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:50,803 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:51,889 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:52,977 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:54,067 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:55,157 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:56,244 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:57,322 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:58,409 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:21:59,487 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:00,575 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:01,663 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:02,798 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:03,886 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:04,964 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:06,052 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:07,139 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:08,217 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:09,303 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:10,391 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:11,480 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:12,567 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:13,646 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:14,733 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:15,820 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:16,898 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:17,985 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:19,063 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:20,141 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:21,229 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:22,316 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:23,403 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:24,491 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:25,581 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:26,668 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:27,756 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:28,844 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:29,930 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:31,017 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:32,104 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:33,193 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:34,280 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:35,368 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:36,455 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:37,542 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:38,630 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:39,718 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:40,805 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:41,892 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:42,970 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:44,057 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:45,134 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:46,221 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:47,299 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:48,386 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:49,473 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:50,559 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:51,647 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:52,733 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:53,821 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:54,909 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:55,988 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:57,075 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:58,154 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:22:59,241 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:00,329 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:01,406 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:02,484 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:03,563 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:04,641 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:05,730 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:06,817 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:07,905 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:08,981 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:10,070 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:11,157 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:12,244 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:13,331 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:14,417 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:15,506 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:16,585 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:17,672 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:18,761 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:19,848 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:20,935 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:22,023 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:23,112 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:24,199 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:25,286 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:26,373 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:27,462 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:28,550 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:29,637 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:30,725 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:31,813 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:32,900 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:33,988 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:35,076 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:36,164 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:37,250 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:38,338 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:39,426 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:40,513 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:41,602 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:42,693 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:43,782 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:44,869 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:45,956 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:47,043 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:48,130 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:49,218 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:50,304 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:51,391 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:52,479 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:53,566 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:54,654 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:55,741 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:56,828 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:57,914 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:23:59,002 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:00,089 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:01,168 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:02,246 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:03,333 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:04,424 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:05,503 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:06,580 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:07,658 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:08,745 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:09,833 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:10,910 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:11,998 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:13,087 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:14,176 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:15,254 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:16,343 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:17,422 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:18,509 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:19,599 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:24:20,687 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:27,058 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:28,146 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:29,233 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:30,310 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:31,402 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:32,489 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:33,576 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:34,664 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:26:35,745 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:29:40,705 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:29:40,990 [INFO] [Inference] Using GPU
+2026-02-10 12:29:40,991 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:29:41,546 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:29:41,711 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:29:42,485 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-10 12:29:42,762 [INFO] [Inference] Using GPU
+2026-02-10 12:29:42,762 [INFO] [Inference] Loading OpenVINO model from C:\MyStuff\VS\MECup\backend\inference\openvino_model\model.xml
+2026-02-10 12:29:43,334 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-10 12:29:43,516 [INFO] [Inference] Model ready (openvino)
+2026-02-10 12:39:54,067 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:43:28,221 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:44:30,262 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:45:27,539 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:47:42,032 [ERROR] Polling thread error: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-10 12:47:43,117 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:47:44,199 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:47:45,296 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:47:46,394 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:47:52,595 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 12:47:53,691 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:25,165 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:26,265 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:27,363 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:28,454 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:29,553 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:30,650 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:31,736 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:32,825 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:33,912 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:35,000 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network
+2026-02-10 13:32:36,080 [ERROR] Polling thread error: PLC disconnected: [WinError 10051] A socket operation was attempted to an unreachable network

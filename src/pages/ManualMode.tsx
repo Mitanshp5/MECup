@@ -101,6 +101,7 @@ const ManualMode = () => {
   const [lightMode, setLightMode] = useState<'off' | 'white' | 'green'>('off');
   const [directionState, setDirectionState] = useState({ up: false, down: false, left: false, right: false });
   const [isHomed, setIsHomed] = useState(false);
+  const [isHomingActive, setIsHomingActive] = useState(false);
 
   // Ref to track mount status
   const isMounted = useRef(true);
@@ -160,6 +161,9 @@ const ManualMode = () => {
             if (ctrlData.m46 !== undefined) {
               setIsHomed(ctrlData.m46 === 1);
             }
+            if (ctrlData.m1 !== undefined) {
+              setIsHomingActive(ctrlData.m1 === 1);
+            }
 
             // Update Coordinates
             if (ctrlData.x_pos !== undefined) {
@@ -189,11 +193,11 @@ const ManualMode = () => {
       }
 
       // Schedule next poll
-      if (isMounted.current) timeoutId = setTimeout(checkPlc, 2000);
+      if (isMounted.current) timeoutId = setTimeout(checkPlc, 500);
     };
 
     checkPlc();
-    // const interval = setInterval(checkPlc, 2000);
+    // const interval = setInterval(checkPlc, 500);
     return () => clearTimeout(timeoutId);
   }, []);
 
@@ -260,8 +264,17 @@ const ManualMode = () => {
     }
   };
 
-  const handleHome = () => {
-    setPosition({ x: 0, y: 0, z: 0 });
+  const handleHome = async () => {
+    if (!canControl) return;
+    try {
+      await fetch(`${API_BASE_URL}/plc/homing-start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      // Optimistic upate? Maybe wait for poll. M1 sets quickly.
+      setIsHomingActive(true);
+    } catch (e) { console.error("Homing failed", e); }
   };
 
   const toggleDirection = async (direction: string, currentState: boolean) => {
@@ -361,11 +374,15 @@ const ManualMode = () => {
 
                 {/* CENTER (HOME) */}
                 <button
-                  onClick={() => handleMove("home_cmd")}
-                  className="p-4 bg-primary/10 border border-primary/30 rounded-md text-primary hover:bg-primary/20 transition-colors"
-                  title="Home (M1)"
+                  onClick={handleHome}
+                  disabled={!canControl}
+                  className={`p-4 border rounded-md transition-all duration-300 ${isHomingActive
+                      ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse'
+                      : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20'
+                    }`}
+                  title="Start Homing (M1)"
                 >
-                  <Home className="w-5 h-5 mx-auto" />
+                  <Home className={`w-5 h-5 mx-auto ${isHomingActive ? 'animate-spin-slow' : ''}`} />
                 </button>
 
                 {/* RIGHT */}
