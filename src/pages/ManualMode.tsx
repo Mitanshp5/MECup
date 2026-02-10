@@ -102,6 +102,7 @@ const ManualMode = () => {
   const [directionState, setDirectionState] = useState({ up: false, down: false, left: false, right: false });
   const [isHomed, setIsHomed] = useState(false);
   const [isHomingActive, setIsHomingActive] = useState(false);
+  const [controlMode, setControlMode] = useState<'pos' | 'jog'>('pos');
 
   // Ref to track mount status
   const isMounted = useRef(true);
@@ -112,6 +113,15 @@ const ManualMode = () => {
       isMounted.current = false;
     };
   }, []);
+
+  // Enforce mode based on homing status
+  useEffect(() => {
+    if (isHomed) {
+      setControlMode('pos');
+    } else {
+      setControlMode('jog');
+    }
+  }, [isHomed]);
 
   // Poll PLC connection status and read current speeds
   useEffect(() => {
@@ -341,8 +351,30 @@ const ManualMode = () => {
         <div className={`industrial-panel p-4 ${!canControl || !servoEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-medium text-muted-foreground">
-              {isHomed ? "POSITION CONTROLS" : "JOG CONTROLS"}
+              {controlMode === 'pos' ? "POSITION CONTROLS" : "JOG CONTROLS"}
             </h3>
+            {/* Mode Toggle */}
+            <div className="flex bg-secondary rounded-md p-1 border border-border">
+              <button
+                onClick={() => setControlMode('pos')}
+                disabled={!isHomed}
+                title={!isHomed ? "Machine must be HOMED first" : "Positioning Mode"}
+                className={`px-3 py-1 text-xs font-medium rounded transition-all ${controlMode === 'pos'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : !isHomed
+                    ? 'text-muted-foreground/30 cursor-not-allowed'
+                    : 'text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                Positioning
+              </button>
+              <button
+                onClick={() => setControlMode('jog')}
+                className={`px-3 py-1 text-xs font-medium rounded transition-all ${controlMode === 'jog' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Jog
+              </button>
+            </div>
             {!canControl && <span className="text-xs text-destructive font-bold">READ ONLY</span>}
           </div>
 
@@ -352,16 +384,21 @@ const ManualMode = () => {
               <p className="text-xs text-muted-foreground mb-3 text-center">X/Y AXIS</p>
               <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
                 <div />
-                {/* UP */}
-                {isHomed ? (
-                  <JogButton icon={ArrowUp} onClick={() => handleMove("y_fwd_pos")} label="Y Forward (Pos)" />
+                {/* UP - NOW BACKWARD */}
+                {controlMode === 'pos' ? (
+                  <JogButton icon={ArrowUp} onClick={() => handleMove("y_back_pos")} label="Y Back (Pos)" />
                 ) : (
-                  <JogButton icon={ArrowUp} onClick={() => { }} label="Forward Disabled" disabled />
+                  <JogButtonPress
+                    icon={ArrowUp}
+                    onDown={() => handleJogStart("y_back_jog")}
+                    onUp={() => handleJogStop("y_back_jog")}
+                    label="Y Back (Jog)"
+                  />
                 )}
                 <div />
 
                 {/* LEFT */}
-                {isHomed ? (
+                {controlMode === 'pos' ? (
                   <JogButton icon={ArrowLeft} onClick={() => handleMove("x_left_pos")} label="X Left (Pos)" />
                 ) : (
                   <JogButtonPress
@@ -377,8 +414,8 @@ const ManualMode = () => {
                   onClick={handleHome}
                   disabled={!canControl}
                   className={`p-4 border rounded-md transition-all duration-300 ${isHomingActive
-                      ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse'
-                      : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse'
+                    : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20'
                     }`}
                   title="Start Homing (M1)"
                 >
@@ -386,23 +423,19 @@ const ManualMode = () => {
                 </button>
 
                 {/* RIGHT */}
-                {isHomed ? (
+                {controlMode === 'pos' ? (
                   <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_pos")} label="X Right (Pos)" />
                 ) : (
                   <JogButton icon={ArrowRight} onClick={() => { }} label="Right Disabled" disabled />
                 )}
 
                 <div />
-                {/* DOWN */}
-                {isHomed ? (
-                  <JogButton icon={ArrowDown} onClick={() => handleMove("y_back_pos")} label="Y Back (Pos)" />
+                {/* DOWN - NOW FORWARD */}
+                {controlMode === 'pos' ? (
+                  <JogButton icon={ArrowDown} onClick={() => handleMove("y_fwd_pos")} label="Y Forward (Pos)" />
                 ) : (
-                  <JogButtonPress
-                    icon={ArrowDown}
-                    onDown={() => handleJogStart("y_back_jog")}
-                    onUp={() => handleJogStop("y_back_jog")}
-                    label="Y Back (Jog)"
-                  />
+                  // Disabled in Jog Mode because Forward Jog is missing
+                  <JogButton icon={ArrowDown} onClick={() => { }} label="Forward Jog Disabled" disabled />
                 )}
                 <div />
               </div>
@@ -412,15 +445,17 @@ const ManualMode = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-3 text-center">Z AXIS</p>
               <div className="flex flex-col gap-2 items-center">
-                {isHomed ? (
+                {controlMode === 'pos' ? (
                   <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_pos")} label="Z Up (Pos)" />
                 ) : (
+                  // Jog Up Disabled (M30 is Down Jog) - Wait, previous code had Z Up Disabled in Jog
+                  // And Z Down was M30.
                   <JogButton icon={ArrowUp} onClick={() => { }} label="Z Up Disabled" disabled />
                 )}
 
                 <div className="h-8" />
 
-                {isHomed ? (
+                {controlMode === 'pos' ? (
                   <JogButton icon={ArrowDown} onClick={() => handleMove("z_down_pos")} label="Z Down (Pos)" />
                 ) : (
                   <JogButtonPress
