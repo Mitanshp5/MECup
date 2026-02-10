@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { API_BASE_URL } from "@/lib/api-config";
+import ScanReport from "@/components/reports/ScanReport";
 
 interface ScanRecord {
   id: string;
@@ -136,11 +137,17 @@ const PastScans = () => {
 
   return (
     <div className="h-full grid grid-cols-12 gap-6">
-      {/* Main Content Area (List or Details) */}
+      {/* Main Content Area (List or Details or Report) */}
       <div className="col-span-8 industrial-panel flex flex-col h-full overflow-hidden">
-        {!showFullDetails ? (
+        {showFullDetails && selectedScan ? (
+          // Report Component View
+          <ScanReport
+            scan={selectedScan}
+            onBack={() => setShowFullDetails(false)}
+          />
+        ) : (
           <>
-            {/* Header */}
+            {/* Header - Only show if NO report is showing */}
             <div className="p-4 border-b border-border flex-shrink-0">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">Scan History</h3>
@@ -262,92 +269,6 @@ const PastScans = () => {
               )}
             </div>
           </>
-        ) : (
-          // Detailed View (Replaces List)
-          <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-border flex items-center gap-4 flex-shrink-0">
-              <button
-                onClick={() => setShowFullDetails(false)}
-                className="p-2 hover:bg-secondary rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <h3 className="text-lg font-semibold text-foreground">Scan Details: {selectedScan?.id}</h3>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              {/* Defects Section */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">DEFECTS FOUND</h3>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${selectedScan!.total_defects > 0 ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
-                    {selectedScan!.total_defects}
-                  </span>
-                </div>
-
-                {selectedScan!.total_defects > 0 ? (
-                  <div className="grid grid-cols-6 gap-3">
-                    {selectedScan!.defects.map((defect, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedImage(`${API_BASE_URL}${defect.overlay_url}`)}
-                        className="aspect-square bg-secondary rounded border border-border hover:border-primary/50 overflow-hidden relative group"
-                      >
-                        <img
-                          src={`${API_BASE_URL}${defect.overlay_url}`}
-                          alt={defect.image}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
-                            e.currentTarget.className = 'w-full h-full object-contain opacity-20';
-                          }}
-                        />
-                        <div className="absolute top-1 right-1">
-                          <span className="flex items-center justify-center w-5 h-5 bg-black/60 rounded-full backdrop-blur-sm">
-                            <AlertTriangle className="w-3 h-3 text-warning" />
-                          </span>
-                        </div>
-                        <div className="absolute inset-x-0 bottom-0 p-1 bg-black/60 backdrop-blur-sm text-[10px] text-white truncate opacity-0 group-hover:opacity-100 transition-opacity">
-                          {defect.defect_count || 1} defect(s)
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-6 border border-dashed border-border rounded-lg">
-                    <CheckCircle className="w-12 h-12 text-success mx-auto mb-2" />
-                    <p className="text-sm text-success">No defects detected</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Images Section */}
-              {selectedScan!.images.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">CAPTURED IMAGES</h3>
-                  <div className="grid grid-cols-6 gap-3">
-                    {selectedScan!.images.map((img, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedImage(`${API_BASE_URL}/scans/${selectedScan!.id}/image/${img}`)}
-                        className="aspect-square bg-secondary rounded border border-border hover:border-primary/50 overflow-hidden"
-                      >
-                        <img
-                          src={`${API_BASE_URL}/scans/${selectedScan!.id}/image/${img}`}
-                          alt={img}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
-                            e.currentTarget.className = 'w-full h-full object-contain opacity-20';
-                          }}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         )}
       </div>
 
@@ -389,7 +310,7 @@ const PastScans = () => {
                 className="w-full py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 <Eye className="w-4 h-4" />
-                View Full Details
+                View Full Inspection Report
               </button>
             )}
 

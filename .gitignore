@@ -36,3 +36,5 @@ backend/inference/openvino_model/
 mecup.db
 mecup.db-shm
 mecup.db-wal
+reports/
+*.pdf
