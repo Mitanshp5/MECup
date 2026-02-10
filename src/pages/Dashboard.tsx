@@ -142,7 +142,7 @@ const Dashboard = () => {
           </div>
 
           <p className="text-base text-muted-foreground leading-relaxed mb-8">
-            Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">Team CON-SOL-E</span>.
+            Spectra-Scan is an advanced automated inspection system developed by the <span className="text-primary font-semibold">Team CON-SOL-E 5.0</span>.
             The system features a precision gantry mechanism with high-resolution imaging capabilities, specifically
             designed for industrial quality control applications.
           </p>

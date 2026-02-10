@@ -561,3 +561,6 @@ def run_inference_task(image_path, output_dir, save_overlay=True):
     except Exception as e:
         logger.error(f"Error in inference process: {e}")
         return None, None, 0, []
+
+
+# run_inference_task("C:\\MyStuff\\VS\\MECup\\backend\\inference\\Image_20260209192859780.jpg", "output", save_overlay=True)

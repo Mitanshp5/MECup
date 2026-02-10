@@ -82,6 +82,14 @@ def add_event(event: str, event_type: str = "info"):
     if len(recent_events) > MAX_EVENTS:
         recent_events = recent_events[:MAX_EVENTS]
 
+# Global storage for axis monitoring
+axis_monitoring_data = {
+    "x": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0},
+    "y": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0},
+    "z": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0}
+}
+
+
 # ------------- Helper Functions -------------
 
 def save_inference_callback(future):
@@ -235,6 +243,7 @@ def poll_plc_thread():
                     if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (click_state == 1):
                         scan_session.set_click(0)
                         time.sleep(0.1)
+
                         
                         current_m101 = manager.read_bit("M101", 1)
                         if current_m101 and last_m101 != current_m101[0]:
@@ -369,6 +378,56 @@ def poll_plc_thread():
                     last_Y14 = current_Y14
                     last_Y15 = current_Y15
                 
+                
+            # --- Axis Data Monitoring (D40 - D80) ---
+            try:
+                # Read 21 DWords starting at D40 (D40 to D80 inclusive is 41 words? No, D40, 42..80 is 21 DWords)
+                # D40, D42, ..., D80
+                axis_block = manager.read_sign_dword("D40", 21)
+                if axis_block and len(axis_block) >= 21:
+                    # Mapping indices based on D-address
+                    # 0:D40, 1:D42, 2:D44, 3:D46, 4:D48, 5:D50, 6:D52, 7:D54, 8:D56, 9:D58
+                    # 10:D60, 11:D62, 12:D64, 13:D66, 14:D68, 15:D70, 16:D72, 17:D74, 18:D76, 19:D78, 20:D80
+                    
+                    global axis_monitoring_data
+                    
+                    # Helper to get value securely
+                    def get_val(idx):
+                        return axis_block[idx] if idx < len(axis_block) else 0
+
+                    # X Axis
+                    # D40 Regen load, D42 Eff load torque, D44 Peak torque, D50 Current, D70 Speed
+                    axis_monitoring_data["x"] = {
+                        "load": get_val(0),      # D40
+                        "torque": get_val(1),    # D42
+                        "peak": get_val(2),      # D44
+                        "current": get_val(5),   # D50
+                        "speed": get_val(15)     # D70
+                    }
+
+                    # Y Axis
+                    # D58 Regen load, D62 Eff load torque, D78 Peak torque, D52 Current, D66 Speed
+                    axis_monitoring_data["y"] = {
+                        "load": get_val(9),      # D58
+                        "torque": get_val(11),   # D62
+                        "peak": get_val(19),     # D78
+                        "current": get_val(6),   # D52
+                        "speed": get_val(13)     # D66
+                    }
+
+                    # Z Axis
+                    # D64 Regen load, D60 Eff load torque, D80 Peak torque, D56 Current, D74 Speed
+                    axis_monitoring_data["z"] = {
+                        "load": get_val(12),     # D64
+                        "torque": get_val(10),   # D60
+                        "peak": get_val(20),     # D80
+                        "current": get_val(8),   # D56
+                        "speed": get_val(17)     # D74
+                    }
+            except Exception as e_mon:
+                # Don't spam logs if it fails, maybe just debug or ignore
+                pass
+
         except Exception as e:
             logging.error(f"Polling thread error: {e}")
             time.sleep(1)
@@ -690,7 +749,7 @@ def get_control_status():
             "m120": get_bit(120),
             "m1": get_bit(1),
             "m0": get_bit(0),
-            "m190": get_bit(190), # Servo Enable
+            "m190": m190[0] if m190 else None, # Servo Enable
             "y0": y0[0] if y0 else None,
             "m68": get_bit(68), # Up
             "m69": get_bit(69), # Down
@@ -772,12 +831,14 @@ def get_heartbeat():
         return {
             "connected": True,
             "y1": y1_status[0] if y1_status else None,
+            "axis_data": axis_monitoring_data,
             "error": None
         }
     except Exception as e:
         return {
             "connected": False,
             "y1": None,
+            "axis_data": axis_monitoring_data,
             "error": str(e)
         }
 

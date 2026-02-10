@@ -1,0 +1,14 @@
+{
+  "image": "Image_20260209192859780.jpg",
+  "timestamp": "20260209_193846",
+  "inference_time_ms": 59.783700009575114,
+  "defect_count": 1,
+  "defects": [
+    {
+      "type": "Scratch",
+      "class_id": 3,
+      "pixel_count": 120,
+      "area_ratio": 7.716049382716049e-05
+    }
+  ]
+}
