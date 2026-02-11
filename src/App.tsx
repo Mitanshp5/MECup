@@ -13,6 +13,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import PastScans from "@/pages/PastScans";
 import UserManagement from "@/pages/UserManagement";
 import HeartbeatPage from "@/pages/HeartbeatPage";
+import MobileHealthPage from "@/pages/MobileHealthPage";
 
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -70,6 +71,10 @@ const App = () => (
                 {/* Fallback for old routes or typos */}
                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
               </Route>
+              
+              {/* Standalone Mobile Health Page - Not in sidebar */}
+              <Route path="/mobile-health" element={<MobileHealthPage />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
