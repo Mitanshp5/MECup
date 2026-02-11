@@ -14,6 +14,8 @@ import PastScans from "@/pages/PastScans";
 import UserManagement from "@/pages/UserManagement";
 import HeartbeatPage from "@/pages/HeartbeatPage";
 import MobileHealthPage from "@/pages/MobileHealthPage";
+import MobileDashboard from "@/pages/MobileDashboard";
+import MobileReportPage from "@/pages/MobileReportPage";
 
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -72,8 +74,10 @@ const App = () => (
                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
               </Route>
               
-              {/* Standalone Mobile Health Page - Not in sidebar */}
-              <Route path="/mobile-health" element={<MobileHealthPage />} />
+              {/* Standalone Mobile Pages - Not in sidebar */}
+              <Route path="/mobile" element={<MobileDashboard />} />
+              <Route path="/mobile/health" element={<MobileHealthPage />} />
+              <Route path="/mobile/report" element={<MobileReportPage />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Camera, Lightbulb, Move, Cpu, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Activity, Camera, Lightbulb, Move, Cpu, ChevronDown, ChevronUp, X, ArrowLeft } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -15,6 +16,7 @@ interface SystemComponent {
 }
 
 const MobileHealthPage = () => {
+  const navigate = useNavigate();
   const isMounted = useRef(true);
   const [components, setComponents] = useState<SystemComponent[]>([
     { id: "camera", name: "Camera System", icon: Camera, status: "warning", value: "--", unit: "FPS", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
@@ -202,6 +204,12 @@ const MobileHealthPage = () => {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-bold flex items-center gap-2">
+              <button
+                onClick={() => navigate("/mobile")}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-card/60 border border-border/50"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
               <Activity className="w-5 h-5 text-primary" />
               System Health
             </h1>
