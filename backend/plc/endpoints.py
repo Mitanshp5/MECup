@@ -17,6 +17,8 @@ try:
 except ImportError:
     from ..database import SessionLocal
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+import math
 
 # Try sourcing from parent auth module
 try:
@@ -70,6 +72,10 @@ MAX_EVENTS = 50
 MONITORED_REGISTERS = ["D21", "D25"]
 MONITOR_CSV_NAME = "register_monitor.csv"
 
+# Critical Error Flag
+critical_error_active = False
+
+
 def add_event(event: str, event_type: str = "info"):
     """Add an event to the recent events list."""
     global recent_events
@@ -84,9 +90,9 @@ def add_event(event: str, event_type: str = "info"):
 
 # Global storage for axis monitoring
 axis_monitoring_data = {
-    "x": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0},
-    "y": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0},
-    "z": {"load": 0, "torque": 0, "peak": 0, "current": 0, "speed": 0}
+    "x": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0},
+    "y": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0},
+    "z": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0}
 }
 
 
@@ -222,6 +228,10 @@ def poll_plc_thread():
     last_Y15 = 0
     last_m101 = 1
     
+    last_health_log_time = time.time()
+    
+    global critical_error_active
+    
     while True:
         try:
             # Status check (Heartbeat)
@@ -262,32 +272,9 @@ def poll_plc_thread():
                             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                             save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
                             os.makedirs(save_dir, exist_ok=True)
-                        else:
-                            # --- Register Monitoring & CSV Logging ---
-                            try:
-                                # Read configured registers
-                                monitor_values = {}
-                                for reg in MONITORED_REGISTERS:
-                                    val = manager.read_sign_dword(reg, 1)
-                                    monitor_values[reg] = val[0] if val else "N/A"
-                                
-                                csv_path = os.path.join(save_dir, MONITOR_CSV_NAME)
-                                file_exists = os.path.exists(csv_path)
-                                
-                                with open(csv_path, 'a', newline='') as csvfile:
-                                    writer = csv.writer(csvfile)
-                                    if not file_exists:
-                                        header = ["Timestamp"] + MONITORED_REGISTERS
-                                        writer.writerow(header)
-                                    
-                                    row = [datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
-                                    for reg in MONITORED_REGISTERS:
-                                        row.append(monitor_values.get(reg, ""))
-                                    writer.writerow(row)
-                                    
-                            except Exception as csv_err:
-                                logging.error(f"Monitor Log Error: {csv_err}")
-                            # -----------------------------------------
+
+
+
                         
                         # --- Grid Location Logging ---
                         try:
@@ -383,11 +370,9 @@ def poll_plc_thread():
             try:
                 # Read 21 DWords starting at D40 (D40 to D80 inclusive is 41 words? No, D40, 42..80 is 21 DWords)
                 # D40, D42, ..., D80
-                axis_block = manager.read_sign_dword("D40", 21)
-                if axis_block and len(axis_block) >= 21:
-                    # Mapping indices based on D-address
-                    # 0:D40, 1:D42, 2:D44, 3:D46, 4:D48, 5:D50, 6:D52, 7:D54, 8:D56, 9:D58
-                    # 10:D60, 11:D62, 12:D64, 13:D66, 14:D68, 15:D70, 16:D72, 17:D74, 18:D76, 19:D78, 20:D80
+                # Read 42 Signed Words (D40 - D81) for 16-bit registers
+                axis_block = manager.read_sign_word("D40", 42)
+                if axis_block and len(axis_block) >= 42:
                     
                     global axis_monitoring_data
                     
@@ -395,35 +380,93 @@ def poll_plc_thread():
                     def get_val(idx):
                         return axis_block[idx] if idx < len(axis_block) else 0
 
-                    # X Axis
-                    # D40 Regen load, D42 Eff load torque, D44 Peak torque, D50 Current, D70 Speed
+                    def calc_health(current, regen, eff_torque, peak):
+                         # Formula: 0.4*current + 0.2*regen + 0.2*eff_torque + 0.2*peak
+                         # Uses abs() (modulus) to handle negative values correctly
+                         return round(0.4 * abs(current) + 0.2 * abs(regen) + 0.2 * abs(eff_torque) + 0.2 * abs(peak), 1)
+
+                    # X Axis (D40, D42, D44, D50) -> Indices doubled from D-word logic
+                    # D40(0), D42(2), D44(4), D50(10)
+                    x_load = get_val(0)
+                    x_torque = get_val(2)
+                    x_peak = get_val(4)
+                    x_current = get_val(10) / 10
+                    x_health = calc_health(x_current, x_load, x_torque, x_peak)
+                    
                     axis_monitoring_data["x"] = {
-                        "load": get_val(0),      # D40
-                        "torque": get_val(1),    # D42
-                        "peak": get_val(2),      # D44
-                        "current": get_val(5) / 10,  # D50
-                        "speed": get_val(15)     # D70
+                        "load": x_load,
+                        "torque": x_torque,
+                        "peak": x_peak,
+                        "current": x_current,
+                        "health": x_health
                     }
 
-                    # Y Axis
-                    # D58 Regen load, D62 Eff load torque, D78 Peak torque, D52 Current, D66 Speed
+                    # Y Axis (D58, D62, D78, D52)
+                    # D58(18), D62(22), D78(38), D52(12)
+                    y_load = get_val(18)
+                    y_torque = get_val(22)
+                    y_peak = get_val(38)
+                    y_current = get_val(12) / 10
+                    y_health = calc_health(y_current, y_load, y_torque, y_peak)
+                    
                     axis_monitoring_data["y"] = {
-                        "load": get_val(9),      # D58
-                        "torque": get_val(11),   # D62
-                        "peak": get_val(19),     # D78
-                        "current": get_val(6) / 10,   # D52
-                        "speed": get_val(13)     # D66
+                        "load": y_load,
+                        "torque": y_torque,
+                        "peak": y_peak,
+                        "current": y_current,
+                        "health": y_health
                     }
 
-                    # Z Axis
-                    # D64 Regen load, D60 Eff load torque, D80 Peak torque, D56 Current, D74 Speed
+                    # Z Axis (D64, D60, D80, D56)
+                    # D64(24), D60(20), D80(40), D56(16)
+                    z_load = get_val(24)
+                    z_torque = get_val(20)
+                    z_peak = get_val(40)
+                    z_current = get_val(16) / 10
+                    z_health = calc_health(z_current, z_load, z_torque, z_peak)
+                    
                     axis_monitoring_data["z"] = {
-                        "load": get_val(12),     # D64
-                        "torque": get_val(10),   # D60
-                        "peak": get_val(20),     # D80
-                        "current": get_val(8) / 10,   # D56
-                        "speed": get_val(17)     # D74
+                        "load": z_load,
+                        "torque": z_torque,
+                        "peak": z_peak,
+                        "current": z_current,
+                        "health": z_health
                     }
+                    
+                    # --- Critical Error Check ---
+                    if (x_health > 60 or y_health > 60 or z_health > 60):
+                        if not critical_error_active:
+                             critical_error_active = True
+                             logging.error(f"CRITICAL ERROR: High Health Index! X:{x_health} Y:{y_health} Z:{z_health}")
+                             # STOP SCAN (M5 OFF)
+                             manager.write_bit("M5", [0])
+                             # STOP MOTORS (M190 OFF)
+                             # manager.write_bit("M190", [0]) # Disabled auto-off per request
+                             add_event("CRITICAL: Servo Overload - System Halted", "error")
+                    else:
+                         if critical_error_active:
+                              critical_error_active = False # Auto-reset flag if values drop? Or require manual reset?
+                              # Usually critical errors need manual reset, but for now let's adhere to "if any one is above 60"
+                              # So if it drops, the flag clears, but the motors stay off until user restarts.
+                    
+                    # --- DB Logging (Throttled 10s) ---
+                    if time.time() - last_health_log_time > 10:
+                        last_health_log_time = time.time()
+                        db = SessionLocal()
+                        try:
+                            health_record = plc_models.ServoHealth(
+                                timestamp=datetime.datetime.utcnow(),
+                                x_health=x_health, x_current=x_current, x_load=x_load, x_torque=x_torque, x_peak=x_peak,
+                                y_health=y_health, y_current=y_current, y_load=y_load, y_torque=y_torque, y_peak=y_peak,
+                                z_health=z_health, z_current=z_current, z_load=z_load, z_torque=z_torque, z_peak=z_peak
+                            )
+                            db.add(health_record)
+                            db.commit()
+                        except Exception as dbe:
+                            logging.error(f"Failed to log health: {dbe}")
+                        finally:
+                            db.close()
+                            
             except Exception as e_mon:
                 # Don't spam logs if it fails, maybe just debug or ignore
                 pass
@@ -476,6 +519,21 @@ def init_plc_system():
         start_polling()
     else:
         print("[PLC INIT] No settings found. Waiting for manual connect.", flush=True)
+
+    # Cleanup CSV
+    try:
+         import glob
+         # Delete all register_monitor.csv in any scan folder? Or just the one in backend root/captured if exists?
+         # User said "remove database in which servo load stored".
+         # The code previously wrote to `save_dir/register_monitor.csv`.
+         # Better not delete from inside old scan folders (preserving history).
+         # But the "database" user referred to might be `mecup.db` if they were confused, or just want fresh start.
+         # Since we are implementing SQL table now, we can stop writing to CSV in `poll_plc_thread` (which I didn't remove yet).
+         # I will remove the CSV logic from poll_plc_thread actually.
+         pass
+    except:
+         pass
+
 
 
 
@@ -832,6 +890,7 @@ def get_heartbeat():
             "connected": True,
             "y1": y1_status[0] if y1_status else None,
             "axis_data": axis_monitoring_data,
+            "critical_error": critical_error_active,
             "error": None
         }
     except Exception as e:
@@ -839,8 +898,10 @@ def get_heartbeat():
             "connected": False,
             "y1": None,
             "axis_data": axis_monitoring_data,
+            "critical_error": False,
             "error": str(e)
         }
+
 
 @router.get("/plc/latest-inference")
 async def get_latest_inference():
@@ -1085,4 +1146,48 @@ def get_scan_result(scan_id: str, filename: str):
         raise HTTPException(status_code=404, detail="Result image not found")
     
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
+    media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
+
+@router.get("/servo/history")
+def get_servo_history():
+    """Get servo health history for last 24 used in charts."""
+    db = SessionLocal()
+    try:
+        cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=24)
+        records = db.query(plc_models.ServoHealth).filter(plc_models.ServoHealth.timestamp >= cutoff).order_by(plc_models.ServoHealth.timestamp.asc()).all()
+        
+        history = {
+            "x": [], "y": [], "z": [],
+            "stats": {
+                "x": {"min": 0, "max": 0},
+                "y": {"min": 0, "max": 0},
+                "z": {"min": 0, "max": 0}
+            }
+        }
+        
+        if not records:
+             return history
+
+        # Helper to process axis
+        def process_axis(axis_char):
+             # Return list of dicts with all metrics
+             return [{
+                 "time": r.timestamp.isoformat(),
+                 "health": getattr(r, f"{axis_char}_health"),
+                 "current": getattr(r, f"{axis_char}_current"),
+                 "load": getattr(r, f"{axis_char}_load"),
+                 "torque": getattr(r, f"{axis_char}_torque"),
+                 "peak": getattr(r, f"{axis_char}_peak")
+             } for r in records]
+
+        history["x"] = process_axis("x")
+        history["y"] = process_axis("y")
+        history["z"] = process_axis("z")
+        
+        return history
+    except Exception as e:
+        logging.error(f"Failed to fetch servo history: {e}")
+        return {"error": str(e)}
+    finally:
+        db.close()

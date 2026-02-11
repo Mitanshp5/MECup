@@ -128,6 +128,18 @@ class PLCManager:
                 self.disconnect()
                 raise e
 
+    def read_sign_word(self, device, count=1, signed_type=True):
+        with self._socket_lock:
+            if not self.connect():
+                raise Exception(f"PLC disconnected: {self.last_error}")
+            try:
+                # Calls low-level mc_protocol_fixed function
+                return mc.read_sign_word(self._sock, device, count, signed_type)
+            except Exception as e:
+                # print(f"[PLC MANAGER] Read Word Error: {e}")
+                self.disconnect()
+                raise e
+
     def read_sign_dword(self, device, count=1, signed_type=True):
         with self._socket_lock:
             if not self.connect():
