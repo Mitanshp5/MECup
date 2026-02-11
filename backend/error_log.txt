@@ -14711,3 +14711,92 @@ Exception: PLC disconnected: timed out
 2026-02-11 17:00:14,552 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-11 17:00:17,631 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-11 17:00:20,714 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 17:13:04,426 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 17:13:04,996 [INFO] [Inference] Using GPU
+2026-02-11 17:13:04,996 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 17:13:07,844 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 17:13:11,271 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 17:13:11,272 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 17:28:52,107 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 17:28:52,493 [INFO] [Inference] Using GPU
+2026-02-11 17:28:52,494 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 17:28:55,322 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 17:29:00,368 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 17:29:00,369 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 17:39:53,663 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 17:39:53,885 [INFO] [Inference] Using GPU
+2026-02-11 17:39:53,886 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 17:39:55,393 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 17:39:58,408 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 17:39:58,409 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 18:51:30,089 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 18:51:30,514 [INFO] [Inference] Using GPU
+2026-02-11 18:51:30,514 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 18:51:33,308 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 18:51:36,493 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 18:51:36,493 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 18:52:15,921 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 18:52:16,186 [INFO] [Inference] Using GPU
+2026-02-11 18:52:16,186 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 18:52:17,893 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 18:52:21,260 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 18:52:21,261 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 18:52:51,211 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 18:52:51,444 [INFO] [Inference] Using GPU
+2026-02-11 18:52:51,444 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 18:52:52,157 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:52:53,247 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-11 18:52:55,236 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:52:56,610 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-11 18:52:56,611 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 18:52:58,323 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:01,407 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:04,491 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:07,574 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:10,656 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:13,740 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:16,822 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:19,913 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:23,000 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:26,084 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:29,168 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:32,252 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:35,333 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:38,418 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:41,501 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:44,584 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:47,667 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:50,749 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:53,827 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:56,906 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:53:59,988 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:03,072 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:06,155 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:09,238 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:12,322 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:15,406 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:18,489 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:21,569 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:24,655 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:27,738 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:30,829 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:33,906 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:36,988 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:40,076 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:43,154 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:46,238 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 18:54:49,322 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-11 19:02:14,366 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 19:02:15,989 [INFO] [Inference] Using GPU
+2026-02-11 19:02:15,989 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 19:02:25,851 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-11 19:02:31,742 [INFO] [Inference] Model ready (openvino)
+2026-02-11 19:02:31,742 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 19:04:17,184 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-11 19:04:17,667 [INFO] [Inference] Using GPU
+2026-02-11 19:04:17,667 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-11 19:04:18,484 [INFO] [Inference] Using OpenVINO backend on GPU
+2026-02-11 19:04:24,431 [INFO] [Inference] Model ready (openvino)
+2026-02-11 19:04:24,433 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-11 19:11:41,686 [ERROR] Homing Error: PLC disconnected: PLC IP/Port not configured
+2026-02-11 19:11:54,500 [ERROR] Homing Error: PLC disconnected: PLC IP/Port not configured
