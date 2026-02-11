@@ -37,3 +37,4 @@ mecup.db
 mecup.db-shm
 mecup.db-wal
 *.pdf
+error_log.txt
