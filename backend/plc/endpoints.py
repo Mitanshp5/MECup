@@ -401,7 +401,7 @@ def poll_plc_thread():
                         "load": get_val(0),      # D40
                         "torque": get_val(1),    # D42
                         "peak": get_val(2),      # D44
-                        "current": get_val(5),   # D50
+                        "current": get_val(5) / 10,  # D50
                         "speed": get_val(15)     # D70
                     }
 
@@ -411,7 +411,7 @@ def poll_plc_thread():
                         "load": get_val(9),      # D58
                         "torque": get_val(11),   # D62
                         "peak": get_val(19),     # D78
-                        "current": get_val(6),   # D52
+                        "current": get_val(6) / 10,   # D52
                         "speed": get_val(13)     # D66
                     }
 
@@ -421,7 +421,7 @@ def poll_plc_thread():
                         "load": get_val(12),     # D64
                         "torque": get_val(10),   # D60
                         "peak": get_val(20),     # D80
-                        "current": get_val(8),   # D56
+                        "current": get_val(8) / 10,   # D56
                         "speed": get_val(17)     # D74
                     }
             except Exception as e_mon:
