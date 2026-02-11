@@ -38,3 +38,31 @@ class ScanImage(Base):
     # For now, keeping it simple.
     
     scan = relationship("Scan", back_populates="images")
+
+class ServoHealth(Base):
+    __tablename__ = "servo_health"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    
+    # X Axis
+    x_health = Column(Float)
+    x_current = Column(Float)
+    x_load = Column(Float)
+    x_torque = Column(Float)
+    x_peak = Column(Float)
+    
+    # Y Axis
+    y_health = Column(Float)
+    y_current = Column(Float)
+    y_load = Column(Float)
+    y_torque = Column(Float)
+    y_peak = Column(Float)
+    
+    # Z Axis
+    z_health = Column(Float)
+    z_current = Column(Float)
+    z_load = Column(Float)
+    z_torque = Column(Float)
+    z_peak = Column(Float)
+
