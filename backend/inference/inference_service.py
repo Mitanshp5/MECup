@@ -563,4 +563,4 @@ def run_inference_task(image_path, output_dir, save_overlay=True):
         return None, None, 0, []
 
 
-# run_inference_task("C:\\MyStuff\\VS\\MECup\\backend\\inference\\Image_20260209192859780.jpg", "output", save_overlay=True)
+run_inference_task("C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg", "output", save_overlay=True)

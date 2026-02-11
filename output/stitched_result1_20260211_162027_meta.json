@@ -1,0 +1,20 @@
+{
+  "image": "stitched_result1.jpg",
+  "timestamp": "20260211_162027",
+  "inference_time_ms": 55.492499996034894,
+  "defect_count": 2,
+  "defects": [
+    {
+      "type": "Dust",
+      "class_id": 1,
+      "pixel_count": 97943,
+      "area_ratio": 0.04116566634723693
+    },
+    {
+      "type": "Scratch",
+      "class_id": 3,
+      "pixel_count": 47770,
+      "area_ratio": 0.020077839982515427
+    }
+  ]
+}
