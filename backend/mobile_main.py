@@ -248,40 +248,99 @@ def get_scans_list(limit: int = 50, db: Session = Depends(get_db)):
 @app.get("/scans/{scan_id}")
 def get_scan_detail_aligned(scan_id: str, db: Session = Depends(get_db)):
     """Matches MobileReportPage detail view."""
+    import json as json_lib
     scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
     
     # Get images
-    images = db.query(plc_models.ScanImage).filter(plc_models.ScanImage.scan_id == scan_id).all()
+    images_db = db.query(plc_models.ScanImage).filter(plc_models.ScanImage.scan_id == scan_id).all()
     
+    images = []
     defects_list = []
-    total_defects = 0
     defect_types = {}
+    
+    # Try to load defect details from metadata JSON files in results folder
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    results_dir = os.path.join(backend_dir, "captured_images", scan_id, "results")
+    
+    # Build a lookup of metadata by original image filename
+    meta_lookup = {}
+    if os.path.isdir(results_dir):
+        for meta_file in os.listdir(results_dir):
+            if meta_file.endswith("_meta.json"):
+                try:
+                    with open(os.path.join(results_dir, meta_file), 'r') as mf:
+                        meta = json_lib.load(mf)
+                        orig_image = meta.get("image", "")
+                        meta_lookup[orig_image] = meta
+                except Exception:
+                    pass
 
-    for img in images:
+    for img in images_db:
+        images.append(img.filename)
+        
+        # Try to get per-image defect details from metadata
+        img_meta = meta_lookup.get(img.filename, {})
+        img_defect_details = img_meta.get("defects", [])
+        
+        # Accumulate defect_types from metadata
+        for d in img_defect_details:
+            dtype = d.get("type", "Unknown")
+            if dtype != "Background":
+                defect_types[dtype] = defect_types.get(dtype, 0) + 1
+        
         if img.has_defects:
-            total_defects += img.defect_count
+            overlay_name = os.path.basename(img.overlay_path) if img.overlay_path else None
             defects_list.append({
                 "image": img.filename,
-                "overlay": img.overlay_path,
-                "overlay_url": f"/static/captures/{scan_id}/{img.filename}", # Simplified URL logic
+                "overlay": overlay_name,
+                "overlay_url": f"/scans/{scan_id}/results/{overlay_name}" if overlay_name else None,
+                "image_url": f"/scans/{scan_id}/image/{img.filename}",
                 "defect_count": img.defect_count,
-                "defect_details": [] # Populate if metadata exists
+                "defect_details": img_defect_details
             })
+    
+    images.sort()
     
     return {
         "id": scan.id,
         "date": scan.start_time.strftime("%Y-%m-%d"),
         "time": scan.start_time.strftime("%H:%M:%S"),
         "image_count": scan.image_count,
-        "images": [img.filename for img in images],
-        "total_defects": total_defects,
-        "defect_types": defect_types, # Logic to parse types if available
+        "images": images,
+        "total_defects": scan.defect_count,
+        "defect_types": defect_types,
         "defects": defects_list,
         "status": scan.status,
         "scanned_by": scan.scanned_by
     }
+
+# --- Image Serving Endpoints ---
+from fastapi.responses import FileResponse
+
+@app.get("/scans/{scan_id}/image/{filename}")
+def get_scan_image(scan_id: str, filename: str):
+    """Get a specific original image from a scan."""
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(backend_dir, "captured_images", scan_id, filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return FileResponse(file_path, media_type="image/jpeg")
+
+@app.get("/scans/{scan_id}/results/{filename}")
+def get_scan_result(scan_id: str, filename: str):
+    """Get a result/overlay image from a scan."""
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(backend_dir, "captured_images", scan_id, "results", filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Result image not found")
+    
+    media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
+    return FileResponse(file_path, media_type=media_type)
 
 @app.get("/mobile/scans")
 def get_recent_scans_legacy(limit: int = 20, db: Session = Depends(get_db)):

@@ -1,6 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
-import { Save, Network, Camera, Palette, Monitor, Shield, Bell, Database } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Save, Network, Camera, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
 import { API_BASE_URL } from "@/lib/api-config";
@@ -242,30 +241,6 @@ const SettingsPage = () => {
           </div>
         </div>
 
-        {/* Other Settings */}
-        <div className="grid grid-cols-2 gap-6">
-          <SettingsCard
-            icon={Monitor}
-            title="Display"
-            description="Screen brightness and orientation"
-          />
-          <SettingsCard
-            icon={Shield}
-            title="Security"
-            description="Access control and permissions"
-          />
-          <SettingsCard
-            icon={Bell}
-            title="Notifications"
-            description="Alert preferences and sounds"
-          />
-          <SettingsCard
-            icon={Database}
-            title="Data Management"
-            description="Storage and backup options"
-          />
-        </div>
-
         {/* Save Button */}
         <div className="flex justify-end">
           <button
@@ -280,22 +255,5 @@ const SettingsPage = () => {
     </div>
   );
 };
-
-const SettingsCard = ({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description: string }) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    className="industrial-panel p-4 cursor-pointer transition-all hover:border-primary/50"
-  >
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-md bg-secondary flex items-center justify-center">
-        <Icon className="w-5 h-5 text-muted-foreground" />
-      </div>
-      <div>
-        <h4 className="font-medium text-foreground">{title}</h4>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  </motion.div>
-);
 
 export default SettingsPage;
