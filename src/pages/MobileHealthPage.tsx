@@ -42,7 +42,7 @@ const MobileHealthPage = () => {
   const [systemResources, setSystemResources] = useState({ cpu: 0, gpu: 0, memory: 0, disk: 0, network: 0 });
   const [selectedAxis, setSelectedAxis] = useState<string | null>(null);
   const [axisHistory, setAxisHistory] = useState<Record<string, any[]>>({ x: [], y: [], z: [] });
-  const [expandedSection, setExpandedSection] = useState<string | null>("overview");
+  const [expandedSection, setExpandedSection] = useState<string | null>("components");
 
   useEffect(() => {
     isMounted.current = true;
@@ -165,6 +165,18 @@ const MobileHealthPage = () => {
         const sysData = await sysRes.json();
         setSystemResources(sysData);
 
+        if (sysData.uptime) {
+          const hours = Math.floor(sysData.uptime / 3600000); // Server sends ms? No, python sends seconds.
+          // Python sends seconds. JS expects ms usually for Date, but here we just math it.
+          // Wait, previous code: elapsed is ms.
+          // Python: int(time.time() - psutil.boot_time()) -> SECONDS.
+          const totalSeconds = sysData.uptime;
+          const h = Math.floor(totalSeconds / 3600);
+          const m = Math.floor((totalSeconds % 3600) / 60);
+          const s = Math.floor(totalSeconds % 60);
+          setUptime(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+        }
+
       } catch (error) {
         console.error("Failed to fetch heartbeat data:", error);
       }
@@ -178,16 +190,7 @@ const MobileHealthPage = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const hours = Math.floor(elapsed / 3600000);
-      const minutes = Math.floor((elapsed % 3600000) / 60000);
-      const seconds = Math.floor((elapsed % 60000) / 1000);
-      setUptime(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
+  // Removed local interval effect
 
   const okCount = components.filter(c => c.status === "ok").length;
   const warningCount = components.filter(c => c.status === "warning").length;
@@ -213,13 +216,12 @@ const MobileHealthPage = () => {
               <Activity className="w-5 h-5 text-primary" />
               System Health
             </h1>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-              plcConnected ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"
-            }`}>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${plcConnected ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"
+              }`}>
               {plcConnected ? "ONLINE" : "OFFLINE"}
             </div>
           </div>
-          
+
           {/* Quick Stats */}
           <div className="grid grid-cols-4 gap-2">
             <div className="bg-card/40 rounded-lg p-2 text-center border border-border/50">
@@ -262,19 +264,16 @@ const MobileHealthPage = () => {
           </div>
         </CollapsibleSection>
 
-        {/* System Resources Section */}
-        <CollapsibleSection
-          title="System Resources"
-          isExpanded={expandedSection === "resources"}
-          onToggle={() => toggleSection("resources")}
-        >
-          <div className="space-y-3">
+        {/* System Resources - Always Visible */}
+        <div className="bg-card/40 rounded-lg border border-border/50 p-3">
+          <h3 className="text-sm font-medium mb-3">System Resources</h3>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
             <MobileResourceBar label="CPU" value={Math.round(systemResources.cpu)} />
-            <MobileResourceBar label="GPU" value={Math.round(systemResources.gpu)} />
             <MobileResourceBar label="Memory" value={Math.round(systemResources.memory)} />
             <MobileResourceBar label="Disk" value={Math.round(systemResources.disk)} />
+            <MobileResourceBar label="GPU" value={Math.round(systemResources.gpu)} />
           </div>
-        </CollapsibleSection>
+        </div>
 
         {/* Recent Events Section */}
         <CollapsibleSection
@@ -286,11 +285,10 @@ const MobileHealthPage = () => {
           <div className="space-y-2">
             {events.length > 0 ? events.slice(0, 10).map((event, i) => (
               <div key={i} className="flex items-start gap-2 text-sm bg-card/30 p-2 rounded border border-border/30">
-                <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                  event.type === "success" ? "bg-success" :
+                <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${event.type === "success" ? "bg-success" :
                   event.type === "warning" ? "bg-warning" :
-                  event.type === "error" ? "bg-destructive" : "bg-primary"
-                }`} />
+                    event.type === "error" ? "bg-destructive" : "bg-primary"
+                  }`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-foreground break-words">{event.event}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{event.time}</div>
@@ -371,16 +369,16 @@ const MobileHealthPage = () => {
   );
 };
 
-const CollapsibleSection = ({ 
-  title, 
-  isExpanded, 
-  onToggle, 
-  children, 
-  badge 
-}: { 
-  title: string; 
-  isExpanded: boolean; 
-  onToggle: () => void; 
+const CollapsibleSection = ({
+  title,
+  isExpanded,
+  onToggle,
+  children,
+  badge
+}: {
+  title: string;
+  isExpanded: boolean;
+  onToggle: () => void;
   children: React.ReactNode;
   badge?: string;
 }) => (
@@ -425,29 +423,25 @@ const MobileComponentCard = ({ component, onClick }: { component: SystemComponen
   return (
     <motion.div
       onClick={onClick}
-      className={`bg-card/30 rounded-lg p-3 border ${
-        component.status === "ok" ? "border-border/50" :
+      className={`bg-card/30 rounded-lg p-3 border ${component.status === "ok" ? "border-border/50" :
         component.status === "warning" ? "border-warning/30" : "border-destructive/30"
-      } ${onClick ? "active:scale-95" : ""}`}
+        } ${onClick ? "active:scale-95" : ""}`}
       whileTap={onClick ? { scale: 0.95 } : {}}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded flex items-center justify-center ${
-            component.status === "ok" ? "bg-success/10" :
+          <div className={`w-8 h-8 rounded flex items-center justify-center ${component.status === "ok" ? "bg-success/10" :
             component.status === "warning" ? "bg-warning/10" : "bg-destructive/10"
-          }`}>
-            <Icon className={`w-4 h-4 ${
-              component.status === "ok" ? "text-success" :
+            }`}>
+            <Icon className={`w-4 h-4 ${component.status === "ok" ? "text-success" :
               component.status === "warning" ? "text-warning" : "text-destructive"
-            }`} />
+              }`} />
           </div>
           <div>
             <div className="text-sm font-medium">{component.name}</div>
-            <div className={`text-xs ${
-              component.status === "ok" ? "text-success" :
+            <div className={`text-xs ${component.status === "ok" ? "text-success" :
               component.status === "warning" ? "text-warning" : "text-destructive"
-            }`}>
+              }`}>
               {component.status.toUpperCase()}
             </div>
           </div>
@@ -463,10 +457,9 @@ const MobileComponentCard = ({ component, onClick }: { component: SystemComponen
         {component.trend.map((value, i) => (
           <div
             key={i}
-            className={`flex-1 rounded-t transition-all ${
-              component.status === "ok" ? "bg-success/40" :
+            className={`flex-1 rounded-t transition-all ${component.status === "ok" ? "bg-success/40" :
               component.status === "warning" ? "bg-warning/40" : "bg-destructive/40"
-            }`}
+              }`}
             style={{ height: `${((value - minTrend) / range) * 100}%`, minHeight: "3px" }}
           />
         ))}
@@ -483,10 +476,9 @@ const MobileResourceBar = ({ label, value }: { label: string; value: number }) =
     </div>
     <div className="h-2 bg-secondary rounded-full overflow-hidden">
       <motion.div
-        className={`h-full rounded-full ${
-          value < 60 ? "bg-success" :
+        className={`h-full rounded-full ${value < 60 ? "bg-success" :
           value < 80 ? "bg-warning" : "bg-destructive"
-        }`}
+          }`}
         initial={{ width: 0 }}
         animate={{ width: `${value}%` }}
         transition={{ duration: 0.5 }}

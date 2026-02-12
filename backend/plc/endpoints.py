@@ -520,16 +520,8 @@ def init_plc_system():
     else:
         print("[PLC INIT] No settings found. Waiting for manual connect.", flush=True)
 
-    # Cleanup CSV
     try:
          import glob
-         # Delete all register_monitor.csv in any scan folder? Or just the one in backend root/captured if exists?
-         # User said "remove database in which servo load stored".
-         # The code previously wrote to `save_dir/register_monitor.csv`.
-         # Better not delete from inside old scan folders (preserving history).
-         # But the "database" user referred to might be `mecup.db` if they were confused, or just want fresh start.
-         # Since we are implementing SQL table now, we can stop writing to CSV in `poll_plc_thread` (which I didn't remove yet).
-         # I will remove the CSV logic from poll_plc_thread actually.
          pass
     except:
          pass
