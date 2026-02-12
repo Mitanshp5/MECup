@@ -16,6 +16,9 @@ import HeartbeatPage from "@/pages/HeartbeatPage";
 import MobileHealthPage from "@/pages/MobileHealthPage";
 import MobileDashboard from "@/pages/MobileDashboard";
 import MobileReportPage from "@/pages/MobileReportPage";
+import MobileLoginPage from "@/pages/MobileLoginPage";
+import MobileProtectedRoute from "@/components/MobileProtectedRoute";
+import MobileRedirect from "@/components/MobileRedirect";
 
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -32,7 +35,11 @@ const App = () => (
           <HashRouter>
             <Routes>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={
+                  <MobileRedirect>
+                    <Dashboard />
+                  </MobileRedirect>
+                } />
 
                 <Route path="/automatic" element={
                   <ProtectedRoute allowedRoles={['admin', 'operator']}>
@@ -73,12 +80,26 @@ const App = () => (
                 {/* Fallback for old routes or typos */}
                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
               </Route>
-              
+
               {/* Standalone Mobile Pages - Not in sidebar */}
-              <Route path="/mobile" element={<MobileDashboard />} />
-              <Route path="/mobile/health" element={<MobileHealthPage />} />
-              <Route path="/mobile/report" element={<MobileReportPage />} />
-              
+              <Route path="/mobile/login" element={<MobileLoginPage />} />
+
+              <Route path="/mobile" element={
+                <MobileProtectedRoute>
+                  <MobileDashboard />
+                </MobileProtectedRoute>
+              } />
+              <Route path="/mobile/health" element={
+                <MobileProtectedRoute>
+                  <MobileHealthPage />
+                </MobileProtectedRoute>
+              } />
+              <Route path="/mobile/report" element={
+                <MobileProtectedRoute>
+                  <MobileReportPage />
+                </MobileProtectedRoute>
+              } />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>

@@ -82,9 +82,9 @@ const HeartbeatPage = () => {
   const [components, setComponents] = useState<SystemComponent[]>([
     { id: "camera", name: "Camera System", icon: Camera, status: "warning", value: "--", unit: "FPS", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
     { id: "lights", name: "LED Lights", icon: Lightbulb, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
-    { id: "gantry-x", name: "Gantry X-Axis", icon: Move, status: "ok", value: "0", unit: "rpm", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
-    { id: "gantry-y", name: "Gantry Y-Axis", icon: Move, status: "ok", value: "0", unit: "rpm", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
-    { id: "gantry-z", name: "Gantry Z-Axis", icon: Move, status: "ok", value: "0", unit: "rpm", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
+    { id: "gantry-x", name: "Gantry X-Axis", icon: Move, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
+    { id: "gantry-y", name: "Gantry Y-Axis", icon: Move, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
+    { id: "gantry-z", name: "Gantry Z-Axis", icon: Move, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
     { id: "plc", name: "PLC Controller", icon: Cpu, status: "warning", value: "--", unit: "", trend: [0, 0, 0, 0, 0, 0, 0, 0] },
   ]);
 

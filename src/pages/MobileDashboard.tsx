@@ -32,9 +32,9 @@ const MobileDashboard = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-        <div className="px-5 py-4">
+        <div className="px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/30 p-1.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/30 p-1">
               <img
                 src="/assets/icon.ico"
                 alt="CON-SOL-E"
@@ -42,43 +42,43 @@ const MobileDashboard = () => {
               />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">CON-SOL-E</h1>
-              <p className="text-xs text-muted-foreground font-mono">Mobile Dashboard</p>
+              <h1 className="text-base font-bold text-foreground leading-none">CON-SOL-E</h1>
+              <p className="text-[10px] text-muted-foreground font-mono">Mobile Dashboard</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-4 py-4">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-1">Welcome</h2>
-          <p className="text-sm text-muted-foreground">Select a section to monitor your system</p>
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-foreground mb-0.5">Welcome</h2>
+          <p className="text-xs text-muted-foreground">Select a module to monitor</p>
         </div>
 
         {/* Navigation Cards */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3">
           {pages.map((page, index) => {
             const Icon = page.icon;
             return (
               <motion.button
                 key={page.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
+                transition={{ delay: index * 0.1, duration: 0.2 }}
                 onClick={() => navigate(page.path)}
-                className={`w-full text-left bg-card/50 rounded-xl p-5 border ${page.borderColor} active:scale-[0.98] transition-transform`}
+                className={`w-full text-left bg-card/40 rounded-xl p-4 border ${page.borderColor} active:scale-[0.98] transition-all touch-manipulation`}
               >
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-xl ${page.bgColor} flex items-center justify-center flex-shrink-0`}>
-                    <Icon className={`w-7 h-7 ${page.color}`} />
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${page.bgColor} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-5 h-5 ${page.color}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-foreground mb-1">{page.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{page.description}</p>
+                    <h3 className="text-sm font-semibold text-foreground">{page.title}</h3>
+                    <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">{page.description}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
                 </div>
               </motion.button>
             );
@@ -87,10 +87,10 @@ const MobileDashboard = () => {
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="px-5 py-4 border-t border-border bg-card/30">
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+      <div className="px-4 py-3 border-t border-border bg-card/20 mt-auto">
+        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground/60">
           <Activity className="w-3 h-3" />
-          <span className="font-mono">CON-SOL-E v5.0</span>
+          <span className="font-mono">CON-SOL-E v5.0 Mobile</span>
         </div>
       </div>
     </div>
