@@ -21519,3 +21519,14 @@ Exception: PLC disconnected: timed out
 2026-02-12 17:15:35,325 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-12 17:15:38,406 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-12 17:15:41,497 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:44,586 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:47,665 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:50,747 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:53,824 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:56,910 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:15:59,997 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:16:03,080 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:16:06,159 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:16:09,250 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:16:12,335 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-12 17:16:15,423 [ERROR] Polling thread error: PLC disconnected: timed out
