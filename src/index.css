@@ -185,7 +185,7 @@
   }
 
   .grid-overlay {
-    background-image: 
+    background-image:
       linear-gradient(hsl(220 15% 15% / 0.3) 1px, transparent 1px),
       linear-gradient(90deg, hsl(220 15% 15% / 0.3) 1px, transparent 1px);
     background-size: 20px 20px;
@@ -216,18 +216,37 @@
 }
 
 @keyframes pulse-error {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes pulse-warning {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes scan {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100vh); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
 }
 
 /* Custom scrollbar */
@@ -287,4 +306,78 @@
   @apply absolute left-0 top-0 w-5 h-5 flex items-center justify-center;
   @apply bg-primary/20 text-primary text-xs font-mono rounded;
   @apply font-semibold;
+}
+
+/* Print styles - hide everything except report content */
+@media print {
+
+  /* Set page size and margins */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  /* Reset body for print */
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  /* Hide everything, then reveal only the report content */
+  body * {
+    visibility: hidden !important;
+  }
+
+  #root .print-container,
+  #root .print-container * {
+    visibility: visible !important;
+  }
+
+  /* Ensure report container is laid out correctly */
+  .print-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Remove padding from scroll wrapper only */
+  .report-scroll-wrapper {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+
+  /* Ensure report content matches A4 layout on all devices without clipping */
+  .report-content {
+    /* Narrower content width to fully avoid clipping on desktop printers */
+    width: 170mm !important;
+    max-width: 170mm !important;
+    min-height: 270mm !important;
+    margin: 0 auto !important;      /* Center on the printed page */
+  }
+
+  /* Remove shadows and backgrounds for clean print */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Ensure page breaks work correctly */
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure images print correctly */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
 }
