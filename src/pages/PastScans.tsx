@@ -36,6 +36,7 @@ interface ScanDetails {
     image: string;
     overlay: string;
     overlay_url: string;
+    image_url?: string;
     defect_count?: number;
     defect_details?: { type: string; pixel_count: number; area_ratio: number }[];
   }[];

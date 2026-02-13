@@ -117,6 +117,22 @@ def save_inference_callback(future):
         # Save result to database
         db = SessionLocal()
         try:
+            # Check if scan record exists, create if not (lazy creation)
+            scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
+            if not scan:
+                # Create scan record on first image capture
+                batch_folder = scan_session.get_current_folder()
+                scanned_by = scan_session.current_scan_user
+                scan = plc_models.Scan(
+                    id=scan_id,
+                    start_time=datetime.datetime.now(),
+                    scanned_by=scanned_by,
+                    batch_folder=batch_folder,
+                    status="pass"
+                )
+                db.add(scan)
+                db.flush()  # Ensure scan is created before adding images
+            
             # Create image record
             scan_image = plc_models.ScanImage(
                 scan_id=scan_id,
@@ -130,12 +146,10 @@ def save_inference_callback(future):
             db.add(scan_image)
             
             # Update scan stats
-            scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
-            if scan:
-                scan.image_count += 1
-                scan.defect_count += len(defects)
-                if scan.defect_count > (scan.image_count / 10): # Simple threshold
-                    scan.status = "fail"
+            scan.image_count += 1
+            scan.defect_count += len(defects)
+            if scan.defect_count > (scan.image_count / 10): # Simple threshold
+                scan.status = "fail"
             
             db.commit()
         except Exception as db_err:
@@ -666,23 +680,9 @@ def scan_start(username: str = "operator"):
         # Use ScanSession to initialize
         current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir)
 
-        # Create DB Record for Scan
-        db = SessionLocal()
-        try:
-            new_scan = plc_models.Scan(
-                id=f"scan_{timestamp}",
-                start_time=datetime.datetime.now(),
-                scanned_by=username,
-                batch_folder=current_batch_folder,
-                status="pass"
-            )
-            db.add(new_scan)
-            db.commit()
-        except Exception as db_err:
-            logging.error(f"Failed to create DB record for scan: {db_err}")
-        finally:
-            db.close()
-
+        # NOTE: DB Record for Scan will be created lazily when first image is captured
+        # This prevents empty scans from appearing in the database
+        
         # Save Scan Metadata having scanned_by (Legacy JSON support)
         try:
             import json
@@ -1037,6 +1037,7 @@ def list_scans():
 @router.get("/scans/{scan_id}")
 def get_scan_details(scan_id: str):
     """Get detailed information about a specific scan from DB."""
+    import json as json_lib
     db = SessionLocal()
     try:
         scan = db.query(plc_models.Scan).filter(plc_models.Scan.id == scan_id).first()
@@ -1051,16 +1052,45 @@ def get_scan_details(scan_id: str):
         defect_types = {}
         total_defect_count = scan.defect_count
         
+        # Try to load defect details from metadata JSON files in results folder
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        results_dir = os.path.join(backend_dir, "captured_images", scan_id, "results")
+        
+        # Build a lookup of metadata by original image filename
+        meta_lookup = {}
+        if os.path.isdir(results_dir):
+            for meta_file in os.listdir(results_dir):
+                if meta_file.endswith("_meta.json"):
+                    try:
+                        with open(os.path.join(results_dir, meta_file), 'r') as mf:
+                            meta = json_lib.load(mf)
+                            orig_image = meta.get("image", "")
+                            meta_lookup[orig_image] = meta
+                    except Exception:
+                        pass
+        
         for img in images_db:
             images.append(img.filename)
             
+            # Try to get per-image defect details from metadata
+            img_meta = meta_lookup.get(img.filename, {})
+            img_defect_details = img_meta.get("defects", [])
+            
+            # Accumulate defect_types from metadata
+            for d in img_defect_details:
+                dtype = d.get("type", "Unknown")
+                if dtype != "Background":
+                    defect_types[dtype] = defect_types.get(dtype, 0) + 1
+            
             if img.has_defects:
+                overlay_name = os.path.basename(img.overlay_path) if img.overlay_path else None
                 defects.append({
                     "image": img.filename,
-                    "overlay": os.path.basename(img.overlay_path) if img.overlay_path else None,
-                    "overlay_url": f"/scans/{scan_id}/results/{os.path.basename(img.overlay_path)}" if img.overlay_path else None,
+                    "overlay": overlay_name,
+                    "overlay_url": f"/scans/{scan_id}/results/{overlay_name}" if overlay_name else None,
+                    "image_url": f"/scans/{scan_id}/image/{img.filename}",
                     "defect_count": img.defect_count,
-                    "defect_details": [] # We didn't store details in DB yet, but that's fine for now
+                    "defect_details": img_defect_details
                 })
         
         images.sort()
@@ -1075,7 +1105,8 @@ def get_scan_details(scan_id: str):
             "total_defects": total_defect_count,
             "defect_types": defect_types, 
             "defects": defects,
-            "status": scan.status
+            "status": scan.status,
+            "scanned_by": scan.scanned_by
         }
     except HTTPException:
         raise

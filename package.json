@@ -108,5 +108,8 @@
     "directories": {
       "buildResources": "assets"
     }
+  },
+  "dependencies": {
+    "html2pdf.js": "^0.14.0"
   }
 }

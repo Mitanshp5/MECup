@@ -33,6 +33,7 @@ backend/inference/openvino_model/
 *.bin
 *.blob
 
+backend\mecup.db
 mecup.db
 mecup.db-shm
 mecup.db-wal
