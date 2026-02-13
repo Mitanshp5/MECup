@@ -4,24 +4,33 @@
     "embedding_dimensions": 768,
     "llm_model": "phi3",
     "llm_size": "3.8B",
-    "search_strategy": "mmr",
-    "hybrid_search": false
+    "search_strategy": "similarity_with_scores",
+    "page_indexed": true
   },
-  "performance_metrics": {
-    "load_time_seconds": 3.84,
-    "avg_query_time_seconds": 3.68,
-    "performance_score": 3.71,
-    "success_rate_percent": 100.0,
-    "benchmark_date": "2026-01-10"
+  "retrieval_settings": {
+    "top_k": 4,
+    "relevance_threshold": 0.25,
+    "chunk_size": 400,
+    "chunk_overlap": 80
   },
+  "query_types": [
+    "error_code",
+    "troubleshooting",
+    "how_to",
+    "info",
+    "general",
+    "greeting",
+    "vague"
+  ],
   "optimization_details": {
-    "selected_from": "24 tested configurations",
-    "ranking": "1st place",
+    "architecture": "Page-indexed RAG with dynamic HTML formatting",
     "key_advantages": [
-      "Fastest overall response time",
-      "Best balance of load time and query performance",
-      "CPU-optimized for production deployment",
-      "100% success rate on test queries"
+      "Page-indexed chunks with source metadata for citations",
+      "Dynamic HTML templates per query type (not just troubleshooting)",
+      "Similarity search with relevance scoring for faster retrieval",
+      "Smaller chunks (400) for more precise context matching",
+      "Reduced num_predict (400) for faster LLM responses",
+      "CPU-optimized for production deployment"
     ]
   },
   "hardware_requirements": {
@@ -37,7 +46,8 @@
       "langchain>=0.1.0",
       "langchain-chroma>=0.1.0",
       "langchain-ollama>=0.1.0",
-      "sentence-transformers>=2.3.0"
+      "sentence-transformers>=2.3.0",
+      "langgraph>=0.0.20"
     ]
   }
 }

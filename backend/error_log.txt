@@ -22997,3 +22997,213 @@ Exception: PLC disconnected: timed out
 2026-02-12 18:32:49,181 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-12 18:32:52,260 [ERROR] Polling thread error: PLC disconnected: timed out
 2026-02-12 18:32:55,343 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:33:49,464 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-13 10:33:50,445 [INFO] [Inference] Using GPU
+2026-02-13 10:33:50,445 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-13 10:33:56,820 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-13 10:34:01,765 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-13 10:34:01,765 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-13 10:34:04,352 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-13 10:34:04,950 [INFO] [Inference] Using GPU
+2026-02-13 10:34:04,950 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-13 10:34:08,229 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-13 10:34:11,719 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-13 10:34:11,719 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-13 10:34:14,086 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:14,195 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-13 10:34:14,664 [INFO] [Inference] Using GPU
+2026-02-13 10:34:14,665 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-13 10:34:17,174 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:17,764 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-13 10:34:20,254 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:21,328 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-13 10:34:21,328 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-13 10:34:23,334 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:26,421 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:29,511 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:32,599 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:35,680 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:38,768 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:41,851 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:44,941 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:48,021 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:51,111 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:54,203 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:34:57,289 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:00,367 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:03,453 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:06,539 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:09,619 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:12,708 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:15,795 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:18,878 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:21,970 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:25,059 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:28,144 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:35:31,223 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:36:09,576 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-13 10:36:10,375 [INFO] [Inference] Using GPU
+2026-02-13 10:36:10,375 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-13 10:36:13,305 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-13 10:36:17,054 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-13 10:36:17,055 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-13 10:36:59,614 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:02,697 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:05,787 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:08,866 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:11,949 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:14,597 [WARNING] [Inference] TensorRT or cuda-python not installed: No module named 'tensorrt'
+2026-02-13 10:37:15,035 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:15,183 [INFO] [Inference] Using GPU
+2026-02-13 10:37:15,183 [INFO] [Inference] Loading OpenVINO model from C:\Users\Priyanshu\OneDrive\Desktop\MECup\backend\inference\openvino_model\model.xml
+2026-02-13 10:37:18,119 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:18,178 [INFO] [Inference] Using CPU backend (ONNX Runtime)
+2026-02-13 10:37:21,197 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:21,734 [INFO] [Inference] Model ready (cpu_onnx)
+2026-02-13 10:37:21,735 [ERROR] Error in inference process: [Errno 2] No such file or directory: 'C:\\MyStuff\\VS\\MECup\\backend\\inference\\stitched_result2.jpg'
+2026-02-13 10:37:24,279 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:27,369 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:30,462 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:33,546 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:36,633 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:39,715 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:42,797 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:45,887 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:48,977 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:52,058 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:55,145 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:37:58,235 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:01,315 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:04,397 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:07,481 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:10,560 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:13,649 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:16,743 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:19,826 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:22,912 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:26,001 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:29,080 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:32,166 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:35,248 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:38,334 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:41,426 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:44,513 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:47,593 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:50,677 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:53,768 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:56,848 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:38:59,925 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:03,002 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:06,086 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:09,170 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:12,252 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:15,340 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:18,425 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:21,516 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:24,600 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:27,688 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:30,779 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:33,863 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:36,949 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:40,038 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:43,127 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:46,208 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:49,286 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:52,378 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:55,466 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:39:58,547 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:01,635 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:04,715 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:07,806 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:10,898 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:13,989 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:17,070 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:20,149 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:23,237 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:26,317 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:29,397 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:32,479 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:35,557 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:38,636 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:41,720 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:44,810 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:47,897 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:50,974 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:54,061 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:40:57,151 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:00,241 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:03,329 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:06,410 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:09,497 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:12,581 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:15,663 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:18,747 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:21,829 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:24,916 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:28,003 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:31,092 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:34,183 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:37,270 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:40,354 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:43,442 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:46,529 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:49,609 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:52,699 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:55,785 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:41:58,862 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:01,946 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:05,035 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:08,113 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:11,206 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:14,289 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:17,369 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:20,451 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:23,528 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:26,612 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:29,698 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:32,775 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:35,854 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:38,943 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:42,034 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:45,119 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:48,209 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:51,300 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:54,389 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:42:57,474 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:00,553 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:03,633 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:06,718 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:09,796 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:12,883 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:15,974 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:19,065 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:22,156 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:25,245 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:28,333 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:31,415 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:34,501 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:37,581 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:40,666 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:43,754 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:46,844 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:49,932 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:53,021 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:56,101 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:43:59,185 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:02,271 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:05,360 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:08,450 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:11,528 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:14,612 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:17,703 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:20,782 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:23,862 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:26,939 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:30,019 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:33,108 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:36,195 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:39,288 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:42,369 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:45,453 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:48,534 [ERROR] Polling thread error: PLC disconnected: timed out
+2026-02-13 10:44:51,615 [ERROR] Polling thread error: PLC disconnected: timed out

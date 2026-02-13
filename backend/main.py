@@ -92,7 +92,7 @@ plc_models.Base.metadata.create_all(bind=engine)
 
 
 
-# from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
+from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
 
 
@@ -100,103 +100,101 @@ plc_models.Base.metadata.create_all(bind=engine)
 
 async def lifespan(app: FastAPI):
 
-    # async with rag_lifespan(app):
+    async with rag_lifespan(app):
 
-    #     yield
+        # Create Default Admin User
 
-    # Create Default Admin User
+        try:
 
-    try:
+            db = next(get_db())
 
-        db = next(get_db())
+            
 
-        
+            admin_user = os.getenv("MECUP_ADMIN_USER", "mee")
 
-        admin_user = os.getenv("MECUP_ADMIN_USER", "mee")
+            admin_pass = os.getenv("MECUP_ADMIN_PASSWORD", "1234")
 
-        admin_pass = os.getenv("MECUP_ADMIN_PASSWORD", "1234")
+            
 
-        
+            # Check for admin user
 
-        # Check for admin user
+            user = db.query(auth_models.User).filter(auth_models.User.username == admin_user).first()
 
-        user = db.query(auth_models.User).filter(auth_models.User.username == admin_user).first()
+            
 
-        
+            hashed_pwd = auth_security.get_password_hash(admin_pass)
 
-        hashed_pwd = auth_security.get_password_hash(admin_pass)
+            
 
-        
+            if not user:
 
-        if not user:
+                print(f"[Backend] Creating default user '{admin_user}'...", flush=True)
 
-            print(f"[Backend] Creating default user '{admin_user}'...", flush=True)
+                new_user = auth_models.User(
 
-            new_user = auth_models.User(
+                    username=admin_user,
 
-                username=admin_user,
+                    hashed_password=hashed_pwd,
 
-                hashed_password=hashed_pwd,
+                    role="admin"
 
-                role="admin"
+                )
 
-            )
+                db.add(new_user)
 
-            db.add(new_user)
+                db.commit()
 
-            db.commit()
+                print(f"[Backend] Default user created: {admin_user}", flush=True)
 
-            print(f"[Backend] Default user created: {admin_user}", flush=True)
+            else:
 
-        else:
+                # Force update password to ensure it matches current security scheme or env var change
 
-            # Force update password to ensure it matches current security scheme or env var change
+                user.hashed_password = hashed_pwd
 
-            user.hashed_password = hashed_pwd
+                # Ensure role is admin
 
-            # Ensure role is admin
+                user.role = "admin"
 
-            user.role = "admin"
+                db.commit()
 
-            db.commit()
+                print(f"[Backend] User '{admin_user}' synced with environment credentials.", flush=True)
 
-            print(f"[Backend] User '{admin_user}' synced with environment credentials.", flush=True)
+        except Exception as e:
 
-    except Exception as e:
-
-        print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
+            print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
 
 
 
-    try:
+        try:
 
-        from inference.inference_service import get_predictor
+            from inference.inference_service import get_predictor
 
-        print("[Backend] Initializing Inference Engine...", flush=True)
+            print("[Backend] Initializing Inference Engine...", flush=True)
 
-        get_predictor()
+            get_predictor()
 
-    except Exception as e:
+        except Exception as e:
 
-        print(f"[Backend] Failed to initialize inference: {e}", flush=True)
-
-
-
-    # Initialize PLC System (Polling) - Main Process Only
-
-    try:
-
-        from plc.endpoints import init_plc_system
-
-        init_plc_system()
-
-    except Exception as e:
-
-        print(f"[Backend] Failed to initialize PLC: {e}", flush=True)
+            print(f"[Backend] Failed to initialize inference: {e}", flush=True)
 
 
 
-    yield
+        # Initialize PLC System (Polling) - Main Process Only
+
+        try:
+
+            from plc.endpoints import init_plc_system
+
+            init_plc_system()
+
+        except Exception as e:
+
+            print(f"[Backend] Failed to initialize PLC: {e}", flush=True)
+
+
+
+        yield
 
 
 

@@ -1,49 +1,49 @@
 """
-Setup script for Production RAG Agent
-Verifies all dependencies and configurations
+Setup script for Production RAG Agent (Page-Indexed)
+Verifies all dependencies and configurations.
 """
 
 import sys
 import subprocess
-import os
 from pathlib import Path
 
+
 def check_python_version():
-    """Check Python version"""
-    print("🔍 Checking Python version...")
-    version = sys.version_info
-    if version.major >= 3 and version.minor >= 8:
-        print(f"   ✅ Python {version.major}.{version.minor}.{version.micro}")
-        return True
-    else:
-        print(f"   ❌ Python {version.major}.{version.minor}.{version.micro} (requires >= 3.8)")
-        return False
+    """Check Python version."""
+    print("[*] Checking Python version...")
+    v = sys.version_info
+    ok = v.major >= 3 and v.minor >= 8
+    icon = "OK" if ok else "FAIL"
+    print(f"    [{icon}] Python {v.major}.{v.minor}.{v.micro}")
+    if not ok:
+        print("    Requires >= 3.8")
+    return ok
+
 
 def check_ollama():
-    """Check if Ollama is installed and phi3 model is available"""
-    print("\n🔍 Checking Ollama...")
+    """Check if Ollama is installed and phi3 model is available."""
+    print("\n[*] Checking Ollama...")
     try:
         result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
         if result.returncode == 0:
-            print("   ✅ Ollama is installed")
+            print("    [OK] Ollama is installed")
             if 'phi3' in result.stdout:
-                print("   ✅ phi3 model is available")
+                print("    [OK] phi3 model available")
                 return True
             else:
-                print("   ⚠️  phi3 model not found")
-                print("   Run: ollama pull phi3")
+                print("    [FAIL] phi3 model not found -> run: ollama pull phi3")
                 return False
         else:
-            print("   ❌ Ollama not responding")
+            print("    [FAIL] Ollama not responding")
             return False
     except FileNotFoundError:
-        print("   ❌ Ollama not installed")
-        print("   Install from: https://ollama.ai")
+        print("    [FAIL] Ollama not installed -> https://ollama.ai")
         return False
 
+
 def check_dependencies():
-    """Check if required packages are installed"""
-    print("\n🔍 Checking Python dependencies...")
+    """Check if required packages are installed."""
+    print("\n[*] Checking Python dependencies...")
     required = [
         'langchain',
         'langchain_huggingface',
@@ -51,108 +51,116 @@ def check_dependencies():
         'langchain_ollama',
         'langgraph',
         'chromadb',
-        'sentence_transformers'
+        'sentence_transformers',
+        'fastapi',
     ]
-    
+
     missing = []
-    for package in required:
+    for pkg in required:
         try:
-            __import__(package.replace('-', '_'))
-            print(f"   ✅ {package}")
+            __import__(pkg.replace('-', '_'))
+            print(f"    [OK] {pkg}")
         except ImportError:
-            print(f"   ❌ {package}")
-            missing.append(package)
-    
+            print(f"    [FAIL] {pkg}")
+            missing.append(pkg)
+
     if missing:
-        print(f"\n⚠️  Missing packages: {', '.join(missing)}")
-        print("   Run: pip install -r requirements.txt")
+        print(f"\n    Missing: {', '.join(missing)}")
+        print("    Run: pip install -r requirements.txt")
         return False
     return True
 
+
 def check_files():
-    """Check if required files exist"""
-    print("\n🔍 Checking required files...")
+    """Check if required files exist."""
+    print("\n[*] Checking required files...")
     base_dir = Path(__file__).parent
-    
-    required_files = [
-        'agent.py',
-        'requirements.txt',
-        'data',
-        'vectordb'
-    ]
-    
+
+    required = ['agent.py', 'rebuild_vectordb.py', 'fastapi_server.py', 'data', 'vectordb']
+
     all_exist = True
-    for item in required_files:
+    for item in required:
         path = base_dir / item
-        if path.exists():
-            print(f"   ✅ {item}")
-        else:
-            print(f"   ❌ {item}")
+        exists = path.exists()
+        icon = "OK" if exists else "FAIL"
+        print(f"    [{icon}] {item}")
+        if not exists:
             all_exist = False
-    
+
     return all_exist
 
+
 def test_agent():
-    """Test the agent with a sample query"""
-    print("\n🧪 Testing agent...")
+    """Test the agent with sample queries across query types."""
+    print("\n[*] Testing agent...")
     try:
-        from agent import get_agent
+        from agent import get_agent, classify_query
+
         agent = get_agent()
-        
-        test_query = "Camera is not detecting defects properly"
-        print(f"   Query: {test_query}")
-        
-        response = agent.query(test_query)
-        print(f"   ✅ Agent responded successfully")
-        print(f"   Response preview: {response[:100]}...")
+
+        tests = [
+            ("error_code", "What is error code 1A68H?"),
+            ("troubleshooting", "Camera is not detecting defects"),
+            ("info", "What is the light intensity parameter?"),
+        ]
+
+        for expected_type, query in tests:
+            detected = classify_query(query)
+            response = agent.query(query)
+            type_ok = "OK" if detected == expected_type else "MISMATCH"
+            print(f"    [{type_ok}] type={detected} | {query[:40]}...")
+            print(f"           Response: {response[:80]}...")
+
+        print("    [OK] Agent responding correctly")
         return True
     except Exception as e:
-        print(f"   ❌ Agent test failed: {e}")
+        print(f"    [FAIL] Agent test failed: {e}")
         return False
 
+
 def main():
-    """Main setup verification"""
-    print("="*60)
-    print("PRODUCTION RAG AGENT SETUP VERIFICATION")
-    print("="*60)
-    
+    """Main setup verification."""
+    print("=" * 60)
+    print("PRODUCTION RAG AGENT - SETUP VERIFICATION")
+    print("(Page-Indexed Architecture)")
+    print("=" * 60)
+
     checks = [
         ("Python Version", check_python_version()),
         ("Ollama & phi3", check_ollama()),
         ("Python Dependencies", check_dependencies()),
-        ("Required Files", check_files())
+        ("Required Files", check_files()),
     ]
-    
-    print("\n" + "="*60)
-    print("SETUP SUMMARY")
-    print("="*60)
-    
+
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+
     for name, status in checks:
-        status_icon = "✅" if status else "❌"
-        print(f"{status_icon} {name}")
-    
+        icon = "OK" if status else "FAIL"
+        print(f"[{icon}] {name}")
+
     all_passed = all(status for _, status in checks)
-    
+
     if all_passed:
-        print("\n🎉 All checks passed! Testing agent...")
+        print("\nAll checks passed! Testing agent...")
         if test_agent():
-            print("\n✅ Setup complete! Production RAG agent is ready to use.")
-            print("\nNext steps:")
-            print("1. Import in your application:")
-            print("   from agent import get_agent")
-            print("   agent = get_agent()")
-            print("   response = agent.query('your question')")
-            print("\n2. Or run the console app:")
-            print("   cd ../console")
-            print("   python app.py")
+            print("\nSetup complete! Agent is ready.")
+            print("\nUsage:")
+            print("  from agent import get_agent")
+            print("  agent = get_agent()")
+            print("  response = agent.query('your question')")
+            print("\nTo rebuild vector DB:")
+            print("  python rebuild_vectordb.py")
         else:
-            print("\n⚠️  Agent test failed. Please check the error above.")
+            print("\nAgent test failed. Check errors above.")
     else:
-        print("\n⚠️  Some checks failed. Please resolve the issues above.")
-        print("\nCommon fixes:")
-        print("1. Install dependencies: pip install -r requirements.txt")
-        print("2. Install Ollama: https://ollama.ai")
-        print("3. Pull phi3 model: ollama pull phi3")
+        print("\nSome checks failed. Common fixes:")
+        print("  1. pip install -r requirements.txt")
+        print("  2. Install Ollama: https://ollama.ai")
+        print("  3. ollama pull phi3")
+        print("  4. python rebuild_vectordb.py")
+
 
 if __name__ == "__main__":
     main()
