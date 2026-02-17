@@ -32,7 +32,7 @@ production_rag/
 └── README.md            # This file
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Install Dependencies
 

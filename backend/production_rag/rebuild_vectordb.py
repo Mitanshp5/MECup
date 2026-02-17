@@ -4,6 +4,7 @@ Rebuild Vector Database with proper chunking for better retrieval
 
 import os
 import shutil
+import time
 from pathlib import Path
 
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -21,10 +22,29 @@ def rebuild_database():
     print("REBUILDING VECTOR DATABASE")
     print("="*60)
     
-    # Remove existing vector database
+    # Remove existing vector database with retry logic
     if VECTORDB_DIR.exists():
         print(f"\n🗑️  Removing existing vector database...")
-        shutil.rmtree(VECTORDB_DIR)
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                shutil.rmtree(VECTORDB_DIR)
+                print("   ✓ Old database removed")
+                break
+            except PermissionError as e:
+                if attempt < max_retries - 1:
+                    print(f"   ⚠ Database is locked (attempt {attempt + 1}/{max_retries})")
+                    print(f"   Waiting 2 seconds...")
+                    time.sleep(2)
+                else:
+                    print(f"\n❌ ERROR: Cannot remove database - it's being used by another process")
+                    print(f"\nPlease STOP the server first:")
+                    print(f"  1. Press Ctrl+C in the terminal running 'npm run dev'")
+                    print(f"  2. Wait for the server to fully stop")
+                    print(f"  3. Run this script again: python rebuild_vectordb.py")
+                    print(f"\nOr manually delete the folder: {VECTORDB_DIR}")
+                    return
     
     # Load embeddings
     print(f"\n📦 Loading embedding model: {EMBEDDING_MODEL}")
@@ -55,12 +75,13 @@ def rebuild_database():
     
     print(f"\n   Total documents loaded: {len(documents)}")
     
-    # Split documents into smaller chunks for better retrieval
-    print(f"\n✂️  Splitting documents into chunks...")
+    # Split documents into smaller chunks
+    print(f"\n✂️  Splitting into page-indexed chunks...")
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
-        separators=["\n======", "\n\n", "\n", ". ", " "]
+        chunk_size=600,  # Increased from 400 for more context per chunk
+        chunk_overlap=150,  # Increased from 80 for better continuity
+        separators=["\n======", "\n\n", "\n", ". ", " ", ""],
+        length_function=len
     )
     
     chunks = text_splitter.split_documents(documents)

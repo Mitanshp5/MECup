@@ -18,19 +18,18 @@ VECTORDB_DIR = os.path.join(SCRIPT_DIR, "vectordb")
 EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
 LLM_MODEL = "phi3"
 
-# Improved retrieval settings for large PDFs
-TOP_K = 10  # Increased to 10 for better coverage of large documents
-RELEVANCE_THRESHOLD = 0.10  # Lowered to 0.10 to catch more potential matches
-FETCH_K = 20  # Increased candidate pool for large PDFs
+# Improved retrieval settings
+TOP_K = 6  # Increased from 3 to get more context
+RELEVANCE_THRESHOLD = 0.15  # Lowered from 0.25 to be more inclusive
+FETCH_K = 12  # Increased for better candidate pool
 
 
 def classify_query(query: str) -> str:
     """Classify query type for better prompt selection."""
     query_lower = query.lower()
     
-    # Error code pattern - matches codes like 19A6H, 1A68H, E101, etc.
-    if re.search(r'\b(error|fault|alarm|code)\b', query_lower, re.IGNORECASE) or \
-       re.search(r'\b\d+[a-z]+\d*[a-z]*\b', query_lower, re.IGNORECASE):
+    # Error code pattern
+    if re.search(r'\b(error|fault|alarm|code)\b.*\b[a-z0-9]{4,}\b', query_lower, re.IGNORECASE):
         return "error_code"
     
     # Troubleshooting
@@ -64,15 +63,13 @@ def expand_query(query: str, query_type: str) -> List[str]:
     variations = [query]
     
     if query_type == "error_code":
-        # Extract error code - improved pattern for codes like 19A6H
-        match = re.search(r'\b(\d+[a-z]+\d*[a-z]*)\b', query, re.IGNORECASE)
+        # Extract error code
+        match = re.search(r'\b([a-z0-9]{4,})\b', query, re.IGNORECASE)
         if match:
-            code = match.group(1).upper()
-            variations.append(f"error {code}")
-            variations.append(f"code {code}")
+            code = match.group(1)
+            variations.append(f"error code {code}")
             variations.append(f"fault {code}")
             variations.append(f"alarm {code}")
-            variations.append(code)  # Just the code itself
     
     elif query_type == "troubleshooting":
         # Add symptom-focused variations
@@ -142,7 +139,7 @@ class ProductionRAGAgent:
         seen_content = set()
         
         # Retrieve for each variation
-        for var in variations[:5]:  # Use more variations for error codes
+        for var in variations[:3]:  # Limit to top 3 variations
             try:
                 results = self.vectorstore.similarity_search_with_relevance_scores(
                     var,
@@ -228,34 +225,36 @@ class ProductionRAGAgent:
             
             # Select prompt template based on query type
             if query_type == "error_code":
-                prompt = f"""You are a Troubleshooting Agent for an industrial paint defect detection machine.
+                prompt = f"""You are a technical troubleshooting expert for industrial paint defect detection machines.
 
-User's Issue: {query}
+User Query: {query}
 
-Reference Information:
+Reference Documentation:
 {context_text}
 
-IMPORTANT: Format your response as HTML with the following structure:
+Provide a detailed response in HTML format:
 
-<div class="troubleshoot-response">
-  <div class="issue-section">
-    <strong>Issue Identified:</strong>
-    <p>[Brief description of the error code and what it means]</p>
+<div class="error-response">
+  <div class="error-details">
+    <strong>Error Code:</strong>
+    <p>[Error code and description]</p>
   </div>
-  <div class="steps-section">
-    <strong>Troubleshooting Steps:</strong>
+  <div class="cause">
+    <strong>Possible Cause:</strong>
+    <p>[What causes this error]</p>
+  </div>
+  <div class="solution">
+    <strong>Solution Steps:</strong>
     <ol>
-      <li>[First step - one sentence]</li>
-      <li>[Second step - one sentence]</li>
-      <li>[Third step - one sentence]</li>
-      <li>[Fourth step if needed]</li>
+      <li>[Step 1]</li>
+      <li>[Step 2]</li>
+      <li>[Step 3]</li>
     </ol>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Keep each step concise (one sentence). If information is not relevant, say you don't have specific information and suggest consulting the manual.
-
-ONLY return the HTML, no other text."""
+Use ONLY the provided documentation. If the error code is not found, say so clearly."""
             
             elif query_type == "troubleshooting":
                 prompt = f"""You are a technical troubleshooting expert for industrial paint defect detection machines.
@@ -281,9 +280,10 @@ Provide a structured troubleshooting response in HTML:
       <li>[Additional steps if needed]</li>
     </ol>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Base your answer on the documentation. Be specific and actionable. Return ONLY the HTML, no other text."""
+Base your answer on the documentation. Be specific and actionable."""
             
             elif query_type == "how_to":
                 prompt = f"""You are a technical expert for industrial paint defect detection machines.
@@ -312,9 +312,10 @@ Provide a clear procedure in HTML:
     <strong>Notes:</strong>
     <p>[Important notes or warnings]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Use the documentation to provide accurate steps. Return ONLY the HTML, no other text."""
+Use the documentation to provide accurate steps."""
             
             elif query_type == "info":
                 prompt = f"""You are a technical expert for industrial paint defect detection machines.
@@ -330,9 +331,10 @@ Provide a clear, concise answer in HTML:
   <div class="answer">
     <p>[Clear explanation based on documentation]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Be accurate. Return ONLY the HTML, no other text."""
+Be accurate and cite the documentation."""
             
             else:  # general
                 prompt = f"""You are a technical expert for industrial paint defect detection machines.
@@ -348,9 +350,10 @@ Provide a helpful answer in HTML:
   <div class="answer">
     <p>[Comprehensive answer based on documentation]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Use the documentation to provide accurate information. Return ONLY the HTML, no other text."""
+Use the documentation to provide accurate information."""
             
             response = self.llm.invoke(prompt)
             return {"response": response}
