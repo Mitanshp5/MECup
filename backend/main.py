@@ -92,7 +92,7 @@ plc_models.Base.metadata.create_all(bind=engine)
 
 
 
-# from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
+from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
 
 
@@ -100,9 +100,9 @@ plc_models.Base.metadata.create_all(bind=engine)
 
 async def lifespan(app: FastAPI):
 
-    # async with rag_lifespan(app):
+    async with rag_lifespan(app):
 
-    #     yield
+        yield
 
     # Create Default Admin User
 
