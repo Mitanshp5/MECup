@@ -1,6 +1,21 @@
 """
-Production RAG Agent - Improved Accuracy Version
-Implements: Query expansion, hybrid retrieval, better chunking awareness
+Production RAG Agent for Paint Defect Detection System Troubleshooting
+
+Purpose:
+This agent provides technical support and troubleshooting assistance for industrial
+paint job defect detection systems. It has access to comprehensive documentation
+covering all system components including:
+- Vision cameras and imaging systems
+- Defect detection algorithms and parameters
+- PLC controllers and automation
+- Error codes and fault diagnostics
+- Calibration and maintenance procedures
+- Paint application quality issues
+
+Primary Use: Troubleshooting system problems and component failures
+Secondary Use: General technical questions about system operation
+
+Implements: Query expansion, hybrid retrieval, conversation history
 """
 
 from typing import TypedDict, List, Tuple, Dict
@@ -94,16 +109,20 @@ class AgentState(TypedDict):
     context: List[str]
     sources: List[Dict]
     response: str
+    chat_history: List[Dict]  # Store conversation history
 
 
 class ProductionRAGAgent:
-    """Production-ready RAG agent with improved accuracy."""
+    """Production-ready RAG agent with improved accuracy and conversation memory."""
     
     def __init__(self):
         print("[*] Initializing Production RAG Agent (Improved)...")
         print(f"   Embedding: {EMBEDDING_MODEL}")
         print(f"   LLM: {LLM_MODEL}")
         print(f"   Retrieval: top_k={TOP_K}, threshold={RELEVANCE_THRESHOLD}")
+        
+        # Initialize conversation history storage
+        self.conversations = {}  # session_id -> list of messages
         
         # Load embeddings
         self.embeddings = HuggingFaceEmbeddings(
@@ -209,7 +228,7 @@ class ProductionRAGAgent:
             
             # Handle special cases
             if query_type == "greeting":
-                return {"response": "Hello! I'm a troubleshooting assistant for industrial paint defect detection systems. I can help with error codes, camera issues, defect detection problems, and maintenance procedures. What specific issue are you facing?"}
+                return {"response": "Hello! I'm your technical support assistant for the paint defect detection system. I specialize in troubleshooting all system components including vision cameras, defect detection algorithms, PLC controllers, error codes, and maintenance procedures. I have access to comprehensive documentation for each component. What issue can I help you resolve today?"}
             
             if query_type == "vague":
                 return {"response": "I'd be happy to help! Could you provide more details about your specific issue? For example, are you experiencing an error code, camera problems, or defect detection issues?"}
@@ -228,11 +247,11 @@ class ProductionRAGAgent:
             
             # Select prompt template based on query type
             if query_type == "error_code":
-                prompt = f"""You are a Troubleshooting Agent for an industrial paint defect detection machine.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to troubleshoot system problems using comprehensive component documentation including vision cameras, defect detection algorithms, PLC controllers, and maintenance procedures.
 
 User's Issue: {query}
 
-Reference Information:
+Reference Documentation from System Components:
 {context_text}
 
 IMPORTANT: Format your response as HTML with the following structure:
@@ -258,11 +277,11 @@ Keep each step concise (one sentence). If information is not relevant, say you d
 ONLY return the HTML, no other text."""
             
             elif query_type == "troubleshooting":
-                prompt = f"""You are a technical troubleshooting expert for industrial paint defect detection machines.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to troubleshoot system problems using comprehensive component documentation including vision cameras, defect detection algorithms, PLC controllers, and maintenance procedures.
 
 User Issue: {query}
 
-Reference Documentation:
+Reference Documentation from System Components:
 {context_text}
 
 Provide a structured troubleshooting response in HTML:
@@ -286,11 +305,11 @@ Provide a structured troubleshooting response in HTML:
 Base your answer on the documentation. Be specific and actionable. Return ONLY the HTML, no other text."""
             
             elif query_type == "how_to":
-                prompt = f"""You are a technical expert for industrial paint defect detection machines.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to provide guidance on system operation, calibration, and maintenance procedures.
 
 User Question: {query}
 
-Reference Documentation:
+Reference Documentation from System Components:
 {context_text}
 
 Provide a clear procedure in HTML:
@@ -317,11 +336,11 @@ Provide a clear procedure in HTML:
 Use the documentation to provide accurate steps. Return ONLY the HTML, no other text."""
             
             elif query_type == "info":
-                prompt = f"""You are a technical expert for industrial paint defect detection machines.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. You provide technical information about system components and operation.
 
 User Question: {query}
 
-Reference Documentation:
+Reference Documentation from System Components:
 {context_text}
 
 Provide a clear, concise answer in HTML:
@@ -335,11 +354,11 @@ Provide a clear, concise answer in HTML:
 Be accurate. Return ONLY the HTML, no other text."""
             
             else:  # general
-                prompt = f"""You are a technical expert for industrial paint defect detection machines.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. You assist with both troubleshooting and general technical questions about system operation.
 
 User Question: {query}
 
-Reference Documentation:
+Reference Documentation from System Components:
 {context_text}
 
 Provide a helpful answer in HTML:
@@ -374,12 +393,48 @@ Use the documentation to provide accurate information. Return ONLY the HTML, no 
             response = response[:-3]
         return response.strip()
     
-    def query(self, question: str) -> str:
-        """Query the agent."""
-        result = self.agent.invoke({"query": question})
+    def query(self, question: str, session_id: str = "default") -> str:
+        """Query the agent with conversation history support."""
+        # Get or create conversation history for this session
+        if session_id not in self.conversations:
+            self.conversations[session_id] = []
+        
+        chat_history = self.conversations[session_id]
+        
+        # Invoke agent with chat history
+        result = self.agent.invoke({
+            "query": question,
+            "chat_history": chat_history
+        })
+        
         raw_response = result["response"]
         cleaned = self._clean_response(raw_response)
+        
+        # Store this exchange in history
+        self.conversations[session_id].append({
+            "role": "user",
+            "content": question
+        })
+        self.conversations[session_id].append({
+            "role": "assistant",
+            "content": cleaned
+        })
+        
+        # Keep only last 10 exchanges (20 messages) to avoid context overflow
+        if len(self.conversations[session_id]) > 20:
+            self.conversations[session_id] = self.conversations[session_id][-20:]
+        
         return cleaned
+    
+    def clear_history(self, session_id: str = "default"):
+        """Clear conversation history for a session."""
+        if session_id in self.conversations:
+            self.conversations[session_id] = []
+            print(f"[*] Cleared conversation history for session: {session_id}")
+    
+    def get_history(self, session_id: str = "default") -> List[Dict]:
+        """Get conversation history for a session."""
+        return self.conversations.get(session_id, [])
 
 
 # Singleton instance

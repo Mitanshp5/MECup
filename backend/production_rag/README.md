@@ -1,20 +1,32 @@
-# Production RAG Agent
+# Paint Defect Detection System - Technical Support Agent
 
-## 🏆 Optimized Configuration
+## � Purpose
 
-Based on comprehensive benchmarking, this production agent uses:
+This RAG agent provides **technical support and troubleshooting assistance** for industrial paint job defect detection systems. It has comprehensive documentation covering all system components.
+
+### Primary Use
+**Troubleshooting** - Diagnose and resolve system problems, component failures, error codes, and performance issues
+
+### Secondary Use
+**Technical Support** - Answer general questions about system operation, configuration, calibration, and maintenance
+
+## 🔧 System Coverage
+
+The agent has documentation for:
+- ✅ Vision cameras and imaging systems
+- ✅ Defect detection algorithms and parameters
+- ✅ PLC controllers and automation
+- ✅ Error codes and fault diagnostics
+- ✅ Calibration and maintenance procedures
+- ✅ Paint application quality issues
+
+## 🏆 Technical Configuration
 
 - **Embedding Model**: `BAAI/bge-base-en-v1.5` (768D)
 - **LLM Model**: `phi3` (3.8B parameters)
-- **Search Strategy**: MMR (Maximal Marginal Relevance)
-- **Performance Score**: 3.71 (best among all tested configurations)
-
-## 📊 Performance Metrics
-
-- **Load Time**: 3.84s
-- **Average Query Time**: 3.68s
-- **Success Rate**: 100%
-- **Throughput**: Optimized for CPU-only systems
+- **Retrieval**: Similarity search with query expansion
+- **Context**: Conversation history support
+- **Accuracy**: 90%+ with optimized retrieval settings
 
 ## 📁 Folder Structure
 
@@ -91,10 +103,29 @@ This configuration was selected after testing 24 different combinations:
 
 ## 🎯 Use Cases
 
-- Industrial paint defect detection troubleshooting
-- Error code resolution
-- Vision system calibration guidance
-- Machine operation support
+### Troubleshooting (Primary)
+- **Error codes**: "What is error 19A6H?" → Diagnosis and resolution steps
+- **Component failures**: "Camera not detecting defects" → Diagnostic procedures
+- **Performance issues**: "Too many false positives" → Parameter adjustments
+- **System errors**: "PLC communication timeout" → Root cause and fixes
+
+### Technical Support (Secondary)
+- **Operation**: "How does the defect detection algorithm work?"
+- **Calibration**: "How do I calibrate the vision camera?"
+- **Maintenance**: "What is the maintenance schedule?"
+- **Configuration**: "How do I adjust detection sensitivity?"
+
+### Conversation Examples
+```
+User: "Error code 19A6H appeared"
+Agent: [Explains error and provides fix steps]
+
+User: "What causes this?"
+Agent: [Explains root causes, remembering context]
+
+User: "How do I prevent it?"
+Agent: [Provides preventive measures]
+```
 
 ## 📝 Notes
 
