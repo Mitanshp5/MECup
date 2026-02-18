@@ -5,6 +5,7 @@ import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/lib/api-config";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Added imports
 
 interface Defect {
   id: string;
@@ -49,6 +50,7 @@ const AutomaticMode = () => {
   const [pulseMode, setPulseMode] = useState<'off' | 'white' | 'green'>('off');
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
   const [streamTimestamp, setStreamTimestamp] = useState<number>(Date.now());
+  const [selectedModel, setSelectedModel] = useState<string>("white"); // Added state
   const isMounted = useRef(true);
 
   // Persist defects to session storage (debounced to reduce write frequency)
@@ -266,6 +268,8 @@ const AutomaticMode = () => {
       const username = user?.username || "operator";
       const res = await fetch(`${API_BASE_URL}/plc/scan-start?username=${encodeURIComponent(username)}`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model_type: selectedModel }), // Send selected model
       });
       const data = await res.json();
 
@@ -559,6 +563,19 @@ const AutomaticMode = () => {
               <span className="text-[10px] text-muted-foreground font-mono">
                 {isScanning ? 'SCAN' : 'IDLE'}
               </span>
+            </div>
+
+            {/* Model Selection */}
+            <div className="mb-1">
+              <Select value={selectedModel} onValueChange={setSelectedModel} disabled={isScanning}>
+                <SelectTrigger className="w-full h-8 text-[10px] px-1 bg-secondary/50 border-border/50">
+                  <SelectValue placeholder="Model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="white" className="text-xs">White Door</SelectItem>
+                  <SelectItem value="black" className="text-xs">Black Door</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Start */}

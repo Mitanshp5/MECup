@@ -75,6 +75,9 @@ MONITOR_CSV_NAME = "register_monitor.csv"
 # Critical Error Flag
 critical_error_active = False
 
+# Global Settings
+current_mm2_per_pixel = 0.0037
+
 
 def add_event(event: str, event_type: str = "info"):
     """Add an event to the recent events list."""
@@ -230,10 +233,10 @@ def save_inference_callback(future):
     except Exception as e:
         logging.error(f"Inference Task Failed: {e}")
 
-def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id):
+def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id, model_type="white", mm2_per_pixel=0.0037):
     """Wrapper to return filepath and scan_id along with results."""
     from inference.inference_service import run_inference_task
-    res = run_inference_task(filepath, result_dir, save_overlay)
+    res = run_inference_task(filepath, result_dir, save_overlay, model_type=model_type, mm2_per_pixel=mm2_per_pixel)
     return (*res, filepath, scan_id)
 
 
@@ -247,10 +250,12 @@ inference_executor = ProcessPoolExecutor(max_workers=1)
 
 # ------------- Models -------------
 # ... (Keep models as is) ...
+# ... (Keep models as is) ...
 class PLCConnectRequest(BaseModel):
     ip: str
     port: int
     timeout: int = 5000 
+    mm2_per_pixel: float = 0.0037
 
 class PLCWriteRequest(BaseModel):
     device: str
@@ -272,6 +277,9 @@ class TogglePulseRequest(BaseModel):
 
 class LightControlRequest(BaseModel):
     pass
+
+class ScanStartRequest(BaseModel):
+    model_type: str = "white" # white, black
 
 class ScanStopRequest(BaseModel):
     pass
@@ -420,7 +428,9 @@ def poll_plc_thread():
                                                  filepath, 
                                                  result_dir, 
                                                  True, 
-                                                 scan_id
+                                                 scan_id,
+                                                 scan_session.model_type,
+                                                 current_mm2_per_pixel
                                             )
                                             
                                             future.add_done_callback(save_inference_callback)
@@ -675,6 +685,10 @@ def init_plc_system():
     if settings and settings.get("ip") and settings.get("port"):
         print(f"[PLC INIT] Loading settings: {settings['ip']}:{settings['port']}", flush=True)
         manager.configure(settings["ip"], settings["port"])
+        # Set global mm2_per_pixel
+        global current_mm2_per_pixel
+        current_mm2_per_pixel = settings.get("mm2_per_pixel", 0.0037)
+        print(f"[PLC INIT] mm2_per_pixel: {current_mm2_per_pixel}", flush=True)
         start_polling()
     else:
         print("[PLC INIT] No settings found. Waiting for manual connect.", flush=True)
@@ -701,7 +715,11 @@ def plc_connect(req: PLCConnectRequest):
     """Save settings and restart/configure manager."""
     try:
         # Save settings to JSON file
-        save_plc_settings(req.ip, req.port)
+        save_plc_settings(req.ip, req.port, req.mm2_per_pixel)
+        
+        # Update global mm2
+        global current_mm2_per_pixel
+        current_mm2_per_pixel = req.mm2_per_pixel
         
         # Configure manager (forces reconnect)
         manager.configure(req.ip, req.port)
@@ -752,15 +770,59 @@ def control_lights(req: LightControlRequest):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@router.post("/plc/scan-start")
+def scan_start(username: str = "operator", req: ScanStartRequest = ScanStartRequest()):
+    """Start (or Resume) Scan with Model Selection."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    
+    try:
+        # Check if we can change model (only if IDLE)
+        state = scan_session.get_state()
+        if state["status"] == "RUNNING" and state["model_type"] != req.model_type:
+             return {"success": False, "error": f"Cannot change model during run. Current: {state['model_type']}. Reset cycle first."}
+        
+        # Start/Resume Session
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        scan_session.start_new_scan(username, backend_dir, req.model_type)
+        
+        # Set M5 ON
+        manager.write_bit("M5", [1])
+        add_event(f"Scan Started ({req.model_type})", "success")
+        
+        return {"success": True, "scan_id": scan_session.scan_id, "status": "RUNNING"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @router.post("/plc/scan-stop")
 def scan_stop(req: ScanStopRequest):
-    """Stop scan by setting M5 to OFF."""
+    """Pause scan by setting M5 to OFF."""
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
         manager.write_bit("M5", [0])
-        add_event("Scan stopped", "info")
-        return {"success": True, "message": "Scan Stopped (M5 OFF)"}
+        scan_session.pause_scan()
+        add_event("Scan Paused", "info")
+        return {"success": True, "message": "Scan Paused (M5 OFF)"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.post("/plc/cycle-reset")
+def cycle_reset():
+    """Reset Cycle (M120 Pulse) and Backend State."""
+    if not manager.connected:
+        return {"success": False, "error": "PLC Not Connected"}
+    try:
+        # Pulse M120
+        manager.write_bit("M120", [1])
+        time.sleep(0.1)
+        manager.write_bit("M120", [0])
+        
+        # Reset Backend State
+        scan_session.reset_cycle()
+        
+        add_event("Cycle Reset", "info")
+        return {"success": True}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
