@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Activity, Camera, Lightbulb, Move, Cpu, Zap } from "lucide-react";
+import { Activity, Camera, Lightbulb, Move, Cpu } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, ReferenceDot, ReferenceLine, Label } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label } from 'recharts';
 
 
 interface SystemComponent {
@@ -16,17 +16,19 @@ interface SystemComponent {
   trend: number[];
 }
 
-interface AxisData {
-  load: number;
-  torque: number;
-  peak: number;
-  current: number;
-  speed: number;
+interface AxisStats {
+  min_val: number | null;
+  min_time: string | null;
+  max_val: number | null;
+  max_time: string | null;
 }
 
-const AxisChart = ({ title, dataKey, color, data, unit }: { title: string, dataKey: string, color: string, data: any[], unit: string }) => {
-  const minPoint = data.length > 0 ? data.reduce((prev, curr) => (curr[dataKey] < prev[dataKey] ? curr : prev), data[0]) : null;
-  const maxPoint = data.length > 0 ? data.reduce((prev, curr) => (curr[dataKey] > prev[dataKey] ? curr : prev), data[0]) : null;
+const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats }) => {
+  // Stats are passed from backend (Daily Min/Max)
+  const minVal = stats?.min_val;
+  const maxVal = stats?.max_val;
+  const minTime = stats?.min_time ? new Date(stats.min_time).toLocaleTimeString() : "";
+  const maxTime = stats?.max_time ? new Date(stats.max_time).toLocaleTimeString() : "";
 
   return (
     <div className="h-64 industrial-panel p-4 bg-card/40 border border-border/50">
@@ -41,7 +43,7 @@ const AxisChart = ({ title, dataKey, color, data, unit }: { title: string, dataK
       <ResponsiveContainer width="100%" height="80%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#888" />
-          <XAxis dataKey="time" hide={true} />
+          <XAxis dataKey="time" hide={true} domain={['dataMin', 'dataMax']} />
           <YAxis
             tick={{ fontSize: 10, fill: '#888' }}
             domain={['auto', 'auto']}
@@ -61,14 +63,14 @@ const AxisChart = ({ title, dataKey, color, data, unit }: { title: string, dataK
             isAnimationActive={false}
             connectNulls={true}
           />
-          {minPoint && (
-            <ReferenceLine y={minPoint[dataKey]} stroke={color} strokeDasharray="3 3" opacity={0.5}>
-              <Label value={`Min: ${minPoint[dataKey]}`} position="insideBottomLeft" fill={color} fontSize={10} />
+          {minVal !== undefined && minVal !== null && (
+            <ReferenceLine y={minVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
+              <Label value={`Min: ${minVal} (${minTime})`} position="insideBottomLeft" fill={color} fontSize={10} />
             </ReferenceLine>
           )}
-          {maxPoint && (
-            <ReferenceLine y={maxPoint[dataKey]} stroke={color} strokeDasharray="3 3" opacity={0.5}>
-              <Label value={`Max: ${maxPoint[dataKey]}`} position="insideTopLeft" fill={color} fontSize={10} />
+          {maxVal !== undefined && maxVal !== null && (
+            <ReferenceLine y={maxVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
+              <Label value={`Max: ${maxVal} (${maxTime})`} position="insideTopLeft" fill={color} fontSize={10} />
             </ReferenceLine>
           )}
         </LineChart>
@@ -105,14 +107,11 @@ const HeartbeatPage = () => {
 
   // Axis Monitoring State
   const [selectedAxis, setSelectedAxis] = useState<string | null>(null);
+  // Separate history not strictly needed if we fetch from API, but let's keep it for smoothest live updates if we want ticks
+  // Actually, backend now returns last 60s. We should use that.
   const [axisHistory, setAxisHistory] = useState<Record<string, any[]>>({ x: [], y: [], z: [] });
-  const [fullHistory, setFullHistory] = useState<Record<string, any[]>>({ x: [], y: [], z: [] });
+  const [dailyStats, setDailyStats] = useState<Record<string, Record<string, AxisStats>>>({});
   const [criticalError, setCriticalError] = useState(false);
-  const [historyStats, setHistoryStats] = useState({
-    x: { min: 0, max: 0 },
-    y: { min: 0, max: 0 },
-    z: { min: 0, max: 0 }
-  });
 
 
   // Cleanup on unmount
@@ -123,92 +122,77 @@ const HeartbeatPage = () => {
     };
   }, []);
 
-  // Fetch real data from backend
+  // Poll History & Stats (Every 2s - matches backend update rate)
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    const fetchHistoryAndStats = async () => {
+      if (!isMounted.current) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/servo/history`);
+        const data = await res.json();
+
+        if (data.history) {
+          // Format history for charts
+          // data.history is list of {time, x: {current...}, y:..., z:...}
+          // We need {x: [{time, current...}], y:...}
+          const formatted: Record<string, any[]> = { x: [], y: [], z: [] };
+
+          data.history.forEach((snap: any) => {
+            const timeStr = new Date(snap.time).toLocaleTimeString();
+            ['x', 'y', 'z'].forEach(axis => {
+              if (snap[axis]) {
+                formatted[axis].push({
+                  time: timeStr,
+                  ...snap[axis]
+                });
+              }
+            });
+          });
+          setAxisHistory(formatted);
+        }
+        if (data.stats) {
+          setDailyStats(data.stats);
+        }
+      } catch (e) {
+        console.error("History fetch error:", e);
+      }
+    };
+
+    fetchHistoryAndStats();
+    intervalId = setInterval(fetchHistoryAndStats, 2000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Fetch Live Heartbeat Data (1s Polling) - Batched Updates
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const fetchHeartbeatData = async () => {
       if (!isMounted.current) return;
 
       try {
-        // Fetch camera FPS
-        const cameraRes = await fetch(`${API_BASE_URL}/camera/fps`);
+        // Parallel Fetch
+        const [cameraRes, plcRes, plcStatusRes, eventsRes, sysRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/camera/fps`),
+          fetch(`${API_BASE_URL}/plc/heartbeat`),
+          fetch(`${API_BASE_URL}/plc/status`),
+          fetch(`${API_BASE_URL}/events`),
+          fetch(`${API_BASE_URL}/system/resources`)
+        ]);
+
         if (!isMounted.current) return;
+
         const cameraData = await cameraRes.json();
-
-        // Fetch PLC heartbeat (Y1 for LED)
-        const plcRes = await fetch(`${API_BASE_URL}/plc/heartbeat`);
-        if (!isMounted.current) return;
         const plcData = await plcRes.json();
-
-        // Check for Critical Error
-        if (plcData.critical_error) {
-          // We can use a toast or just rely on the modal if we add state for it
-          // But let's set a local state to trigger popup
-          setCriticalError(true);
-        } else {
-          setCriticalError(false);
-        }
-
-        // Fetch PLC status with latency measurement
-        const plcStartTime = performance.now();
-        const plcStatusRes = await fetch(`${API_BASE_URL}/plc/status`);
-        if (!isMounted.current) return;
         const plcStatusData = await plcStatusRes.json();
-        const plcLatency = Math.round(performance.now() - plcStartTime);
+        const eventsData = await eventsRes.json();
+        const sysData = await sysRes.json();
 
-        if (!isMounted.current) return;
+        // 1. Critical Error
+        setCriticalError(!!plcData.critical_error);
 
-        // Update PLC connection state
-        setPlcConnected(plcStatusData.connected);
-
-        // Process Axis Data - Fetch History occasionally or rely on accumulated?
-        // User wants "auto timeline... past database upto one day".
-        // We should fetch history on mount or periodically, but for real-time updates we can append.
-        // Let's stick to appending for smooth animation, but maybe init from history API if we want full 24h on load.
-        // For now, let's just append the live health index.
-        // Wait, the user wants "highest and lowest values of each individual along with date timestamp".
-        // We should fetch stats from the new endpoint.
-
-        const axisData = plcData.axis_data;
-        if (axisData) {
-          const now = new Date().toLocaleTimeString();
-          setAxisHistory(prev => {
-            const updateHistory = (key: string, data: any) => {
-              // Use 'health' instead of speed in chart?
-              // The request says "replace speed with health index".
-              // axisData.x now has "health" instead of "speed" (modified backend).
-              // Wait, backend models.py has health, but endpoints.py:axis_monitoring_data struct changed:
-              // "speed" key removed? Let's check my previous edit.
-              // Yes, I replaced "speed" with "health".
-              // So axisData.x.health exists.
-              const val = data.health;
-              const newHistory = [...(prev[key] || []), {
-                time: now,
-                health: val,
-                current: data.current,
-                load: data.load,
-                torque: data.torque,
-                peak: data.peak
-              }];
-              return newHistory.slice(-50); // Keep last 50 points for LIVE chart.
-              // For 24h chart we might need a different view.
-              // Users request: "make a new one with auto timeline".
-              // Maybe the chart should show the history?
-              // Let's stick to live 50 point chart for "Heartbeat", but maybe add a "History" button or show stats.
-              // Actually user asked for "highest and lowest values... along with timestamp".
-            };
-            return {
-              x: updateHistory("x", axisData.x),
-              y: updateHistory("y", axisData.y),
-              z: updateHistory("z", axisData.z)
-            };
-          });
-        }
-
-        // Fetch History Stats (Maybe do this less frequently? e.g. every 10s)
-        // For simplicity, let's do it every scan for now or use a separate effect.
-
+        // 2. Component Status Update
         setComponents(prev => prev.map(comp => {
+          // Camera is independent
           if (comp.id === "camera") {
             const fps = cameraData.fps || 0;
             const isOpen = cameraData.is_open;
@@ -219,87 +203,72 @@ const HeartbeatPage = () => {
               trend: [...comp.trend.slice(1), fps]
             };
           }
+
+          // PLC Dependent Components - Global Check
+          if (!plcStatusData.connected) {
+            if (comp.id === "lights" || comp.id.startsWith("gantry-") || comp.id === "plc") {
+              return {
+                ...comp,
+                status: "error",
+                value: "Disconnected",
+                trend: [...comp.trend.slice(1), 0] // Flatline
+              };
+            }
+          }
+
           if (comp.id === "lights") {
             const y1On = plcData.y1 === 1;
-            const connected = plcData.connected;
             return {
               ...comp,
-              value: connected ? (y1On ? "ON" : "OFF") : "--",
-              status: connected ? (y1On ? "ok" : "warning") : "error",
+              value: y1On ? "ON" : "OFF",
+              status: y1On ? "ok" : "warning",
               trend: [...comp.trend.slice(1), y1On ? 100 : 0]
             };
           }
           // Update Gantry to Health Index
-          if (comp.id === "gantry-x" && plcData.axis_data?.x) {
-            const val = plcData.axis_data.x.health;
-            // Green < 40, Yellow 40-60, Red > 60
-            let status: "ok" | "warning" | "error" = "ok";
-            if (val >= 40 && val <= 60) status = "warning";
-            if (val > 60) status = "error";
+          if (comp.id.startsWith("gantry-")) {
+            const axis = comp.id.replace("gantry-", "");
+            const axisData = plcData.axis_data?.[axis];
+            if (axisData) {
+              const val = axisData.health;
+              // Green < 40, Yellow 40-60, Red > 60
+              let status: "ok" | "warning" | "error" = "ok";
+              if (val >= 40 && val <= 60) status = "warning";
+              if (val > 60) status = "error";
 
-            return {
-              ...comp,
-              name: "Gantry X (Health)",
-              value: String(val),
-              unit: "Idx",
-              status: status,
-              trend: [...comp.trend.slice(1), val]
-            };
-          }
-          if (comp.id === "gantry-y" && plcData.axis_data?.y) {
-            const val = plcData.axis_data.y.health;
-            let status: "ok" | "warning" | "error" = "ok";
-            if (val >= 40 && val <= 60) status = "warning";
-            if (val > 60) status = "error";
-            return {
-              ...comp,
-              name: "Gantry Y (Health)",
-              value: String(val),
-              unit: "Idx",
-              status: status,
-              trend: [...comp.trend.slice(1), val]
-            };
-          }
-          if (comp.id === "gantry-z" && plcData.axis_data?.z) {
-            const val = plcData.axis_data.z.health;
-            let status: "ok" | "warning" | "error" = "ok";
-            if (val >= 40 && val <= 60) status = "warning";
-            if (val > 60) status = "error";
-            return {
-              ...comp,
-              name: "Gantry Z (Health)",
-              value: String(val),
-              unit: "Idx",
-              status: status,
-              trend: [...comp.trend.slice(1), val]
-            };
+              return {
+                ...comp,
+                name: `Gantry ${axis.toUpperCase()} (Health)`,
+                value: String(val),
+                unit: "Idx",
+                status: status,
+                trend: [...comp.trend.slice(1), val]
+              };
+            }
           }
           if (comp.id === "plc") {
-            const connected = plcStatusData.connected;
+            // Latency calculation removed for batching simplicity or need to measure outside
             return {
               ...comp,
-              value: connected ? String(plcLatency) : "OFF",
-              unit: connected ? "ms" : "",
-              status: connected ? (plcLatency < 50 ? "ok" : plcLatency < 100 ? "warning" : "error") : "error",
-              trend: [...comp.trend.slice(1), connected ? plcLatency : 0]
+              value: "ON",
+              unit: "",
+              status: "ok",
+              trend: [...comp.trend.slice(1), 1]
             };
           }
           return comp;
         }));
 
-        // Fetch events
-        const eventsRes = await fetch(`${API_BASE_URL}/events`);
-        if (!isMounted.current) return;
-        const eventsData = await eventsRes.json();
+        // 3. System Resources
+        setSystemResources(sysData);
+
+        // 4. PLC Connection
+        setPlcConnected(plcStatusData.connected);
+
+        // 5. Events
         if (eventsData.events) {
           setEvents(eventsData.events);
         }
-
-        // Fetch System Resources
-        const sysRes = await fetch(`${API_BASE_URL}/system/resources`);
-        if (!isMounted.current) return;
-        const sysData = await sysRes.json();
-        setSystemResources(sysData);
 
       } catch (error) {
         console.error("Failed to fetch heartbeat data:", error);
@@ -314,30 +283,6 @@ const HeartbeatPage = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // Poll for History Stats separately (every 10s)
-  useEffect(() => {
-    const fetchHistory = async () => {
-      if (!isMounted.current) return;
-      try {
-        const res = await fetch(`${API_BASE_URL}/servo/history`);
-        const data = await res.json();
-        if (data.stats) {
-          setHistoryStats(data.stats);
-        }
-        if (data.x && data.x.length > 0) {
-          // Set historical data for charts if selected
-          // For now we just store stats
-        }
-      } catch (e) {
-        console.error("History fetch error:", e);
-      }
-    };
-    fetchHistory();
-    const interval = setInterval(fetchHistory, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-
   // Update uptime
   useEffect(() => {
     const interval = setInterval(() => {
@@ -350,37 +295,6 @@ const HeartbeatPage = () => {
     return () => clearInterval(interval);
   }, [startTime]);
 
-
-
-  // Fetch full history when an axis is selected
-  useEffect(() => {
-    if (selectedAxis) {
-      const fetchHistory = async () => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/servo/history`);
-          const data = await res.json();
-          if (data[selectedAxis]) {
-            // Map history to chart format
-            // Backend returns { time: timestamp, value: health }
-            // We need to map this to the format charts expect. 
-            // actually the backend returns [{time:..., value:...}] for each axis.
-            // But the charts expect { current: ..., load: ..., etc } objects if we want to show all lines?
-            // Wait, the current charts show ONE metric per chart (Health, Current, Load...).
-            // My backend `get_servo_history` ONLY returns the HEALTH index history.
-            // "x": [{"time":..., "value":...}], ...
-            // So I can only show history for Health Index.
-            // The other graphs (Current, Load...) will rely on live data for now unless I update backend to store their history too.
-            // The user said "show that in graphs" referring to min/max/health history presumably.
-            // Models.py saves x_current, x_load etc.
-            // So I should update `get_servo_history` to return ALL metrics.
-          }
-        } catch (e) {
-          console.error("History fetch error:", e);
-        }
-      };
-      fetchHistory();
-    }
-  }, [selectedAxis]);
 
   const okCount = components.filter(c => c.status === "ok").length;
   const warningCount = components.filter(c => c.status === "warning").length;
@@ -421,8 +335,6 @@ const HeartbeatPage = () => {
           <p className="text-3xl font-mono font-bold text-primary">{uptime}</p>
           <p className="text-xs text-muted-foreground mt-1">Since last restart</p>
         </div>
-
-        {/* Removed 24H Stats Panel as per request */}
 
         {/* System Resources */}
         <div className="industrial-panel p-4">
@@ -467,37 +379,37 @@ const HeartbeatPage = () => {
           {selectedAxis && (
             <div className="space-y-6 pt-4">
               <div className="grid grid-cols-2 gap-4">
-
-                {/* Replaced Speed with Health Index */}
-                {/* Use fullHistory if available (more than live buffer), else live axisHistory */}
-                {/* Health Index Chart Removed as per request */}
                 <AxisChart
                   title="Motor Current (%)"
                   dataKey="current"
                   color="#3b82f6"
-                  data={fullHistory[selectedAxis]?.length > axisHistory[selectedAxis]?.length ? fullHistory[selectedAxis] : axisHistory[selectedAxis]}
+                  data={axisHistory[selectedAxis] || []}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.current}
                 />
                 <AxisChart
                   title="Regenerative Load Ratio (%)"
                   dataKey="load"
                   color="#f59e0b"
-                  data={fullHistory[selectedAxis]?.length > axisHistory[selectedAxis]?.length ? fullHistory[selectedAxis] : axisHistory[selectedAxis]}
+                  data={axisHistory[selectedAxis] || []}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.load}
                 />
                 <AxisChart
                   title="Effective Load Torque (%)"
                   dataKey="torque"
                   color="#ec4899"
-                  data={fullHistory[selectedAxis]?.length > axisHistory[selectedAxis]?.length ? fullHistory[selectedAxis] : axisHistory[selectedAxis]}
+                  data={axisHistory[selectedAxis] || []}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.torque}
                 />
                 <AxisChart
                   title="Peak Torque Ratio (%)"
                   dataKey="peak"
                   color="#ef4444"
-                  data={fullHistory[selectedAxis]?.length > axisHistory[selectedAxis]?.length ? fullHistory[selectedAxis] : axisHistory[selectedAxis]}
+                  data={axisHistory[selectedAxis] || []}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.peak}
                 />
               </div>
             </div>
@@ -527,7 +439,7 @@ const ComponentCard = ({ component, onClick }: { component: SystemComponent; onC
   const range = maxTrend - minTrend || 1;
 
   return (
-    <motion.div
+    <div
       onClick={onClick}
       className={`industrial-panel p-4 border ${component.status === "ok" ? "border-border hover:border-success/30" :
         component.status === "warning" ? "border-warning/30" : "border-destructive/30"
@@ -555,19 +467,21 @@ const ComponentCard = ({ component, onClick }: { component: SystemComponent; onC
         </div>
       </div>
 
-      {/* Mini chart */}
+      {/* Mini chart - using scaleY for performance instead of height */}
       <div className="h-8 flex items-end gap-1">
         {component.trend.map((value, i) => (
           <div
             key={i}
-            className={`flex-1 rounded-t transition-all ${component.status === "ok" ? "bg-success/40" :
+            className={`flex-1 rounded-t origin-bottom transition-all ${component.status === "ok" ? "bg-success/40" :
               component.status === "warning" ? "bg-warning/40" : "bg-destructive/40"
               }`}
-            style={{ height: `${((value - minTrend) / range) * 100}%`, minHeight: "4px" }}
+            style={{
+              transform: `scaleY(${Math.max(0.05, (value - minTrend) / range)})` // scaleY 0 is invisible, use min 0.05
+            }}
           />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -584,13 +498,11 @@ const ResourceBar = ({ label, value }: { label: string; value: number }) => (
       <span className="font-mono text-foreground">{value}%</span>
     </div>
     <div className="h-2 bg-secondary rounded-full overflow-hidden">
-      <motion.div
-        className={`h-full rounded-full ${value < 60 ? "bg-success" :
+      <div
+        className={`h-full rounded-full origin-left transition-transform duration-500 ease-out ${value < 60 ? "bg-success" :
           value < 80 ? "bg-warning" : "bg-destructive"
           }`}
-        initial={{ width: 0 }}
-        animate={{ width: `${value}%` }}
-        transition={{ duration: 0.5 }}
+        style={{ transform: `scaleX(${value / 100})` }}
       />
     </div>
   </div>

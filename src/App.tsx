@@ -23,6 +23,8 @@ import MobileRedirect from "@/components/MobileRedirect";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
+import MobileCursorHandler from "@/components/MobileCursorHandler";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,6 +35,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <HashRouter>
+            <MobileCursorHandler />
             <Routes>
               <Route element={<AppLayout />}>
                 <Route path="/" element={

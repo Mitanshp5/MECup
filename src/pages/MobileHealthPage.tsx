@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Camera, Lightbulb, Move, Cpu, ChevronDown, ChevronUp, X, ArrowLeft } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label } from 'recharts';
 
 interface SystemComponent {
   id: string;
@@ -13,6 +13,13 @@ interface SystemComponent {
   value: string;
   unit: string;
   trend: number[];
+}
+
+interface AxisStats {
+  min_val: number | null;
+  min_time: string | null;
+  max_val: number | null;
+  max_time: string | null;
 }
 
 const MobileHealthPage = () => {
@@ -42,6 +49,7 @@ const MobileHealthPage = () => {
   const [systemResources, setSystemResources] = useState({ cpu: 0, gpu: 0, memory: 0, disk: 0, network: 0 });
   const [selectedAxis, setSelectedAxis] = useState<string | null>(null);
   const [axisHistory, setAxisHistory] = useState<Record<string, any[]>>({ x: [], y: [], z: [] });
+  const [dailyStats, setDailyStats] = useState<Record<string, Record<string, AxisStats>>>({});
   const [expandedSection, setExpandedSection] = useState<string | null>("components");
 
   useEffect(() => {
@@ -49,6 +57,25 @@ const MobileHealthPage = () => {
     return () => {
       isMounted.current = false;
     };
+  }, []);
+
+  // Fetch Daily Stats (One-off or Periodic)
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/servo/history`);
+        const data = await res.json();
+        if (isMounted.current && data.stats) {
+          setDailyStats(data.stats);
+        }
+      } catch (e) {
+        console.error("Stats fetch error:", e);
+      }
+    };
+    fetchStats();
+    // Refresh stats every 30s
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -98,45 +125,76 @@ const MobileHealthPage = () => {
             const isOpen = cameraData.is_open;
             return {
               ...comp,
-              value: isOpen ? String(fps) : "OFF",
+              value: isOpen ? String(fps) : "Disconnected",
               status: isOpen ? (fps > 0 ? "ok" : "warning") : "error",
               trend: [...comp.trend.slice(1), fps]
             };
           }
+
+          // PLC Dependent Components - Global Check
+          if (!plcStatusData.connected) {
+            if (comp.id === "lights" || comp.id.startsWith("gantry-") || comp.id === "plc") {
+              return {
+                ...comp,
+                status: "error",
+                value: "Disconnected",
+                trend: [...comp.trend.slice(1), 0] // Flatline
+              };
+            }
+          }
+
           if (comp.id === "lights") {
             const y1On = plcData.y1 === 1;
-            const connected = plcData.connected;
             return {
               ...comp,
-              value: connected ? (y1On ? "ON" : "OFF") : "--",
-              status: connected ? (y1On ? "ok" : "warning") : "error",
+              value: y1On ? "ON" : "OFF",
+              status: y1On ? "ok" : "warning",
               trend: [...comp.trend.slice(1), y1On ? 100 : 0]
             };
           }
-          if (comp.id === "gantry-x" && plcData.axis_data?.x) {
-            const val = plcData.axis_data.x.speed;
+          // Use Health Index for Gantry Gagues if available like Desktop
+          if (comp.id === "gantry-x") {
+            const val = plcData.axis_data?.x?.health ?? 0;
+            let status: "ok" | "warning" | "error" = "ok";
+            if (val >= 40 && val <= 60) status = "warning";
+            if (val > 60) status = "error";
+
             return {
               ...comp,
+              name: "Gantry X (Health)",
               value: String(val),
-              status: plcStatusData.connected ? "ok" : "error",
+              unit: "Idx",
+              status: status,
               trend: [...comp.trend.slice(1), val]
             };
           }
-          if (comp.id === "gantry-y" && plcData.axis_data?.y) {
-            const val = plcData.axis_data.y.speed;
+          if (comp.id === "gantry-y") {
+            const val = plcData.axis_data?.y?.health ?? 0;
+            let status: "ok" | "warning" | "error" = "ok";
+            if (val >= 40 && val <= 60) status = "warning";
+            if (val > 60) status = "error";
+
             return {
               ...comp,
+              name: "Gantry Y (Health)",
               value: String(val),
-              status: plcStatusData.connected ? "ok" : "error",
+              unit: "Idx",
+              status: status,
               trend: [...comp.trend.slice(1), val]
             };
           }
-          if (comp.id === "gantry-z" && plcData.axis_data?.z) {
-            const val = plcData.axis_data.z.speed;
+          if (comp.id === "gantry-z") {
+            const val = plcData.axis_data?.z?.health ?? 0;
+            let status: "ok" | "warning" | "error" = "ok";
+            if (val >= 40 && val <= 60) status = "warning";
+            if (val > 60) status = "error";
+
             return {
               ...comp,
+              name: "Gantry Z (Health)",
               value: String(val),
-              status: plcStatusData.connected ? "ok" : "error",
+              unit: "Idx",
+              status: status,
               trend: [...comp.trend.slice(1), val]
             };
           }
@@ -144,8 +202,8 @@ const MobileHealthPage = () => {
             const connected = plcStatusData.connected;
             return {
               ...comp,
-              value: connected ? String(plcLatency) : "OFF",
-              unit: connected ? "ms" : "",
+              value: String(plcLatency),
+              unit: "ms",
               status: connected ? (plcLatency < 50 ? "ok" : plcLatency < 100 ? "warning" : "error") : "error",
               trend: [...comp.trend.slice(1), connected ? plcLatency : 0]
             };
@@ -166,10 +224,7 @@ const MobileHealthPage = () => {
         setSystemResources(sysData);
 
         if (sysData.uptime) {
-          const hours = Math.floor(sysData.uptime / 3600000); // Server sends ms? No, python sends seconds.
-          // Python sends seconds. JS expects ms usually for Date, but here we just math it.
-          // Wait, previous code: elapsed is ms.
-          // Python: int(time.time() - psutil.boot_time()) -> SECONDS.
+          // Backend sends Seconds
           const totalSeconds = sysData.uptime;
           const h = Math.floor(totalSeconds / 3600);
           const m = Math.floor((totalSeconds % 3600) / 60);
@@ -209,9 +264,9 @@ const MobileHealthPage = () => {
             <h1 className="text-xl font-bold flex items-center gap-2">
               <button
                 onClick={() => navigate("/mobile")}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-card/60 border border-border/50"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-card/60 border border-border/50 active:scale-95 transition-transform"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
               <Activity className="w-5 h-5 text-primary" />
               System Health
@@ -253,7 +308,7 @@ const MobileHealthPage = () => {
           onToggle={() => toggleSection("components")}
           badge={`${okCount}/${components.length}`}
         >
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {components.map((component) => (
               <MobileComponentCard
                 key={component.id}
@@ -282,7 +337,7 @@ const MobileHealthPage = () => {
           onToggle={() => toggleSection("events")}
           badge={events.length > 0 ? String(events.length) : undefined}
         >
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {events.length > 0 ? events.slice(0, 10).map((event, i) => (
               <div key={i} className="flex items-start gap-2 text-sm bg-card/30 p-2 rounded border border-border/30">
                 <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${event.type === "success" ? "bg-success" :
@@ -295,7 +350,7 @@ const MobileHealthPage = () => {
                 </div>
               </div>
             )) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No recent events</p>
+              <p className="text-sm text-muted-foreground text-center py-4 col-span-full">No recent events</p>
             )}
           </div>
         </CollapsibleSection>
@@ -325,9 +380,9 @@ const MobileHealthPage = () => {
                 </h2>
                 <button
                   onClick={() => setSelectedAxis(null)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-card/40 border border-border/50"
+                  className="w-12 h-12 flex items-center justify-center rounded-full bg-card/60 border border-border/50 active:scale-90 transition-transform"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
@@ -338,6 +393,7 @@ const MobileHealthPage = () => {
                   color="#3b82f6"
                   data={axisHistory[selectedAxis]}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.current}
                 />
                 <AxisChart
                   title="Regenerative Load Ratio (%)"
@@ -345,6 +401,7 @@ const MobileHealthPage = () => {
                   color="#f59e0b"
                   data={axisHistory[selectedAxis]}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.load}
                 />
                 <AxisChart
                   title="Effective Load Torque (%)"
@@ -352,6 +409,7 @@ const MobileHealthPage = () => {
                   color="#ec4899"
                   data={axisHistory[selectedAxis]}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.torque}
                 />
                 <AxisChart
                   title="Peak Torque Ratio (%)"
@@ -359,6 +417,7 @@ const MobileHealthPage = () => {
                   color="#ef4444"
                   data={axisHistory[selectedAxis]}
                   unit="%"
+                  stats={dailyStats[selectedAxis]?.peak}
                 />
               </div>
             </div>
@@ -487,41 +546,60 @@ const MobileResourceBar = ({ label, value }: { label: string; value: number }) =
   </div>
 );
 
-const AxisChart = ({ title, dataKey, color, data, unit }: { title: string, dataKey: string, color: string, data: any[], unit: string }) => (
-  <div className="bg-card/40 border border-border/50 rounded-lg p-3">
-    <div className="flex justify-between items-center mb-3">
-      <h4 className="text-sm font-medium">{title}</h4>
-      <span className="text-xs font-mono">
-        {data.length > 0 ? data[data.length - 1][dataKey] : "--"} {unit}
-      </span>
+const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats }) => {
+  // Stats are passed from backend (Daily Min/Max)
+  const minVal = stats?.min_val;
+  const maxVal = stats?.max_val;
+  const minTime = stats?.min_time ? new Date(stats.min_time).toLocaleTimeString() : "";
+  const maxTime = stats?.max_time ? new Date(stats.max_time).toLocaleTimeString() : "";
+
+  return (
+    <div className="bg-card/40 border border-border/50 rounded-lg p-3">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="text-sm font-medium">{title}</h4>
+        <span className="text-xs font-mono">
+          {data.length > 0 ? data[data.length - 1][dataKey] : "--"} {unit}
+        </span>
+      </div>
+      <div className="h-48">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#888" />
+            <XAxis hide />
+            <YAxis
+              tick={{ fontSize: 10, fill: '#888' }}
+              domain={['auto', 'auto']}
+              width={30}
+            />
+            <RechartsTooltip
+              contentStyle={{ backgroundColor: "#09090b", border: "1px solid #27272a", borderRadius: "6px", fontSize: "12px" }}
+              itemStyle={{ color: "#fafafa" }}
+              labelStyle={{ color: "#a1a1a1", marginBottom: "4px" }}
+            />
+            <Line
+              type="monotone"
+              dataKey={dataKey}
+              stroke={color}
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+              connectNulls={true}
+            />
+            {minVal !== undefined && minVal !== null && (
+              <ReferenceLine y={minVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
+                <Label value={`Min: ${minVal}`} position="insideBottomLeft" fill={color} fontSize={10} />
+              </ReferenceLine>
+            )}
+            {maxVal !== undefined && maxVal !== null && (
+              <ReferenceLine y={maxVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
+                <Label value={`Max: ${maxVal}`} position="insideTopLeft" fill={color} fontSize={10} />
+              </ReferenceLine>
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
-    <div className="h-48">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#888" />
-          <XAxis hide />
-          <YAxis
-            tick={{ fontSize: 10, fill: '#888' }}
-            domain={['auto', 'auto']}
-            width={30}
-          />
-          <RechartsTooltip
-            contentStyle={{ backgroundColor: "#09090b", border: "1px solid #27272a", borderRadius: "6px", fontSize: "12px" }}
-            itemStyle={{ color: "#fafafa" }}
-            labelStyle={{ color: "#a1a1a1", marginBottom: "4px" }}
-          />
-          <Line
-            type="monotone"
-            dataKey={dataKey}
-            stroke={color}
-            strokeWidth={2}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-);
+  )
+};
 
 export default MobileHealthPage;

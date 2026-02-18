@@ -214,6 +214,43 @@ def get_plc_heartbeat_aligned(db: Session = Depends(get_db)):
         "axis_data": axis_data
     }
 
+@app.get("/servo/history")
+def get_mobile_servo_history(db: Session = Depends(get_db)):
+    """
+    Get servo daily stats from DB for Mobile Chart Min/Max lines.
+    Mobile builds its own live history, but needs persistence stats.
+    """
+    stats = {}
+    try:
+        # Structure: axis -> metric -> {min, max, min_time, max_time}
+        # Initialize empty first
+        for axis in ['x', 'y', 'z']:
+            stats[axis] = {}
+            for metric in ['current', 'torque', 'peak', 'load', 'health']:
+                stats[axis][metric] = {
+                    "min_val": None, "min_time": None,
+                    "max_val": None, "max_time": None
+                }
+        
+        # Query DB
+        records = db.query(plc_models.ServoDailyStat).all()
+        for r in records:
+            if r.axis in stats and r.metric in stats[r.axis]:
+                stats[r.axis][r.metric] = {
+                    "min_val": r.min_val,
+                    "min_time": r.min_time.isoformat() if r.min_time else None,
+                    "max_val": r.max_val,
+                    "max_time": r.max_time.isoformat() if r.max_time else None
+                }
+    except Exception as e:
+        print(f"[Mobile] Failed to fetch daily stats: {e}", flush=True)
+
+    return {
+        # Mobile maintains its own live history buffer in frontend state
+        "history": [], 
+        "stats": stats
+    }
+
 @app.get("/camera/fps")
 def get_camera_fps():
     """Mock for MobileHealthPage."""

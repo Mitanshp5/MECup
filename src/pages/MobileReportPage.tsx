@@ -87,9 +87,9 @@ const MobileReportPage = () => {
             <div className="flex items-center gap-3 mb-3">
               <button
                 onClick={() => navigate("/mobile")}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-card/60 border border-border/50"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-card/60 border border-border/50 active:scale-95 transition-transform"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
               <h1 className="text-xl font-bold flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-400" />
@@ -112,11 +112,11 @@ const MobileReportPage = () => {
         </div>
 
         {/* Scan List */}
-        <div className="flex-1 px-4 py-3 space-y-2">
+        <div className="flex-1 px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-2 content-start">
           {loading ? (
-            <div className="py-12 text-center text-muted-foreground text-sm">Loading scans...</div>
+            <div className="col-span-full py-12 text-center text-muted-foreground text-sm">Loading scans...</div>
           ) : filteredScans.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground text-sm">No scans found</div>
+            <div className="col-span-full py-12 text-center text-muted-foreground text-sm">No scans found</div>
           ) : (
             filteredScans.map((scan) => (
               <motion.button
@@ -131,11 +131,10 @@ const MobileReportPage = () => {
                     {scan.id}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                      scan.status === "pass"
-                        ? "bg-success/10 text-success"
-                        : "bg-destructive/10 text-destructive"
-                    }`}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${scan.status === "pass"
+                      ? "bg-success/10 text-success"
+                      : "bg-destructive/10 text-destructive"
+                      }`}
                   >
                     {scan.status === "pass" ? (
                       <CheckCircle className="w-3 h-3" />
@@ -187,9 +186,9 @@ const MobileReportPage = () => {
         <div className="px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => setSelectedScan(null)}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-card/60 border border-border/50"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-card/60 border border-border/50 active:scale-95 transition-transform"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-bold">Scan Details</h1>
         </div>
@@ -199,11 +198,10 @@ const MobileReportPage = () => {
       <div className="flex-1 px-4 py-4 space-y-3">
         {/* Status Banner */}
         <div
-          className={`rounded-lg p-4 flex items-center gap-3 ${
-            selectedScan.status === "pass"
-              ? "bg-success/10 border border-success/30"
-              : "bg-destructive/10 border border-destructive/30"
-          }`}
+          className={`rounded-lg p-4 flex items-center gap-3 ${selectedScan.status === "pass"
+            ? "bg-success/10 border border-success/30"
+            : "bg-destructive/10 border border-destructive/30"
+            }`}
         >
           {selectedScan.status === "pass" ? (
             <CheckCircle className="w-8 h-8 text-success flex-shrink-0" />

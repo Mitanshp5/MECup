@@ -88,15 +88,85 @@ def add_event(event: str, event_type: str = "info"):
     if len(recent_events) > MAX_EVENTS:
         recent_events = recent_events[:MAX_EVENTS]
 
+
 # Global storage for axis monitoring
 axis_monitoring_data = {
     "x": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0},
     "y": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0},
     "z": {"load": 0, "torque": 0, "peak": 0, "current": 0, "health": 0}
 }
+# In-memory history (last 60s @ 2s interval)
+servo_history = []
+last_history_update = 0
 
+# Daily Stats Cache
+servo_daily_stats = {}
+last_stats_save_time = 0
 
 # ------------- Helper Functions -------------
+
+def init_daily_stats():
+    """Load daily stats from DB or initialize empty structure."""
+    global servo_daily_stats
+    
+    # Structure: axis -> metric -> {min, max, min_time, max_time}
+    # Initialize empty first
+    stats = {}
+    for axis in ['x', 'y', 'z']:
+        stats[axis] = {}
+        for metric in ['current', 'torque', 'peak', 'load', 'health']:
+            stats[axis][metric] = {
+                "min_val": None, "min_time": None,
+                "max_val": None, "max_time": None
+            }
+            
+    # Load from DB
+    db = SessionLocal()
+    try:
+        records = db.query(plc_models.ServoDailyStat).all()
+        for r in records:
+            if r.axis in stats and r.metric in stats[r.axis]:
+                stats[r.axis][r.metric] = {
+                    "min_val": r.min_val,
+                    "min_time": r.min_time.isoformat() if r.min_time else None,
+                    "max_val": r.max_val,
+                    "max_time": r.max_time.isoformat() if r.max_time else None
+                }
+    except Exception as e:
+        logging.error(f"Failed to load daily stats: {e}")
+    finally:
+        db.close()
+        
+    servo_daily_stats = stats
+
+def save_daily_stats():
+    """Save current daily stats to DB."""
+    if not servo_daily_stats: return
+    
+    db = SessionLocal()
+    try:
+        for axis, metrics in servo_daily_stats.items():
+            for metric, values in metrics.items():
+                # Check if record exists
+                record = db.query(plc_models.ServoDailyStat).filter_by(axis=axis, metric=metric).first()
+                if not record:
+                    record = plc_models.ServoDailyStat(axis=axis, metric=metric)
+                    db.add(record)
+                
+                # Update values
+                record.min_val = values["min_val"]
+                record.min_time = datetime.datetime.fromisoformat(values["min_time"]) if values["min_time"] else None
+                record.max_val = values["max_val"]
+                record.max_time = datetime.datetime.fromisoformat(values["max_time"]) if values["max_time"] else None
+                record.timestamp = datetime.datetime.utcnow()
+                
+        db.commit()
+    except Exception as e:
+        logging.error(f"Failed to save daily stats: {e}")
+    finally:
+        db.close()
+
+
 
 def save_inference_callback(future):
     """Callback to save inference result to DB and update global state."""
@@ -401,10 +471,10 @@ def poll_plc_thread():
 
                     # X Axis (D40, D42, D44, D50) -> Indices doubled from D-word logic
                     # D40(0), D42(2), D44(4), D50(10)
-                    x_load = get_val(0)
-                    x_torque = get_val(2)
-                    x_peak = get_val(4)
-                    x_current = get_val(10) / 10
+                    x_load = abs(get_val(0))
+                    x_torque = abs(get_val(2))
+                    x_peak = abs(get_val(4))
+                    x_current = abs(get_val(10)) / 10
                     x_health = calc_health(x_current, x_load, x_torque, x_peak)
                     
                     axis_monitoring_data["x"] = {
@@ -417,10 +487,10 @@ def poll_plc_thread():
 
                     # Y Axis (D58, D62, D78, D52)
                     # D58(18), D62(22), D78(38), D52(12)
-                    y_load = get_val(18)
-                    y_torque = get_val(22)
-                    y_peak = get_val(38)
-                    y_current = get_val(12) / 10
+                    y_load = abs(get_val(18))
+                    y_torque = abs(get_val(22))
+                    y_peak = abs(get_val(38))
+                    y_current = abs(get_val(12)) / 10
                     y_health = calc_health(y_current, y_load, y_torque, y_peak)
                     
                     axis_monitoring_data["y"] = {
@@ -433,10 +503,10 @@ def poll_plc_thread():
 
                     # Z Axis (D64, D60, D80, D56)
                     # D64(24), D60(20), D80(40), D56(16)
-                    z_load = get_val(24)
-                    z_torque = get_val(20)
-                    z_peak = get_val(40)
-                    z_current = get_val(16) / 10
+                    z_load = abs(get_val(24))
+                    z_torque = abs(get_val(20))
+                    z_peak = abs(get_val(40))
+                    z_current = abs(get_val(16)) / 10
                     z_health = calc_health(z_current, z_load, z_torque, z_peak)
                     
                     axis_monitoring_data["z"] = {
@@ -463,23 +533,98 @@ def poll_plc_thread():
                               # Usually critical errors need manual reset, but for now let's adhere to "if any one is above 60"
                               # So if it drops, the flag clears, but the motors stay off until user restarts.
                     
-                    # --- DB Logging (Throttled 10s) ---
-                    if time.time() - last_health_log_time > 10:
-                        last_health_log_time = time.time()
-                        db = SessionLocal()
-                        try:
-                            health_record = plc_models.ServoHealth(
-                                timestamp=datetime.datetime.utcnow(),
-                                x_health=x_health, x_current=x_current, x_load=x_load, x_torque=x_torque, x_peak=x_peak,
-                                y_health=y_health, y_current=y_current, y_load=y_load, y_torque=y_torque, y_peak=y_peak,
-                                z_health=z_health, z_current=z_current, z_load=z_load, z_torque=z_torque, z_peak=z_peak
-                            )
-                            db.add(health_record)
-                            db.commit()
-                        except Exception as dbe:
-                            logging.error(f"Failed to log health: {dbe}")
-                        finally:
-                            db.close()
+
+                    # --- History & Daily Stats Logic ---
+                    current_time = datetime.datetime.now()
+                    
+                    # 1. Update In-Memory History (60s buffer)
+                    # We want to store approximately last 60s. Polling is ~0.1s, but we only want to sample every ~2s?
+                    # Or just store every Nth point?
+                    # The request said: "store just values of past 60 seconds... status should be monitored in background every 2 seconds"
+                    # Since this loop runs fast (~10Hz), we should throttle the history append.
+                    
+                    if time.time() - last_history_update >= 2.0:
+                        last_history_update = time.time()
+                        
+                        snapshot = {
+                            "time": current_time.isoformat(),
+                            "x": axis_monitoring_data["x"],
+                            "y": axis_monitoring_data["y"],
+                            "z": axis_monitoring_data["z"]
+                        }
+                        servo_history.append(snapshot)
+                        if len(servo_history) > 30: # 30 points * 2s = 60s
+                             servo_history.pop(0)
+
+                    # 2. Update Daily Stats (Peaks/Lows) - Check every cycle (fast) or every 2s?
+                    # Real-time peak detection is better done every cycle.
+                    
+                    # Initialize stats from DB if empty
+                    if not servo_daily_stats:
+                         init_daily_stats()
+
+                    # Check for day change to reset? 
+                    # Request: "peak and lowest value of last 24 hours". 
+                    # Strictly "last 24h" implies a sliding window, which is hard with just min/max scalars.
+                    # Usually "Daily" implies "Today". 
+                    # If "last 24h" means "rolling 24h", we need to store ALL data points for 24h?
+                    # The user said: "remove the database... store just values of past 60 seconds AND peak/lowest value of last 24 hours".
+                    # Interpretation: Keep a "Daily High/Low" record. If it's a fixed "Today" or "Yesterday+Today", simple min/max works.
+                    # If strictly "Rolling 24h", we can't easily evict old peaks without full history.
+                    # Assumption: "Daily Stats" (reset at midnight or just persistent all time peaks until manual reset?).
+                    # Let's stick to "Session/Persistent Peaks", maybe reset manually or never?
+                    # Or implementing a simple "reset if > 24h old"? 
+                    # Let's just track absolute Min/Max since system start/DB creation for now, or per day.
+                    # I will implement it as "Current Max/Min tracking", updated live.
+                    
+                    updates_needed = False
+                    
+                    def check_stat(axis, metric, value, timestamp):
+                        nonlocal updates_needed
+                        stats = servo_daily_stats[axis][metric]
+                        
+                        # Modulus (abs) for value comparison as requested "health index should be modulous"
+                        # But metrics like current can be negative. User said "negative values too should be displayed as positive".
+                        # So we track min/max of the MAGNITUDE? Or min/max of raw value?
+                        # Request: "displayed as positive... peak and lowest value... mark them".
+                        # If we display as positive, then "Lowest" is essentially 0? Or closest to 0?
+                        # Or does "Lowest" mean most negative?
+                        # "positive... displayed" suggests visuals.
+                        # Storing: Let's store ABSOLUTE value for everything if that's what the graph shows.
+                        # "keep track of highest lowest value of that field... mark them... remove database... store just values of past 60s"
+                        # If graph is 0-Positive, then Min is likely close to 0.
+                        # Let's use abs(value) for stats tracking too.
+                        
+                        abs_val = abs(value)
+                        
+                        if stats["min_val"] is None or abs_val < stats["min_val"]:
+                            stats["min_val"] = abs_val
+                            stats["min_time"] = timestamp
+                            updates_needed = True
+                            
+                        if stats["max_val"] is None or abs_val > stats["max_val"]:
+                            stats["max_val"] = abs_val
+                            stats["max_time"] = timestamp
+                            updates_needed = True
+
+                    for axis_char in ['x', 'y', 'z']:
+                        data = axis_monitoring_data[axis_char]
+                        # Metrics to track: current, torque, peak, load, health
+                        for metric in ['current', 'torque', 'peak', 'load', 'health']:
+                            check_stat(axis_char, metric, data[metric], current_time)
+                            
+                    if updates_needed:
+                        # Save to DB (Throttle this? maybe every 10s or 1min? To avoid disk hammering for noisy signals?)
+                        # But user wants "displayed even if backend restarts".
+                        # Immediate save is safest but costly. Let's do it. SQLite is fast enough for occasional peaks.
+                        # But if signal is rising fast, every polling cycle will trigger a new max.
+                        # Let's throttle DB saves to once every 5 seconds max if dirty.
+                        pass
+                    
+                    if updates_needed and (time.time() - last_stats_save_time > 5.0):
+                        save_daily_stats()
+                        last_stats_save_time = time.time()
+
                             
             except Exception as e_mon:
                 # Don't spam logs if it fails, maybe just debug or ignore
@@ -1172,45 +1317,18 @@ def get_scan_result(scan_id: str, filename: str):
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
 
+
 @router.get("/servo/history")
 def get_servo_history():
-    """Get servo health history for last 24 used in charts."""
-    db = SessionLocal()
-    try:
-        cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=24)
-        records = db.query(plc_models.ServoHealth).filter(plc_models.ServoHealth.timestamp >= cutoff).order_by(plc_models.ServoHealth.timestamp.asc()).all()
+    """Get servo health history and daily stats."""
+    # Return in-memory buffer + stats
+    
+    # Init stats if not yet loaded (e.g. if polling hasn't run yet)
+    if not servo_daily_stats:
+        init_daily_stats()
         
-        history = {
-            "x": [], "y": [], "z": [],
-            "stats": {
-                "x": {"min": 0, "max": 0},
-                "y": {"min": 0, "max": 0},
-                "z": {"min": 0, "max": 0}
-            }
-        }
-        
-        if not records:
-             return history
+    return {
+        "history": servo_history,
+        "stats": servo_daily_stats
+    }
 
-        # Helper to process axis
-        def process_axis(axis_char):
-             # Return list of dicts with all metrics
-             return [{
-                 "time": r.timestamp.isoformat(),
-                 "health": getattr(r, f"{axis_char}_health"),
-                 "current": getattr(r, f"{axis_char}_current"),
-                 "load": getattr(r, f"{axis_char}_load"),
-                 "torque": getattr(r, f"{axis_char}_torque"),
-                 "peak": getattr(r, f"{axis_char}_peak")
-             } for r in records]
-
-        history["x"] = process_axis("x")
-        history["y"] = process_axis("y")
-        history["z"] = process_axis("z")
-        
-        return history
-    except Exception as e:
-        logging.error(f"Failed to fetch servo history: {e}")
-        return {"error": str(e)}
-    finally:
-        db.close()

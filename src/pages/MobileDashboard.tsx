@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, FileText, Heart, ChevronRight } from "lucide-react";
+import { Activity, FileText, Heart, ChevronRight, Cpu } from "lucide-react";
 
 const MobileDashboard = () => {
   const navigate = useNavigate();
@@ -50,15 +50,15 @@ const MobileDashboard = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4">
+      <div className="flex-1 px-4 py-4 space-y-6">
         {/* Welcome Section */}
-        <div className="mb-6">
+        <div>
           <h2 className="text-xl font-bold text-foreground mb-0.5">Welcome</h2>
           <p className="text-xs text-muted-foreground">Select a module to monitor</p>
         </div>
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pages.map((page, index) => {
             const Icon = page.icon;
             return (
@@ -84,6 +84,34 @@ const MobileDashboard = () => {
             );
           })}
         </div>
+
+        {/* About Info (Aligned with Desktop Dashboard) */}
+        <div className="bg-card/20 rounded-xl p-4 border border-border/50">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+              <Cpu className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">About Spectra-Scan</h3>
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+            Spectra-Scan is an advanced automated inspection system developed by <span className="text-primary font-semibold">Team CON-SOL-E 5.0</span>.
+          </p>
+
+          {/* MECUP Badge */}
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg p-3 border border-border">
+            <img
+              src="/assets/MECUP_logo.png"
+              alt="MECUP"
+              className="h-10 w-10 object-contain flex-shrink-0"
+            />
+            <div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">Competition</div>
+              <div className="text-xl font-bold text-foreground tracking-tight leading-none">MECUP</div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Bottom Status Bar */}

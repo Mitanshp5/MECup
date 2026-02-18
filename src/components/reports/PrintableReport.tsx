@@ -229,8 +229,8 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
     <div className="print-container flex flex-col h-full bg-gray-100 relative">
       {/* Toolbar - Hidden when printing */}
       <div className="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-center print:hidden shadow-sm z-50 sticky top-0">
-        <button onClick={onBack} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors px-2 py-1.5 rounded-md hover:bg-gray-100">
-          <ArrowLeft className="w-4 h-4" />
+        <button onClick={onBack} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors px-4 py-3 rounded-md hover:bg-gray-100 active:bg-gray-200">
+          <ArrowLeft className="w-5 h-5" />
           Back
         </button>
         <button
