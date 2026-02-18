@@ -1,9 +1,19 @@
 """
+FastAPI Server for Paint Defect Detection System Support Agent
 
-FastAPI Server for Production RAG Agent
+This server provides REST API endpoints for technical support and troubleshooting
+assistance for industrial paint job defect detection systems.
 
-Provides REST API endpoint for troubleshooting queries
+The agent has access to comprehensive documentation covering:
+- Vision cameras and imaging systems
+- Defect detection algorithms and parameters
+- PLC controllers and automation
+- Error codes and fault diagnostics
+- Calibration and maintenance procedures
+- Paint application quality issues
 
+Primary Purpose: Troubleshooting system problems and component failures
+Secondary Purpose: General technical questions about system operation
 """
 
 
@@ -39,8 +49,8 @@ agent = None
 
 
 class QueryRequest(BaseModel):
-
     query: str
+    session_id: str = "default"  # Optional session ID for conversation tracking
 
 
 
@@ -91,41 +101,22 @@ router = APIRouter()
 
 
 @router.post("/api/troubleshoot", response_model=QueryResponse)
-
 async def troubleshoot(request: QueryRequest):
-
-    """Process a troubleshooting query"""
-
+    """Process a troubleshooting query with conversation history"""
     global agent
-
     
-
     if not request.query:
-
         raise HTTPException(status_code=400, detail="Query is required")
-
     
-
     if agent is None:
-
-        # Try to initialize again or fail
-
         msg = "Agent not initialized"
-
         print(f"[Error] {msg}")
-
         raise HTTPException(status_code=503, detail=msg)
-
     
-
     try:
-
-        print(f"[Query] {request.query}")
-
-        response = agent.query(request.query)
-
+        print(f"[Query] Session: {request.session_id}, Query: {request.query}")
+        response = agent.query(request.query, session_id=request.session_id)
         print(f"[Response] {response[:100]}...")
-
         return QueryResponse(response=response)
 
     except Exception as e:
@@ -136,18 +127,42 @@ async def troubleshoot(request: QueryRequest):
 
 
 
+@router.post("/api/troubleshoot/clear-history")
+async def clear_history(session_id: str = "default"):
+    """Clear conversation history for a session"""
+    global agent
+    
+    if agent is None:
+        raise HTTPException(status_code=503, detail="Agent not initialized")
+    
+    try:
+        agent.clear_history(session_id)
+        return {"message": f"History cleared for session: {session_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/troubleshoot/history")
+async def get_history(session_id: str = "default"):
+    """Get conversation history for a session"""
+    global agent
+    
+    if agent is None:
+        raise HTTPException(status_code=503, detail="Agent not initialized")
+    
+    try:
+        history = agent.get_history(session_id)
+        return {"session_id": session_id, "history": history, "message_count": len(history)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/api/health", response_model=HealthResponse)
-
 async def health():
-
     """Health check endpoint"""
-
     return HealthResponse(
-
         status="healthy",
-
         agent_loaded=agent is not None
-
     )
 
 
