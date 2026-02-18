@@ -9,6 +9,7 @@ const SettingsPage = () => {
     ip: "169.254.180.21",
     port: "5000",
     timeout: "5000",
+    mm2_per_pixel: "0.0037",
   });
 
   const [cameraSettings, setCameraSettings] = useState({
@@ -28,7 +29,12 @@ const SettingsPage = () => {
       .then(res => res.json())
       .then(data => {
         if (data.ip && data.port) {
-          setPlcSettings(prev => ({ ...prev, ip: data.ip, port: String(data.port) }));
+          setPlcSettings(prev => ({
+            ...prev,
+            ip: data.ip,
+            port: String(data.port),
+            mm2_per_pixel: String(data.mm2_per_pixel || "0.0037")
+          }));
         }
       })
       .catch(err => {
@@ -67,7 +73,8 @@ const SettingsPage = () => {
             body: JSON.stringify({
               ip: plcSettings.ip,
               port: parseInt(plcSettings.port),
-              timeout: parseInt(plcSettings.timeout)
+              timeout: parseInt(plcSettings.timeout),
+              mm2_per_pixel: parseFloat(plcSettings.mm2_per_pixel)
             }),
           });
           const data = await res.json();
@@ -161,6 +168,16 @@ const SettingsPage = () => {
                 type="text"
                 value={plcSettings.timeout}
                 onChange={(e) => setPlcSettings(prev => ({ ...prev, timeout: e.target.value }))}
+                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">MM2 Per Pixel</label>
+              <input
+                type="number"
+                step="0.0001"
+                value={plcSettings.mm2_per_pixel}
+                onChange={(e) => setPlcSettings(prev => ({ ...prev, mm2_per_pixel: e.target.value }))}
                 className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
