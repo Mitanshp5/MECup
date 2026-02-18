@@ -8,14 +8,16 @@ import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
-from .settings import save_plc_settings, load_plc_settings
+from .settings import save_plc_settings, load_plc_settings, save_stitch_scale, load_stitch_scale
 from .connection import manager
 from .scan_manager import scan_session
 from . import models as plc_models
 try:
     from database import SessionLocal
+    from utils.image_stitcher import stitch_images
 except ImportError:
     from ..database import SessionLocal
+    from ..utils.image_stitcher import stitch_images
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import math
@@ -696,6 +698,21 @@ def get_plc_status():
     st = manager.get_status()
     return st
 
+@router.get("/stitch/settings")
+def get_stitch_settings():
+    """Get stitch scale settings."""
+    return {"scale": load_stitch_scale()}
+
+@router.post("/stitch/settings")
+def save_stitch_settings(settings: dict):
+    """Save stitch scale settings."""
+    try:
+        scale = float(settings.get("scale", 18.0))
+        save_stitch_scale(scale)
+        return {"success": True, "scale": scale}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/plc/connect")
 def plc_connect(req: PLCConnectRequest):
     """Save settings and restart/configure manager."""
@@ -1316,6 +1333,30 @@ def get_scan_result(scan_id: str, filename: str):
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
+
+@router.get("/scans/{scan_id}/stitched")
+def get_stitched_image(scan_id: str):
+    """Get or generate stitched image for a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+    
+    # Check if stitched image already exists
+    if not os.path.exists(stitched_path):
+        # Generate stitched image with scale from settings
+        try:
+            scale = load_stitch_scale()
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to stitch images")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Stitching error: {str(e)}")
+    
+    return FileResponse(stitched_path, media_type="image/jpeg")
 
 
 @router.get("/servo/history")

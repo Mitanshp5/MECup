@@ -34,8 +34,7 @@ backend/inference/openvino_model/
 *.blob
 
 backend\mecup.db
-mecup.db
-mecup.db-shm
-mecup.db-wal
+backend\mecup.db-shm
+backend\mecup.db-wal
 *.pdf
-error_log.txt
+backend\error_log.txt

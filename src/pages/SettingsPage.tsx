@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, Network, Camera, Palette } from "lucide-react";
+import { Save, Network, Camera, Palette, Image } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
 import { API_BASE_URL } from "@/lib/api-config";
@@ -15,6 +15,10 @@ const SettingsPage = () => {
     exposure: "5000",
     gain: "0",
     auto_exposure: false,
+  });
+
+  const [stitchSettings, setStitchSettings] = useState({
+    scale: "18",
   });
 
   const { theme, setTheme } = useTheme();
@@ -50,6 +54,20 @@ const SettingsPage = () => {
       .catch(err => {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch camera settings:", err);
+        }
+      });
+
+    // Fetch Stitch Settings
+    fetch(`${API_BASE_URL}/stitch/settings`, { signal: abortController.signal })
+      .then(res => res.json())
+      .then(data => {
+        setStitchSettings({
+          scale: String(data.scale || 18),
+        });
+      })
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch stitch settings:", err);
         }
       });
 
@@ -100,8 +118,28 @@ const SettingsPage = () => {
         }
       })();
 
-      // Wait for both
-      const [plcResult, camResult] = await Promise.all([plcPromise, camPromise]);
+      const stitchPromise = (async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/stitch/settings`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scale: parseFloat(stitchSettings.scale)
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            return { type: 'stitch', success: data.success, message: "Stitch settings saved" };
+          }
+          return { type: 'stitch', success: false, message: "Failed to save stitch settings" };
+        } catch (e) {
+          console.error("Stitch save error:", e);
+          return { type: 'stitch', success: false, message: "Stitch settings unreachable" };
+        }
+      })();
+
+      // Wait for all
+      const [plcResult, camResult, stitchResult] = await Promise.all([plcPromise, camPromise, stitchPromise]);
 
       if (plcResult.success) {
         toast.success("Settings Saved & Connected", {
@@ -209,6 +247,35 @@ const SettingsPage = () => {
                 onChange={(e) => setCameraSettings(prev => ({ ...prev, gain: e.target.value }))}
                 className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Stitch Settings */}
+        <div className="industrial-panel p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
+              <Image className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Image Stitching</h3>
+              <p className="text-sm text-muted-foreground">Configure image stitching parameters</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Scale Factor (px/mm)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={stitchSettings.scale}
+                onChange={(e) => setStitchSettings(prev => ({ ...prev, scale: e.target.value }))}
+                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Default: 18.0 px/mm. Adjust this value to fine-tune the stitched image alignment.
+              </p>
             </div>
           </div>
         </div>
