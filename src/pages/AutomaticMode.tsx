@@ -5,7 +5,17 @@ import { Play, Square, Camera, AlertTriangle, Grid2x2Check, RotateCcw, Home, Zap
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/lib/api-config";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Added imports
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Defect {
   id: string;
@@ -50,8 +60,50 @@ const AutomaticMode = () => {
   const [pulseMode, setPulseMode] = useState<'off' | 'white' | 'green'>('off');
   const [cameraConnected, setCameraConnected] = useState<boolean>(true); // Default to true to allow initial load
   const [streamTimestamp, setStreamTimestamp] = useState<number>(Date.now());
-  const [selectedModel, setSelectedModel] = useState<string>("white"); // Added state
+  const [selectedModel, setSelectedModel] = useState<string>("black"); // Added state
   const isMounted = useRef(true);
+
+  // Model Switching Logic
+  const [modelSwitchOpen, setModelSwitchOpen] = useState(false);
+  const [pendingModel, setPendingModel] = useState<string | null>(null);
+  const [isSwitchingModel, setIsSwitchingModel] = useState(false);
+
+  const handleModelSelect = (value: string) => {
+    if (value === selectedModel) return;
+    setPendingModel(value);
+    setModelSwitchOpen(true);
+  };
+
+  const confirmModelSwitch = async () => {
+    if (!pendingModel) return;
+    setIsSwitchingModel(true);
+    try {
+      if (MOCK_MODE) {
+        setSelectedModel(pendingModel);
+        toast.success(`Mock Switched to ${pendingModel}`);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/plc/set-model`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model_type: pendingModel }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSelectedModel(pendingModel);
+        toast.success(`Switched to ${pendingModel === 'white' ? 'White' : 'Black'} Door Model`);
+      } else {
+        toast.error("Failed to switch model", { description: data.error });
+      }
+    } catch (e) {
+      toast.error("Network error switching model");
+    } finally {
+      setIsSwitchingModel(false);
+      setModelSwitchOpen(false);
+      setPendingModel(null);
+    }
+  };
 
   // Persist defects to session storage (debounced to reduce write frequency)
   useEffect(() => {
@@ -567,7 +619,7 @@ const AutomaticMode = () => {
 
             {/* Model Selection */}
             <div className="mb-1">
-              <Select value={selectedModel} onValueChange={setSelectedModel} disabled={isScanning}>
+              <Select value={selectedModel} onValueChange={handleModelSelect} disabled={isScanning || isSwitchingModel}>
                 <SelectTrigger className="w-full h-8 text-[10px] px-1 bg-secondary/50 border-border/50">
                   <SelectValue placeholder="Model" />
                 </SelectTrigger>
@@ -782,6 +834,35 @@ const AutomaticMode = () => {
           </div>
         </div>
       )}
+
+      {/* Model Switch Confirmation Dialog */}
+      <AlertDialog open={modelSwitchOpen} onOpenChange={setModelSwitchOpen}>
+        <AlertDialogContent className="bg-background border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Switch Model?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to switch to the <strong>{pendingModel === 'white' ? 'White Door' : 'Black Door'}</strong> model?
+              <br /><br />
+              This will trigger a model reload which may take a few seconds. The system will be ready for the next scan after the switch.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSwitchingModel} onClick={() => setPendingModel(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isSwitchingModel}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent auto-close, we handle it
+                confirmModelSwitch();
+              }}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {isSwitchingModel ? "Switching..." : "Confirm Switch"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
