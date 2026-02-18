@@ -66,3 +66,25 @@ class ServoHealth(Base):
     z_torque = Column(Float)
     z_peak = Column(Float)
 
+
+class ServoDailyStat(Base):
+    __tablename__ = "servo_daily_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(DateTime, default=datetime.datetime.utcnow, index=True) # Normalized to midnight? Or just use timestamp and filter?
+    # Actually plan said: date, axis, metric as primary key components or similar. 
+    # Let's use a composite unique constraint or just simple rows.
+    # To keep it simple and flexible:
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow) # Time of the record (updated when max/min changes)
+    
+    axis = Column(String) # 'x', 'y', 'z'
+    metric = Column(String) # 'current', 'load', 'torque', 'peak'
+    
+    min_val = Column(Float)
+    min_time = Column(DateTime)
+    
+    max_val = Column(Float)
+    max_time = Column(DateTime)
+
+# Create index for fast lookup
+# Index('idx_daily_stats', ServoDailyStat.date, ServoDailyStat.axis, ServoDailyStat.metric)

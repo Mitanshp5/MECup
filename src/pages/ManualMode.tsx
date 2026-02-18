@@ -308,7 +308,7 @@ const ManualMode = () => {
   return (
     <div className="h-full grid grid-cols-12 gap-6 relative">
       {/* Blocking Overlay */}
-      {!plcConnected && (
+      {/* {!plcConnected && (
         <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg border border-destructive/50">
           <div className="text-center space-y-4 p-8 bg-card border border-destructive rounded-xl shadow-lg">
             <div className="h-12 w-12 rounded-full bg-destructive/20 flex items-center justify-center mx-auto animate-pulse">
@@ -321,7 +321,7 @@ const ManualMode = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Main Control Panel */}
       <div className="col-span-8 space-y-4">

@@ -361,7 +361,8 @@
     width: 170mm !important;
     max-width: 170mm !important;
     min-height: 270mm !important;
-    margin: 0 auto !important;      /* Center on the printed page */
+    margin: 0 auto !important;
+    /* Center on the printed page */
   }
 
   /* Remove shadows and backgrounds for clean print */
@@ -379,5 +380,13 @@
   img {
     max-width: 100% !important;
     page-break-inside: avoid;
+  }
+}
+
+@layer utilities {
+
+  .touch-only-cursor-hidden,
+  .touch-only-cursor-hidden * {
+    cursor: none !important;
   }
 }
