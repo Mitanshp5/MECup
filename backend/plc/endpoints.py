@@ -233,7 +233,7 @@ def save_inference_callback(future):
     except Exception as e:
         logging.error(f"Inference Task Failed: {e}")
 
-def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id, model_type="white", mm2_per_pixel=0.0037):
+def run_inference_wrapper(filepath, result_dir, save_overlay, scan_id, model_type="black", mm2_per_pixel=0.0037):
     """Wrapper to return filepath and scan_id along with results."""
     from inference.inference_service import run_inference_task
     res = run_inference_task(filepath, result_dir, save_overlay, model_type=model_type, mm2_per_pixel=mm2_per_pixel)
@@ -279,7 +279,10 @@ class LightControlRequest(BaseModel):
     pass
 
 class ScanStartRequest(BaseModel):
-    model_type: str = "white" # white, black
+    model_type: str = "black" # white, black
+
+class ModelChangeRequest(BaseModel):
+    model_type: str
 
 class ScanStopRequest(BaseModel):
     pass
@@ -673,7 +676,8 @@ def init_plc_system():
              dummy_path, 
              None, # output_dir=None to skip saving
              False, # save_overlay (ignored when output_dir is None, but good for clarity)
-             "warmup_scan"
+             "warmup_scan",
+             "black" # model_type explicitly
         )
         # We don't wait for result here to not block startup, but it will run in background.
         print("[PLC INIT] Inference warmup task submitted.", flush=True)
@@ -770,6 +774,36 @@ def control_lights(req: LightControlRequest):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@router.post("/plc/set-model")
+def set_model(req: ModelChangeRequest):
+    """Explicitly set/load the model without starting a scan."""
+    try:
+        # Update session state
+        scan_session.model_type = req.model_type
+        
+        # Trigger warm-up/load
+        dummy_path = os.path.join(os.path.dirname(__file__), "warmup.jpg")
+        # Ensure dummy exists (it should from init, but good to be safe)
+        if not os.path.exists(dummy_path):
+             import numpy as np
+             from PIL import Image
+             img = Image.fromarray(np.zeros((518, 518, 3), dtype=np.uint8))
+             img.save(dummy_path)
+
+        # Submit task to force load
+        inference_executor.submit(
+             run_inference_wrapper, 
+             dummy_path, 
+             None, 
+             False, 
+             "manual_switch",
+             req.model_type
+        )
+        add_event(f"Model Switched to {req.model_type}", "info")
+        return {"success": True, "message": f"Model switched to {req.model_type}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @router.post("/plc/scan-start")
 def scan_start(username: str = "operator", req: ScanStartRequest = ScanStartRequest()):
     """Start (or Resume) Scan with Model Selection."""
@@ -786,6 +820,27 @@ def scan_start(username: str = "operator", req: ScanStartRequest = ScanStartRequ
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         scan_session.start_new_scan(username, backend_dir, req.model_type)
         
+        # Trigger explicit warmup/load of the selected model so user sees log immediately
+        try:
+             # Create dummy/blank image path if needed (reusing the one from init)
+             dummy_path = os.path.join(os.path.dirname(__file__), "warmup.jpg")
+             if not os.path.exists(dummy_path):
+                 import numpy as np
+                 from PIL import Image
+                 img = Image.fromarray(np.zeros((518, 518, 3), dtype=np.uint8))
+                 img.save(dummy_path)
+                 
+             inference_executor.submit(
+                 run_inference_wrapper, 
+                 dummy_path, 
+                 None, 
+                 False, 
+                 "warmup_switch",
+                 req.model_type # Force load of selected model
+             )
+        except Exception as we:
+             print(f"[Scan Start] Warmup trigger failed: {we}")
+
         # Set M5 ON
         manager.write_bit("M5", [1])
         add_event(f"Scan Started ({req.model_type})", "success")

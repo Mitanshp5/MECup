@@ -27,20 +27,31 @@ class ScanSession:
         # New State Fields
         self.status = "IDLE" # IDLE, RUNNING, PAUSED
         self.scan_id = None
-        self.model_type = "white" # white, black
+        self.status = "IDLE" # IDLE, RUNNING, PAUSED
+        self.scan_id = None
+        self.model_type = "black" # white, black
         
         # Thread safety locks
         self.state_lock = threading.Lock()
         self._initialized = True
         
         # Configure logging if not already done
-        logging.basicConfig(
-            filename=os.path.join(os.path.dirname(os.path.dirname(__file__)), "error_log.txt"),
-            level=logging.ERROR,
-            format='%(asctime)s [%(levelname)s] %(message)s'
-        )
+        # Configure logging - Attach FileHandler to root logger for errors, 
+        # but don't mess with global level aggressively if not needed.
+        # Actually, let's just ensure we have a file handler for errors.
+        root_logger = logging.getLogger()
+        if not any(isinstance(h, logging.FileHandler) for h in root_logger.handlers):
+             try:
+                 log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "error_log.txt")
+                 fh = logging.FileHandler(log_path)
+                 fh.setLevel(logging.ERROR)
+                 formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+                 fh.setFormatter(formatter)
+                 root_logger.addHandler(fh)
+             except Exception:
+                 pass
 
-    def start_new_scan(self, username, base_dir, model_type="white"):
+    def start_new_scan(self, username, base_dir, model_type="black"):
         """Initialize a new scan or resume existing one."""
         with self.state_lock:
             

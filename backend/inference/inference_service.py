@@ -63,14 +63,14 @@ class DefectPredictor:
         self.sync_request = None
         self.input_layer = None
         self.output_layer = None
-        self.current_model_type = "white" # Default
+        self.current_model_type = "black" # Default
         self.device = "CPU" # Default fallback
         
         # Check OpenVINO
         if OPENVINO_AVAILABLE:
             core = ov.Core()
             devices = core.available_devices
-            logger.info(f"[Inference] OpenVINO devices: {devices}")
+            print(f"[Inference] OpenVINO devices: {devices}", flush=True)
             
             if "GPU.0" in devices: self.device = "GPU.0"
             elif "GPU.1" in devices: self.device = "GPU.1"
@@ -82,7 +82,7 @@ class DefectPredictor:
             logger.warning("[Inference] OpenVINO not available. Inference will fail.")
         
         # Initial Load
-        self.load_model("white")
+        self.load_model("black")
         
     def load_model(self, model_type: str):
         """Load the specified model type (white/black)."""
@@ -99,7 +99,7 @@ class DefectPredictor:
             # Try to compile on the fly if .pth exists? No, keep it simple for now.
             return False
 
-        logger.info(f"[Inference] Loading {model_type} model from {model_path} on {self.device}")
+        print(f"[Inference] Loading {model_type} model from {model_path} on {self.device}", flush=True)
 
         try:
             # Enable caching
@@ -137,10 +137,11 @@ class DefectPredictor:
             
             self.backend = "openvino"
             self.current_model_type = model_type
-            logger.info(f"[Inference] {model_type} model loaded successfully.")
+            print(f"[Inference] {model_type} model loaded successfully.", flush=True)
             return True
 
         except Exception as e:
+            print(f"[Inference] Failed to load model: {e}", flush=True)
             logger.error(f"[Inference] Failed to load model: {e}")
             return False
 
@@ -385,7 +386,7 @@ def get_predictor() -> DefectPredictor:
         _predictor = DefectPredictor()
     return _predictor
 
-def run_inference_task(image_path, output_dir, save_overlay=True, model_type="white", mm2_per_pixel=0.0037):
+def run_inference_task(image_path, output_dir, save_overlay=True, model_type="black", mm2_per_pixel=0.0037):
     """
     Standalone function to run inference in a separate process.
     """
