@@ -1,21 +1,6 @@
 """
-Production RAG Agent for Paint Defect Detection System Troubleshooting
-
-Purpose:
-This agent provides technical support and troubleshooting assistance for industrial
-paint job defect detection systems. It has access to comprehensive documentation
-covering all system components including:
-- Vision cameras and imaging systems
-- Defect detection algorithms and parameters
-- PLC controllers and automation
-- Error codes and fault diagnostics
-- Calibration and maintenance procedures
-- Paint application quality issues
-
-Primary Use: Troubleshooting system problems and component failures
-Secondary Use: General technical questions about system operation
-
-Implements: Query expansion, hybrid retrieval, conversation history
+Production RAG Agent - Improved Accuracy Version
+Implements: Query expansion, hybrid retrieval, better chunking awareness
 """
 
 from typing import TypedDict, List, Tuple, Dict
@@ -33,19 +18,18 @@ VECTORDB_DIR = os.path.join(SCRIPT_DIR, "vectordb")
 EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
 LLM_MODEL = "phi3"
 
-# Improved retrieval settings for large PDFs
-TOP_K = 10  # Increased to 10 for better coverage of large documents
-RELEVANCE_THRESHOLD = 0.10  # Lowered to 0.10 to catch more potential matches
-FETCH_K = 20  # Increased candidate pool for large PDFs
+# Improved retrieval settings
+TOP_K = 6  # Increased from 3 to get more context
+RELEVANCE_THRESHOLD = 0.15  # Lowered from 0.25 to be more inclusive
+FETCH_K = 12  # Increased for better candidate pool
 
 
 def classify_query(query: str) -> str:
     """Classify query type for better prompt selection."""
     query_lower = query.lower()
     
-    # Error code pattern - matches codes like 19A6H, 1A68H, E101, etc.
-    if re.search(r'\b(error|fault|alarm|code)\b', query_lower, re.IGNORECASE) or \
-       re.search(r'\b\d+[a-z]+\d*[a-z]*\b', query_lower, re.IGNORECASE):
+    # Error code pattern
+    if re.search(r'\b(error|fault|alarm|code)\b.*\b[a-z0-9]{4,}\b', query_lower, re.IGNORECASE):
         return "error_code"
     
     # Troubleshooting
@@ -79,15 +63,13 @@ def expand_query(query: str, query_type: str) -> List[str]:
     variations = [query]
     
     if query_type == "error_code":
-        # Extract error code - improved pattern for codes like 19A6H
-        match = re.search(r'\b(\d+[a-z]+\d*[a-z]*)\b', query, re.IGNORECASE)
+        # Extract error code
+        match = re.search(r'\b([a-z0-9]{4,})\b', query, re.IGNORECASE)
         if match:
-            code = match.group(1).upper()
-            variations.append(f"error {code}")
-            variations.append(f"code {code}")
+            code = match.group(1)
+            variations.append(f"error code {code}")
             variations.append(f"fault {code}")
             variations.append(f"alarm {code}")
-            variations.append(code)  # Just the code itself
     
     elif query_type == "troubleshooting":
         # Add symptom-focused variations
@@ -109,20 +91,16 @@ class AgentState(TypedDict):
     context: List[str]
     sources: List[Dict]
     response: str
-    chat_history: List[Dict]  # Store conversation history
 
 
 class ProductionRAGAgent:
-    """Production-ready RAG agent with improved accuracy and conversation memory."""
+    """Production-ready RAG agent with improved accuracy."""
     
     def __init__(self):
         print("[*] Initializing Production RAG Agent (Improved)...")
         print(f"   Embedding: {EMBEDDING_MODEL}")
         print(f"   LLM: {LLM_MODEL}")
         print(f"   Retrieval: top_k={TOP_K}, threshold={RELEVANCE_THRESHOLD}")
-        
-        # Initialize conversation history storage
-        self.conversations = {}  # session_id -> list of messages
         
         # Load embeddings
         self.embeddings = HuggingFaceEmbeddings(
@@ -161,7 +139,7 @@ class ProductionRAGAgent:
         seen_content = set()
         
         # Retrieve for each variation
-        for var in variations[:5]:  # Use more variations for error codes
+        for var in variations[:3]:  # Limit to top 3 variations
             try:
                 results = self.vectorstore.similarity_search_with_relevance_scores(
                     var,
@@ -228,7 +206,7 @@ class ProductionRAGAgent:
             
             # Handle special cases
             if query_type == "greeting":
-                return {"response": "Hello! I'm your technical support assistant for the paint defect detection system. I specialize in troubleshooting all system components including vision cameras, defect detection algorithms, PLC controllers, error codes, and maintenance procedures. I have access to comprehensive documentation for each component. What issue can I help you resolve today?"}
+                return {"response": "Hello! I'm a troubleshooting assistant for industrial paint defect detection systems. I can help with error codes, camera issues, defect detection problems, and maintenance procedures. What specific issue are you facing?"}
             
             if query_type == "vague":
                 return {"response": "I'd be happy to help! Could you provide more details about your specific issue? For example, are you experiencing an error code, camera problems, or defect detection issues?"}
@@ -247,41 +225,43 @@ class ProductionRAGAgent:
             
             # Select prompt template based on query type
             if query_type == "error_code":
-                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to troubleshoot system problems using comprehensive component documentation including vision cameras, defect detection algorithms, PLC controllers, and maintenance procedures.
+                prompt = f"""You are a technical troubleshooting expert for industrial paint defect detection machines.
 
-User's Issue: {query}
+User Query: {query}
 
-Reference Documentation from System Components:
+Reference Documentation:
 {context_text}
 
-IMPORTANT: Format your response as HTML with the following structure:
+Provide a detailed response in HTML format:
 
-<div class="troubleshoot-response">
-  <div class="issue-section">
-    <strong>Issue Identified:</strong>
-    <p>[Brief description of the error code and what it means]</p>
+<div class="error-response">
+  <div class="error-details">
+    <strong>Error Code:</strong>
+    <p>[Error code and description]</p>
   </div>
-  <div class="steps-section">
-    <strong>Troubleshooting Steps:</strong>
+  <div class="cause">
+    <strong>Possible Cause:</strong>
+    <p>[What causes this error]</p>
+  </div>
+  <div class="solution">
+    <strong>Solution Steps:</strong>
     <ol>
-      <li>[First step - one sentence]</li>
-      <li>[Second step - one sentence]</li>
-      <li>[Third step - one sentence]</li>
-      <li>[Fourth step if needed]</li>
+      <li>[Step 1]</li>
+      <li>[Step 2]</li>
+      <li>[Step 3]</li>
     </ol>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Keep each step concise (one sentence). If information is not relevant, say you don't have specific information and suggest consulting the manual.
-
-ONLY return the HTML, no other text."""
+Use ONLY the provided documentation. If the error code is not found, say so clearly."""
             
             elif query_type == "troubleshooting":
-                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to troubleshoot system problems using comprehensive component documentation including vision cameras, defect detection algorithms, PLC controllers, and maintenance procedures.
+                prompt = f"""You are a technical troubleshooting expert for industrial paint defect detection machines.
 
 User Issue: {query}
 
-Reference Documentation from System Components:
+Reference Documentation:
 {context_text}
 
 Provide a structured troubleshooting response in HTML:
@@ -300,16 +280,17 @@ Provide a structured troubleshooting response in HTML:
       <li>[Additional steps if needed]</li>
     </ol>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Base your answer on the documentation. Be specific and actionable. Return ONLY the HTML, no other text."""
+Base your answer on the documentation. Be specific and actionable."""
             
             elif query_type == "how_to":
-                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to provide guidance on system operation, calibration, and maintenance procedures.
+                prompt = f"""You are a technical expert for industrial paint defect detection machines.
 
 User Question: {query}
 
-Reference Documentation from System Components:
+Reference Documentation:
 {context_text}
 
 Provide a clear procedure in HTML:
@@ -331,16 +312,17 @@ Provide a clear procedure in HTML:
     <strong>Notes:</strong>
     <p>[Important notes or warnings]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Use the documentation to provide accurate steps. Return ONLY the HTML, no other text."""
+Use the documentation to provide accurate steps."""
             
             elif query_type == "info":
-                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. You provide technical information about system components and operation.
+                prompt = f"""You are a technical expert for industrial paint defect detection machines.
 
 User Question: {query}
 
-Reference Documentation from System Components:
+Reference Documentation:
 {context_text}
 
 Provide a clear, concise answer in HTML:
@@ -349,16 +331,17 @@ Provide a clear, concise answer in HTML:
   <div class="answer">
     <p>[Clear explanation based on documentation]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Be accurate. Return ONLY the HTML, no other text."""
+Be accurate and cite the documentation."""
             
             else:  # general
-                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. You assist with both troubleshooting and general technical questions about system operation.
+                prompt = f"""You are a technical expert for industrial paint defect detection machines.
 
 User Question: {query}
 
-Reference Documentation from System Components:
+Reference Documentation:
 {context_text}
 
 Provide a helpful answer in HTML:
@@ -367,9 +350,10 @@ Provide a helpful answer in HTML:
   <div class="answer">
     <p>[Comprehensive answer based on documentation]</p>
   </div>
+  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-Use the documentation to provide accurate information. Return ONLY the HTML, no other text."""
+Use the documentation to provide accurate information."""
             
             response = self.llm.invoke(prompt)
             return {"response": response}
@@ -393,48 +377,12 @@ Use the documentation to provide accurate information. Return ONLY the HTML, no 
             response = response[:-3]
         return response.strip()
     
-    def query(self, question: str, session_id: str = "default") -> str:
-        """Query the agent with conversation history support."""
-        # Get or create conversation history for this session
-        if session_id not in self.conversations:
-            self.conversations[session_id] = []
-        
-        chat_history = self.conversations[session_id]
-        
-        # Invoke agent with chat history
-        result = self.agent.invoke({
-            "query": question,
-            "chat_history": chat_history
-        })
-        
+    def query(self, question: str) -> str:
+        """Query the agent."""
+        result = self.agent.invoke({"query": question})
         raw_response = result["response"]
         cleaned = self._clean_response(raw_response)
-        
-        # Store this exchange in history
-        self.conversations[session_id].append({
-            "role": "user",
-            "content": question
-        })
-        self.conversations[session_id].append({
-            "role": "assistant",
-            "content": cleaned
-        })
-        
-        # Keep only last 10 exchanges (20 messages) to avoid context overflow
-        if len(self.conversations[session_id]) > 20:
-            self.conversations[session_id] = self.conversations[session_id][-20:]
-        
         return cleaned
-    
-    def clear_history(self, session_id: str = "default"):
-        """Clear conversation history for a session."""
-        if session_id in self.conversations:
-            self.conversations[session_id] = []
-            print(f"[*] Cleared conversation history for session: {session_id}")
-    
-    def get_history(self, session_id: str = "default") -> List[Dict]:
-        """Get conversation history for a session."""
-        return self.conversations.get(session_id, [])
 
 
 # Singleton instance
