@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import pandas as pd
 import os
-from typing import Optional
+import json
+import glob
+from typing import Optional, Dict, Any, List
 
 
 def flat_field_correct(img, blur_size=201):
@@ -151,3 +153,239 @@ def stitch_images(scan_folder_path: str, output_filename: str = "stitched_result
     print(f"Stitched image saved to {output_path}")
     
     return output_path
+
+
+def _load_results_json(scan_folder_path: str) -> List[Dict[str, Any]]:
+    """Load all result JSON files from the results folder."""
+    results_dir = os.path.join(scan_folder_path, "results")
+    if not os.path.exists(results_dir):
+        return []
+    
+    reports = []
+    for json_file in sorted(glob.glob(os.path.join(results_dir, "*_report.json"))):
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+                reports.append(data)
+        except (json.JSONDecodeError, IOError):
+            continue
+    return reports
+
+
+def generate_heatmap(scan_folder_path: str, scale: float = 18.0) -> Optional[str]:
+    """
+    Generate a defect heatmap overlay on the stitched image.
+    Reads defect data from results JSON files and maps defect density
+    onto the stitched canvas using grid coordinates.
+    
+    Returns:
+        Path to the heatmap image if successful, None otherwise.
+    """
+    csv_path = os.path.join(scan_folder_path, "grid_locations.csv")
+    stitched_path = os.path.join(scan_folder_path, "stitched_result.jpg")
+    
+    if not os.path.exists(csv_path):
+        print(f"grid_locations.csv not found in {scan_folder_path}")
+        return None
+    
+    # Load stitched image (generate if missing)
+    if not os.path.exists(stitched_path):
+        result = stitch_images(scan_folder_path, "stitched_result.jpg", scale)
+        if result is None:
+            return None
+    
+    stitched = cv2.imread(stitched_path)
+    if stitched is None:
+        return None
+    
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception:
+        return None
+    
+    df['X'] = -df['X']
+    df['Y'] = -df['Y']
+    
+    min_x = df['X'].min()
+    max_x = df['X'].max()
+    min_y = df['Y'].min()
+    max_y = df['Y'].max()
+    
+    # Get tile dimensions from first image
+    first_img_path = os.path.join(scan_folder_path, df.iloc[0]['Filename'])
+    sample_img = cv2.imread(first_img_path)
+    if sample_img is None:
+        return None
+    h, w = sample_img.shape[:2]
+    
+    canvas_h, canvas_w = stitched.shape[:2]
+    
+    # Load all result JSONs and build a map: image filename -> defect data
+    reports = _load_results_json(scan_folder_path)
+    defect_map = {}
+    for report in reports:
+        img_name = report.get("image", "")
+        summary = report.get("summary", {})
+        defect_map[img_name] = summary
+    
+    # Create heatmap intensity canvas
+    heat_canvas = np.zeros((canvas_h, canvas_w), dtype=np.float32)
+    
+    for _, row in df.iterrows():
+        filename = row['Filename']
+        summary = defect_map.get(filename, {})
+        defect_count = summary.get("total_defects", 0)
+        defect_area_pct = summary.get("defect_area_percentage", 0.0)
+        
+        # Intensity based on defect area percentage (stronger signal)
+        intensity = min(defect_area_pct / 10.0, 1.0)  # Normalize: 10% area = max intensity
+        # Also factor in count
+        intensity = max(intensity, min(defect_count / 5.0, 1.0))
+        
+        if intensity < 0.01:
+            continue
+        
+        physical_x = row['X']
+        physical_y = row['Y']
+        
+        x_pos = int((physical_x - min_x) * scale)
+        y_pos = int((max_y - physical_y) * scale)
+        
+        end_x = min(x_pos + w, canvas_w)
+        end_y = min(y_pos + h, canvas_h)
+        
+        if end_x <= x_pos or end_y <= y_pos:
+            continue
+        
+        heat_canvas[y_pos:end_y, x_pos:end_x] = np.maximum(
+            heat_canvas[y_pos:end_y, x_pos:end_x], intensity
+        )
+    
+    # Apply Gaussian blur for smooth heatmap
+    blur_k = max(int(min(canvas_h, canvas_w) * 0.05) | 1, 31)
+    heat_canvas = cv2.GaussianBlur(heat_canvas, (blur_k, blur_k), 0)
+    
+    # Normalize to 0-255
+    if heat_canvas.max() > 0:
+        heat_canvas = (heat_canvas / heat_canvas.max() * 255).astype(np.uint8)
+    else:
+        heat_canvas = heat_canvas.astype(np.uint8)
+    
+    # Apply colormap (JET: blue=low, red=high)
+    heatmap_colored = cv2.applyColorMap(heat_canvas, cv2.COLORMAP_JET)
+    
+    # Create mask where there are defects (non-zero heat)
+    alpha = 0.45
+    mask = heat_canvas > 5
+    
+    # Blend heatmap onto stitched image
+    result = stitched.copy()
+    for c in range(3):
+        result[:, :, c] = np.where(
+            mask,
+            np.clip(stitched[:, :, c] * (1 - alpha) + heatmap_colored[:, :, c] * alpha, 0, 255).astype(np.uint8),
+            stitched[:, :, c]
+        )
+    
+    output_path = os.path.join(scan_folder_path, "heatmap_result.jpg")
+    cv2.imwrite(output_path, result)
+    print(f"Heatmap image saved to {output_path}")
+    
+    return output_path
+
+
+def generate_intensive_summary(scan_folder_path: str) -> Dict[str, Any]:
+    """
+    Generate an intensive summary from all result JSON files in a scan folder.
+    Aggregates metrics across all tiles for a comprehensive analysis.
+    
+    Returns:
+        Dictionary with aggregated metrics and per-type breakdowns.
+    """
+    reports = _load_results_json(scan_folder_path)
+    
+    total_tiles = len(reports)
+    tiles_with_defects = 0
+    total_defects = 0
+    total_defect_area_mm2 = 0.0
+    total_defect_area_pixels = 0
+    max_defect_area_pct = 0.0
+    worst_tile = ""
+    
+    type_stats: Dict[str, Dict[str, Any]] = {}
+    tile_defect_counts: List[int] = []
+    
+    for report in reports:
+        summary = report.get("summary", {})
+        defects = report.get("defects", {})
+        img_name = report.get("image", "")
+        
+        tile_total = summary.get("total_defects", 0)
+        tile_defect_counts.append(tile_total)
+        total_defects += tile_total
+        total_defect_area_mm2 += summary.get("total_defect_area_mm2", 0.0)
+        total_defect_area_pixels += summary.get("total_defect_area_pixels", 0)
+        
+        area_pct = summary.get("defect_area_percentage", 0.0)
+        if area_pct > max_defect_area_pct:
+            max_defect_area_pct = area_pct
+            worst_tile = img_name
+        
+        if tile_total > 0:
+            tiles_with_defects += 1
+        
+        for defect_type, type_data in defects.items():
+            if defect_type not in type_stats:
+                type_stats[defect_type] = {
+                    "total_count": 0,
+                    "total_area_mm2": 0.0,
+                    "total_area_pixels": 0,
+                    "tiles_affected": 0,
+                    "max_single_area_mm2": 0.0,
+                    "avg_uncertainty": 0.0,
+                    "uncertainty_sum": 0.0,
+                    "uncertainty_n": 0,
+                }
+            
+            ts = type_stats[defect_type]
+            count = type_data.get("count", 0)
+            ts["total_count"] += count
+            ts["total_area_mm2"] += type_data.get("total_area_mm2", 0.0)
+            ts["total_area_pixels"] += type_data.get("total_area_pixels", 0)
+            
+            if count > 0:
+                ts["tiles_affected"] += 1
+            
+            for inst in type_data.get("instances", []):
+                area = inst.get("area_mm2", 0.0)
+                if area > ts["max_single_area_mm2"]:
+                    ts["max_single_area_mm2"] = area
+                unc = inst.get("uncertainty", 0.0)
+                ts["uncertainty_sum"] += unc
+                ts["uncertainty_n"] += 1
+    
+    # Compute averages
+    for defect_type, ts in type_stats.items():
+        if ts["uncertainty_n"] > 0:
+            ts["avg_uncertainty"] = round(ts["uncertainty_sum"] / ts["uncertainty_n"], 4)
+        ts["total_area_mm2"] = round(ts["total_area_mm2"], 2)
+        ts["max_single_area_mm2"] = round(ts["max_single_area_mm2"], 2)
+        del ts["uncertainty_sum"]
+        del ts["uncertainty_n"]
+    
+    avg_defects_per_tile = round(total_defects / total_tiles, 2) if total_tiles > 0 else 0
+    defect_free_pct = round((total_tiles - tiles_with_defects) / total_tiles * 100, 1) if total_tiles > 0 else 0
+    
+    return {
+        "total_tiles_scanned": total_tiles,
+        "tiles_with_defects": tiles_with_defects,
+        "tiles_clean": total_tiles - tiles_with_defects,
+        "defect_free_percentage": defect_free_pct,
+        "total_defects": total_defects,
+        "avg_defects_per_tile": avg_defects_per_tile,
+        "total_defect_area_mm2": round(total_defect_area_mm2, 2),
+        "total_defect_area_pixels": total_defect_area_pixels,
+        "worst_tile": worst_tile,
+        "worst_tile_area_pct": round(max_defect_area_pct, 2),
+        "defect_type_breakdown": type_stats,
+    }

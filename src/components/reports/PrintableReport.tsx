@@ -53,7 +53,7 @@ function generateVisionAnalytics(scan: ScanDetails) {
 
   const scratchCount = defect_types["Scratch"] || 0;
   const dustCount = defect_types["Dust"] || 0;
-  const rundownCount = defect_types["RunDown"] || 0;
+  const rundownCount = defect_types["Rundown"] || defect_types["RunDown"] || 0;
 
   // Defect density
   const defectDensity = image_count > 0 ? (total_defects / image_count) : 0;
@@ -252,7 +252,10 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             {/* Logos Row */}
             <div className="flex items-center justify-between mb-4">
               <img src="/assets/MECUP_logo.png" alt="MECUP Logo" className="h-12 sm:h-16 object-contain" />
-              <img src="/assets/icon.ico" alt="Console Logo" className="h-12 sm:h-16 object-contain" />
+              <div className="flex items-center gap-2">
+                <img src="/assets/icon.ico" alt="Console Logo" className="h-12 sm:h-16 object-contain" />
+                <span className="text-sm sm:text-base font-bold text-gray-700 tracking-wide">Team Con-sol-e</span>
+              </div>
             </div>
             
             {/* Title and Report ID Row */}
@@ -269,9 +272,9 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
                 </p>
               </div>
               <div className="text-right">
-                <div className="inline-block bg-gray-50 px-4 py-2 rounded border border-gray-200 print:bg-white print:border-2 print:border-gray-800">
-                  <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1 print:text-black print:font-bold">Report ID</p>
-                  <p className="font-mono font-bold text-base sm:text-lg text-gray-900 print:text-xl print:text-black">
+                <div style={{ backgroundColor: "#f9fafb", border: "2px solid #1f2937", padding: "8px 16px", borderRadius: "6px" }}>
+                  <p style={{ fontSize: "10px", fontFamily: "monospace", color: "#1f2937", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>Report ID</p>
+                  <p style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "18px", color: "#111827" }}>
                     {scan.id.slice(-8).toUpperCase()}
                   </p>
                 </div>
@@ -386,9 +389,44 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             </div>
           </div>
 
-          {/* ===== 3. VISION ANALYTICS ===== */}
+          {/* ===== 3. DEFECT HEATMAP ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
-            <SectionTitle number={3} title="Vision Analytics &amp; Process Insights" />
+            <SectionTitle number={3} title="Defect Heatmap Overlay" />
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+              The heatmap below highlights defect-dense regions across the inspected surface. Warmer colors (red/orange) indicate higher defect concentration, while cooler colors (blue/green) indicate lower severity areas.
+            </p>
+            <div className="bg-gray-100 border border-gray-200 rounded-lg p-4">
+              <div className="aspect-[16/9] bg-white relative overflow-hidden rounded border border-gray-300">
+                <img
+                  src={`${API_BASE_URL}/scans/${scan.id}/heatmap`}
+                  alt="Defect Heatmap"
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    const parent = el.parentElement;
+                    if (!parent) return;
+                    el.style.display = "none";
+                    parent.classList.add("flex", "items-center", "justify-center");
+                    const span = document.createElement("span");
+                    span.className = "text-gray-400 text-xs italic";
+                    span.textContent = "Heatmap not available for this scan";
+                    parent.appendChild(span);
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-3">
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-3 rounded" style={{ background: "linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)" }}></div>
+                  <span className="text-[9px] text-gray-500">Low → High Defect Density</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== 4. VISION ANALYTICS ===== */}
+          <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
+            <SectionTitle number={4} title="Vision Analytics &amp; Process Insights" />
 
             {analytics.insights.length > 0 ? (
               <div className="space-y-3 mb-6">
@@ -454,10 +492,10 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 4. VISUAL EVIDENCE ===== */}
+          {/* ===== 5. VISUAL EVIDENCE ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
             <div className="flex justify-between items-center mb-4">
-              <SectionTitle number={4} title="Visual Evidence" />
+              <SectionTitle number={5} title="Visual Evidence" />
               {scan.defects.length > 4 && (
                 <button
                   onClick={() => setShowAllImages(!showAllImages)}
@@ -548,9 +586,9 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 5. DEFECT STATISTICS ===== */}
+          {/* ===== 6. DEFECT STATISTICS ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200">
-            <SectionTitle number={5} title="Defect Statistics" />
+            <SectionTitle number={6} title="Defect Statistics" />
 
             {scan.total_defects > 0 ? (
               <table className="w-full border-collapse text-xs sm:text-sm">
@@ -625,9 +663,9 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 6. FINAL REMARKS ===== */}
+          {/* ===== 7. FINAL REMARKS ===== */}
           <div className="p-6 sm:p-8 mt-auto bg-gray-50 border-t border-gray-200 break-inside-avoid">
-            <SectionTitle number={6} title="Final Remarks" />
+            <SectionTitle number={7} title="Final Remarks" />
             <div className="border border-gray-300 bg-white p-4 min-h-[60px] sm:min-h-[80px] mb-8 shadow-inner">
               <p className="text-xs sm:text-sm text-gray-700 font-serif italic leading-relaxed">
                 {scan.status === "pass"
