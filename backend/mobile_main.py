@@ -17,11 +17,15 @@ try:
     from database import get_db, engine
     from auth import router as auth_router, models as auth_models, security
     from plc import models as plc_models
+    from utils.image_stitcher import stitch_images
+    from plc.settings import load_stitch_scale
 except ImportError:
     # Fallback for relative imports if run differently
     from .database import get_db, engine
     from .auth import router as auth_router, models as auth_models, security
     from .plc import models as plc_models
+    from .utils.image_stitcher import stitch_images
+    from .plc.settings import load_stitch_scale
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -378,6 +382,30 @@ def get_scan_result(scan_id: str, filename: str):
     
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
+
+@app.get("/scans/{scan_id}/stitched")
+def get_stitched_image(scan_id: str):
+    """Get or generate stitched image for a scan."""
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+    
+    # Check if stitched image already exists
+    if not os.path.exists(stitched_path):
+        # Generate stitched image with scale from settings
+        try:
+            scale = load_stitch_scale()
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to stitch images")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Stitching error: {str(e)}")
+    
+    return FileResponse(stitched_path, media_type="image/jpeg")
 
 @app.get("/mobile/scans")
 def get_recent_scans_legacy(limit: int = 20, db: Session = Depends(get_db)):
