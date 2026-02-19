@@ -8,14 +8,16 @@ import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
-from .settings import save_plc_settings, load_plc_settings
+from .settings import save_plc_settings, load_plc_settings, save_stitch_scale, load_stitch_scale
 from .connection import manager
 from .scan_manager import scan_session
 from . import models as plc_models
 try:
     from database import SessionLocal
+    from utils.image_stitcher import stitch_images, generate_heatmap, generate_intensive_summary
 except ImportError:
     from ..database import SessionLocal
+    from ..utils.image_stitcher import stitch_images, generate_heatmap, generate_intensive_summary
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import math
@@ -714,6 +716,21 @@ def get_plc_status():
     st = manager.get_status()
     return st
 
+@router.get("/stitch/settings")
+def get_stitch_settings():
+    """Get stitch scale settings."""
+    return {"scale": load_stitch_scale()}
+
+@router.post("/stitch/settings")
+def save_stitch_settings(settings: dict):
+    """Save stitch scale settings."""
+    try:
+        scale = float(settings.get("scale", 18.0))
+        save_stitch_scale(scale)
+        return {"success": True, "scale": scale}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/plc/connect")
 def plc_connect(req: PLCConnectRequest):
     """Save settings and restart/configure manager."""
@@ -1314,44 +1331,64 @@ def get_scan_details(scan_id: str):
         defect_types = {}
         total_defect_count = scan.defect_count
         
-        # Try to load defect details from metadata JSON files in results folder
+        # Try to load defect details from report JSON files in results folder
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         results_dir = os.path.join(backend_dir, "captured_images", scan_id, "results")
         
-        # Build a lookup of metadata by original image filename
-        meta_lookup = {}
+        # Build a lookup of report data by original image filename
+        report_lookup = {}
         if os.path.isdir(results_dir):
-            for meta_file in os.listdir(results_dir):
-                if meta_file.endswith("_meta.json"):
+            for report_file in os.listdir(results_dir):
+                if report_file.endswith("_report.json"):
                     try:
-                        with open(os.path.join(results_dir, meta_file), 'r') as mf:
-                            meta = json_lib.load(mf)
-                            orig_image = meta.get("image", "")
-                            meta_lookup[orig_image] = meta
+                        with open(os.path.join(results_dir, report_file), 'r') as rf:
+                            report_data = json_lib.load(rf)
+                            orig_image = report_data.get("image", "")
+                            report_lookup[orig_image] = report_data
                     except Exception:
                         pass
+        
+        # Aggregate defect_types and total_defects from report JSONs
+        computed_total_defects = 0
+        for img_name, report_data in report_lookup.items():
+            summary = report_data.get("summary", {})
+            computed_total_defects += summary.get("total_defects", 0)
+            defects_by_type = report_data.get("defects", {})
+            for dtype, dtype_data in defects_by_type.items():
+                count = dtype_data.get("count", 0)
+                if count > 0:
+                    defect_types[dtype] = defect_types.get(dtype, 0) + count
+        
+        # Use computed total if report JSONs exist, otherwise fall back to DB
+        if report_lookup:
+            total_defect_count = computed_total_defects
         
         for img in images_db:
             images.append(img.filename)
             
-            # Try to get per-image defect details from metadata
-            img_meta = meta_lookup.get(img.filename, {})
-            img_defect_details = img_meta.get("defects", [])
+            # Get per-image report data
+            img_report = report_lookup.get(img.filename, {})
+            img_defects_by_type = img_report.get("defects", {})
             
-            # Accumulate defect_types from metadata
-            for d in img_defect_details:
-                dtype = d.get("type", "Unknown")
-                if dtype != "Background":
-                    defect_types[dtype] = defect_types.get(dtype, 0) + 1
+            # Build flat defect_details list for frontend compatibility
+            img_defect_details = []
+            img_total = img_report.get("summary", {}).get("total_defects", 0)
+            for dtype, dtype_data in img_defects_by_type.items():
+                if dtype_data.get("count", 0) > 0:
+                    img_defect_details.append({
+                        "type": dtype,
+                        "pixel_count": dtype_data.get("total_area_pixels", 0),
+                        "area_ratio": dtype_data.get("area_percentage_of_image", 0.0) / 100.0
+                    })
             
-            if img.has_defects:
+            if img.has_defects or img_total > 0:
                 overlay_name = os.path.basename(img.overlay_path) if img.overlay_path else None
                 defects.append({
                     "image": img.filename,
                     "overlay": overlay_name,
                     "overlay_url": f"/scans/{scan_id}/results/{overlay_name}" if overlay_name else None,
                     "image_url": f"/scans/{scan_id}/image/{img.filename}",
-                    "defect_count": img.defect_count,
+                    "defect_count": img_total if img_total > 0 else (img.defect_count or 1),
                     "defect_details": img_defect_details
                 })
         
@@ -1434,6 +1471,101 @@ def get_scan_result(scan_id: str, filename: str):
     media_type = "image/png" if filename.endswith(".png") else "image/jpeg"
     return FileResponse(file_path, media_type=media_type)
 
+@router.get("/scans/{scan_id}/stitched")
+def get_stitched_image(scan_id: str):
+    """Get or generate stitched image for a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+    
+    # Check if stitched image already exists
+    if not os.path.exists(stitched_path):
+        # Generate stitched image with scale from settings
+        try:
+            scale = load_stitch_scale()
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to stitch images")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Stitching error: {str(e)}")
+    
+    return FileResponse(stitched_path, media_type="image/jpeg")
+
+@router.post("/scans/{scan_id}/generate-report")
+def generate_scan_report(scan_id: str):
+    """Generate stitched image and heatmap for a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    try:
+        scale = load_stitch_scale()
+        
+        # Generate stitched image
+        stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+        if not os.path.exists(stitched_path):
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to stitch images")
+        
+        # Generate heatmap
+        heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
+        if not os.path.exists(heatmap_path):
+            result_path = generate_heatmap(scan_folder, scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to generate heatmap")
+        
+        return {
+            "success": True,
+            "message": "Report generated successfully",
+            "stitched_available": os.path.exists(stitched_path),
+            "heatmap_available": os.path.exists(heatmap_path)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Report generation error: {str(e)}")
+
+@router.get("/scans/{scan_id}/heatmap")
+def get_heatmap_image(scan_id: str):
+    """Get or generate defect heatmap overlay for a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
+    
+    if not os.path.exists(heatmap_path):
+        try:
+            scale = load_stitch_scale()
+            result_path = generate_heatmap(scan_folder, scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to generate heatmap")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Heatmap error: {str(e)}")
+    
+    return FileResponse(heatmap_path, media_type="image/jpeg")
+
+@router.get("/scans/{scan_id}/intensive-summary")
+def get_intensive_summary(scan_id: str):
+    """Get intensive defect analysis summary from result JSONs."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    try:
+        summary = generate_intensive_summary(scan_folder)
+        return summary
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Summary error: {str(e)}")
 
 @router.get("/servo/history")
 def get_servo_history():

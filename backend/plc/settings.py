@@ -30,5 +30,5 @@ def load_plc_settings():
                     'mm2_per_pixel': data.get('mm2_per_pixel', 0.0037)
                 }
             except json.JSONDecodeError:
-                pass
-    return {'ip': None, 'port': None, 'mm2_per_pixel': 0.0037}
+                return None
+    return None

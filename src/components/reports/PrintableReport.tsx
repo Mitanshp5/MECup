@@ -53,7 +53,7 @@ function generateVisionAnalytics(scan: ScanDetails) {
 
   const scratchCount = defect_types["Scratch"] || 0;
   const dustCount = defect_types["Dust"] || 0;
-  const rundownCount = defect_types["RunDown"] || 0;
+  const rundownCount = defect_types["Rundown"] || defect_types["RunDown"] || 0;
 
   // Defect density
   const defectDensity = image_count > 0 ? (total_defects / image_count) : 0;
@@ -248,24 +248,36 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
         <div ref={reportContentRef} className="report-content max-w-[210mm] mx-auto bg-white text-black shadow-xl print:shadow-none print:max-w-none print:w-full min-h-[297mm] print:min-h-0">
 
           {/* ===== PAGE HEADER ===== */}
-          <div className="p-6 sm:p-8 border-b-2 border-gray-800 flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-blue-800" />
-                <h1 className="text-xl sm:text-2xl font-bold uppercase tracking-wider text-gray-900">
-                  Inspection Report
-                </h1>
+          <div className="p-6 sm:p-8 border-b-2 border-gray-800">
+            {/* Logos Row */}
+            <div className="flex items-center justify-between mb-4">
+              <img src="/assets/MECUP_logo.png" alt="MECUP Logo" className="h-12 sm:h-16 object-contain" />
+              <div className="flex items-center gap-2">
+                <img src="/assets/icon.ico" alt="Console Logo" className="h-12 sm:h-16 object-contain" />
+                <span className="text-sm sm:text-base font-bold text-gray-700 tracking-wide">Team Con-sol-e</span>
               </div>
-              <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                Automatic Car Paint Defect Detection System
-              </p>
             </div>
-            <div className="text-right">
-              <div className="inline-block bg-gray-50 px-4 py-2 rounded border border-gray-200">
-                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Report ID</p>
-                <p className="font-mono font-bold text-base sm:text-lg text-gray-900">
-                  {scan.id.slice(-8).toUpperCase()}
+            
+            {/* Title and Report ID Row */}
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-blue-800" />
+                  <h1 className="text-xl sm:text-2xl font-bold uppercase tracking-wider text-gray-900">
+                    Inspection Report
+                  </h1>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-500 font-medium">
+                  Automatic Car Paint Defect Detection System
                 </p>
+              </div>
+              <div className="text-right">
+                <div style={{ backgroundColor: "#f9fafb", border: "2px solid #1f2937", padding: "8px 16px", borderRadius: "6px" }}>
+                  <p style={{ fontSize: "10px", fontFamily: "monospace", color: "#1f2937", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>Report ID</p>
+                  <p style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "18px", color: "#111827" }}>
+                    {scan.id.slice(-8).toUpperCase()}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -345,9 +357,76 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 2. VISION ANALYTICS ===== */}
+          {/* ===== 2. FULL SURFACE OVERVIEW ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
-            <SectionTitle number={2} title="Vision Analytics &amp; Process Insights" />
+            <SectionTitle number={2} title="Full Surface Overview (Stitched)" />
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+              The following image shows the complete stitched view of all scanned regions, providing a comprehensive overview of the entire inspected surface.
+            </p>
+            <div className="bg-gray-100 border border-gray-200 rounded-lg p-4">
+              <div className="aspect-[16/9] bg-white relative overflow-hidden rounded border border-gray-300">
+                <img
+                  src={`${API_BASE_URL}/scans/${scan.id}/stitched`}
+                  alt="Stitched Surface Overview"
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    const parent = el.parentElement;
+                    if (!parent) return;
+                    el.style.display = "none";
+                    parent.classList.add("flex", "items-center", "justify-center");
+                    const span = document.createElement("span");
+                    span.className = "text-gray-400 text-xs italic";
+                    span.textContent = "Stitched image not available for this scan";
+                    parent.appendChild(span);
+                  }}
+                />
+              </div>
+              <p className="text-[10px] text-gray-400 mt-2 text-center italic">
+                Composite image generated from {scan.image_count} individual scans
+              </p>
+            </div>
+          </div>
+
+          {/* ===== 3. DEFECT HEATMAP ===== */}
+          <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
+            <SectionTitle number={3} title="Defect Heatmap Overlay" />
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+              The heatmap below highlights defect-dense regions across the inspected surface. Warmer colors (red/orange) indicate higher defect concentration, while cooler colors (blue/green) indicate lower severity areas.
+            </p>
+            <div className="bg-gray-100 border border-gray-200 rounded-lg p-4">
+              <div className="aspect-[16/9] bg-white relative overflow-hidden rounded border border-gray-300">
+                <img
+                  src={`${API_BASE_URL}/scans/${scan.id}/heatmap`}
+                  alt="Defect Heatmap"
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    const parent = el.parentElement;
+                    if (!parent) return;
+                    el.style.display = "none";
+                    parent.classList.add("flex", "items-center", "justify-center");
+                    const span = document.createElement("span");
+                    span.className = "text-gray-400 text-xs italic";
+                    span.textContent = "Heatmap not available for this scan";
+                    parent.appendChild(span);
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-3">
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-3 rounded" style={{ background: "linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)" }}></div>
+                  <span className="text-[9px] text-gray-500">Low → High Defect Density</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== 4. VISION ANALYTICS ===== */}
+          <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
+            <SectionTitle number={4} title="Vision Analytics &amp; Process Insights" />
 
             {analytics.insights.length > 0 ? (
               <div className="space-y-3 mb-6">
@@ -413,10 +492,10 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 3. VISUAL EVIDENCE ===== */}
+          {/* ===== 5. VISUAL EVIDENCE ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200 break-inside-avoid">
             <div className="flex justify-between items-center mb-4">
-              <SectionTitle number={3} title="Visual Evidence" />
+              <SectionTitle number={5} title="Visual Evidence" />
               {scan.defects.length > 4 && (
                 <button
                   onClick={() => setShowAllImages(!showAllImages)}
@@ -507,9 +586,9 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 4. DEFECT STATISTICS ===== */}
+          {/* ===== 6. DEFECT STATISTICS ===== */}
           <div className="p-6 sm:p-8 border-b border-gray-200">
-            <SectionTitle number={4} title="Defect Statistics" />
+            <SectionTitle number={6} title="Defect Statistics" />
 
             {scan.total_defects > 0 ? (
               <table className="w-full border-collapse text-xs sm:text-sm">
@@ -551,9 +630,11 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
                           <td className="p-2 sm:p-3 font-mono text-gray-900 text-right">{count}</td>
                           <td className="p-2 sm:p-3 font-mono text-gray-600 text-right">{percentage}%</td>
                           <td className="p-2 sm:p-3 text-right">
-                            <span className={`px-2 py-0.5 text-[10px] rounded-full uppercase font-bold tracking-wide ${severityColor}`}>
-                              {severity}
-                            </span>
+                            <div className="flex justify-end">
+                              <span className={`inline-block px-2 py-0.5 text-[10px] rounded-full uppercase font-bold tracking-wide ${severityColor}`}>
+                                {severity}
+                              </span>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -582,9 +663,9 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             )}
           </div>
 
-          {/* ===== 5. FINAL REMARKS ===== */}
+          {/* ===== 7. FINAL REMARKS ===== */}
           <div className="p-6 sm:p-8 mt-auto bg-gray-50 border-t border-gray-200 break-inside-avoid">
-            <SectionTitle number={5} title="Final Remarks" />
+            <SectionTitle number={7} title="Final Remarks" />
             <div className="border border-gray-300 bg-white p-4 min-h-[60px] sm:min-h-[80px] mb-8 shadow-inner">
               <p className="text-xs sm:text-sm text-gray-700 font-serif italic leading-relaxed">
                 {scan.status === "pass"
@@ -613,7 +694,7 @@ const PrintableReport: React.FC<PrintableReportProps> = ({ scan, onBack }) => {
             </div>
             <div className="text-center mt-8">
               <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em]">
-                Page 1 of 1 &bull; Confidential Inspection Record
+                Confidential Inspection Record
               </p>
             </div>
           </div>

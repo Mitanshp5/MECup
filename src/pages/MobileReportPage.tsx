@@ -10,6 +10,7 @@ import {
   FileText,
   Calendar,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
 import PrintableReport from "@/components/reports/PrintableReport";
@@ -33,6 +34,8 @@ const MobileReportPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedScan, setSelectedScan] = useState<ScanDetails | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     isMounted.current = true;
@@ -243,15 +246,51 @@ const MobileReportPage = () => {
           </div>
         )}
 
-        {/* View Report Button */}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setShowReport(true)}
-          className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg"
-        >
-          <Eye className="w-4 h-4" />
-          View Full Inspection Report
-        </motion.button>
+        {/* Generate/View Report Button */}
+        {!reportGenerated[selectedScan.id] ? (
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={async () => {
+              setIsGeneratingReport(true);
+              try {
+                const res = await fetch(`${API_BASE_URL}/scans/${selectedScan.id}/generate-report`, {
+                  method: 'POST'
+                });
+                const data = await res.json();
+                if (data.success) {
+                  setReportGenerated(prev => ({ ...prev, [selectedScan.id]: true }));
+                }
+              } catch (err) {
+                console.error('Failed to generate report:', err);
+              } finally {
+                setIsGeneratingReport(false);
+              }
+            }}
+            disabled={isGeneratingReport}
+            className="w-full py-3.5 bg-blue-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isGeneratingReport ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating Report...
+              </>
+            ) : (
+              <>
+                <FileText className="w-4 h-4" />
+                Generate Report
+              </>
+            )}
+          </motion.button>
+        ) : (
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setShowReport(true)}
+            className="w-full py-3.5 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg"
+          >
+            <Eye className="w-4 h-4" />
+            View Full Inspection Report
+          </motion.button>
+        )}
       </div>
     </div>
   );

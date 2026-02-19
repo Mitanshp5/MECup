@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Download, Eye, Calendar, User, CheckCircle, AlertTriangle, X, Image as ImageIcon, Trash2 } from "lucide-react";
+import { Search, Filter, Download, Eye, Calendar, User, CheckCircle, AlertTriangle, X, Image as ImageIcon, Trash2, FileText, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +53,8 @@ const PastScans = () => {
   const [selectedScan, setSelectedScan] = useState<ScanDetails | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [scanToDelete, setScanToDelete] = useState<string | null>(null);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState<{[key: string]: boolean}>({});
 
   const [showFullDetails, setShowFullDetails] = useState(false);
 
@@ -306,13 +308,50 @@ const PastScans = () => {
             </div>
 
             {!showFullDetails && (
-              <button
-                onClick={() => setShowFullDetails(true)}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-all shadow-lg flex items-center justify-center gap-2"
-              >
-                <Eye className="w-4 h-4" />
-                View Full Inspection Report
-              </button>
+              <div className="space-y-3">
+                {!reportGenerated[selectedScan.id] ? (
+                  <button
+                    onClick={async () => {
+                      setIsGeneratingReport(true);
+                      try {
+                        const res = await fetch(`${API_BASE_URL}/scans/${selectedScan.id}/generate-report`, {
+                          method: 'POST'
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          setReportGenerated(prev => ({ ...prev, [selectedScan.id]: true }));
+                        }
+                      } catch (err) {
+                        console.error('Failed to generate report:', err);
+                      } finally {
+                        setIsGeneratingReport(false);
+                      }
+                    }}
+                    disabled={isGeneratingReport}
+                    className="w-full py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    {isGeneratingReport ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating Report...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4" />
+                        Generate Report
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowFullDetails(true)}
+                    className="w-full py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    View Full Inspection Report
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Defect Types Breakdown (Small summary) */}
