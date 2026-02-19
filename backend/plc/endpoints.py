@@ -1378,6 +1378,41 @@ def get_stitched_image(scan_id: str):
     
     return FileResponse(stitched_path, media_type="image/jpeg")
 
+@router.post("/scans/{scan_id}/generate-report")
+def generate_scan_report(scan_id: str):
+    """Generate stitched image and heatmap for a scan."""
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+    
+    if not os.path.exists(scan_folder):
+        raise HTTPException(status_code=404, detail="Scan folder not found")
+    
+    try:
+        scale = load_stitch_scale()
+        
+        # Generate stitched image
+        stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+        if not os.path.exists(stitched_path):
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to stitch images")
+        
+        # Generate heatmap
+        heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
+        if not os.path.exists(heatmap_path):
+            result_path = generate_heatmap(scan_folder, scale)
+            if result_path is None:
+                raise HTTPException(status_code=500, detail="Failed to generate heatmap")
+        
+        return {
+            "success": True,
+            "message": "Report generated successfully",
+            "stitched_available": os.path.exists(stitched_path),
+            "heatmap_available": os.path.exists(heatmap_path)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Report generation error: {str(e)}")
+
 @router.get("/scans/{scan_id}/heatmap")
 def get_heatmap_image(scan_id: str):
     """Get or generate defect heatmap overlay for a scan."""
