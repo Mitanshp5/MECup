@@ -25,6 +25,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 import MobileCursorHandler from "@/components/MobileCursorHandler";
 
+import GlobalEmergencyPopup from "@/components/GlobalEmergencyPopup";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -36,6 +38,7 @@ const App = () => (
           <Sonner />
           <HashRouter>
             <MobileCursorHandler />
+            <GlobalEmergencyPopup />
             <Routes>
               <Route element={<AppLayout />}>
                 <Route path="/" element={

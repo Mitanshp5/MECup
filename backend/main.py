@@ -186,7 +186,7 @@ plc_models.Base.metadata.create_all(bind=engine)
 
 
 
-from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
+# from production_rag.fastapi_server import router as rag_router, lifespan as rag_lifespan
 
 
 
@@ -202,40 +202,40 @@ async def lifespan(app: FastAPI):
 
 
 
-    async with rag_lifespan(app):
-        # Create Default Admin User
-        try:
-            db = next(get_db())
-            admin_user = os.getenv("MECUP_ADMIN_USER", "mee")
-            admin_pass = os.getenv("MECUP_ADMIN_PASSWORD", "1234")
-            user = db.query(auth_models.User).filter(auth_models.User.username == admin_user).first()
-            hashed_pwd = auth_security.get_password_hash(admin_pass)
-            if not user:
-                print(f"[Backend] Creating default user '{admin_user}'...", flush=True)
-                new_user = auth_models.User(
-                    username=admin_user,
-                    hashed_password=hashed_pwd,
-                    role="admin"
-                )
-                db.add(new_user)
-                db.commit()
-                print(f"[Backend] Default user created: {admin_user}", flush=True)
-            else:
-                # Force update password to ensure it matches current security scheme or env var change
-                user.hashed_password = hashed_pwd
-                # Ensure role is admin
-                user.role = "admin"
-                db.commit()
-                print(f"[Backend] User '{admin_user}' synced with environment credentials.", flush=True)
-        except Exception as e:
-            print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
+    # async with rag_lifespan(app):
+    #     # Create Default Admin User
+    #     try:
+    #         db = next(get_db())
+    #         admin_user = os.getenv("MECUP_ADMIN_USER", "mee")
+    #         admin_pass = os.getenv("MECUP_ADMIN_PASSWORD", "1234")
+    #         user = db.query(auth_models.User).filter(auth_models.User.username == admin_user).first()
+    #         hashed_pwd = auth_security.get_password_hash(admin_pass)
+    #         if not user:
+    #             print(f"[Backend] Creating default user '{admin_user}'...", flush=True)
+    #             new_user = auth_models.User(
+    #                 username=admin_user,
+    #                 hashed_password=hashed_pwd,
+    #                 role="admin"
+    #             )
+    #             db.add(new_user)
+    #             db.commit()
+    #             print(f"[Backend] Default user created: {admin_user}", flush=True)
+    #         else:
+    #             # Force update password to ensure it matches current security scheme or env var change
+    #             user.hashed_password = hashed_pwd
+    #             # Ensure role is admin
+    #             user.role = "admin"
+    #             db.commit()
+    #             print(f"[Backend] User '{admin_user}' synced with environment credentials.", flush=True)
+    #     except Exception as e:
+    #         print(f"[Backend] Failed to ensure admin user: {e}", flush=True)
 
-        try:
-            from inference.inference_service import get_predictor
-            print("[Backend] Initializing Inference Engine...", flush=True)
-            get_predictor()
-        except Exception as e:
-            print(f"[Backend] Failed to initialize inference: {e}", flush=True)
+    #     try:
+    #         from inference.inference_service import get_predictor
+    #         print("[Backend] Initializing Inference Engine...", flush=True)
+    #         get_predictor()
+    #     except Exception as e:
+    #         print(f"[Backend] Failed to initialize inference: {e}", flush=True)
 
         # Initialize PLC System (Polling) - Main Process Only
         try:
@@ -692,6 +692,7 @@ if __name__ == "__main__":
 
 
     uvicorn.run("main:app", host="0.0.0.0", port=5001, log_level="warning", access_log=False, reload=True)
+    # Forced Reload - Try 4
 
 
 

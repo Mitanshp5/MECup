@@ -64,9 +64,9 @@ class PLCManager:
                 self._sock = mc.open_socket(self.ip, self.port)
                 self._sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 
-                # Once connected, increase timeout to 5.0s for reliable read/write
+                # Once connected, increase timeout to 2.0s for reliable read/write
                 # The connection attempt itself uses the timeout from open_socket (2.0s)
-                self._sock.settimeout(5.0) 
+                self._sock.settimeout(2.0) 
                 
                 self.connected = True
                 self.last_error = None

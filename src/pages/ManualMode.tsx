@@ -426,7 +426,12 @@ const ManualMode = () => {
                 {controlMode === 'pos' ? (
                   <JogButton icon={ArrowRight} onClick={() => handleMove("x_right_pos")} label="X Right (Pos)" />
                 ) : (
-                  <JogButton icon={ArrowRight} onClick={() => { }} label="Right Disabled" disabled />
+                  <JogButtonPress
+                    icon={ArrowRight}
+                    onDown={() => handleJogStart("x_right_jog")}
+                    onUp={() => handleJogStop("x_right_jog")}
+                    label="X Right (Jog)"
+                  />
                 )}
 
                 <div />
@@ -434,8 +439,12 @@ const ManualMode = () => {
                 {controlMode === 'pos' ? (
                   <JogButton icon={ArrowDown} onClick={() => handleMove("y_fwd_pos")} label="Y Forward (Pos)" />
                 ) : (
-                  // Disabled in Jog Mode because Forward Jog is missing
-                  <JogButton icon={ArrowDown} onClick={() => { }} label="Forward Jog Disabled" disabled />
+                  <JogButtonPress
+                    icon={ArrowDown}
+                    onDown={() => handleJogStart("y_fwd_jog")}
+                    onUp={() => handleJogStop("y_fwd_jog")}
+                    label="Y Forward (Jog)"
+                  />
                 )}
                 <div />
               </div>
@@ -448,9 +457,12 @@ const ManualMode = () => {
                 {controlMode === 'pos' ? (
                   <JogButton icon={ArrowUp} onClick={() => handleMove("z_up_pos")} label="Z Up (Pos)" />
                 ) : (
-                  // Jog Up Disabled (M30 is Down Jog) - Wait, previous code had Z Up Disabled in Jog
-                  // And Z Down was M30.
-                  <JogButton icon={ArrowUp} onClick={() => { }} label="Z Up Disabled" disabled />
+                  <JogButtonPress
+                    icon={ArrowUp}
+                    onDown={() => handleJogStart("z_up_jog")}
+                    onUp={() => handleJogStop("z_up_jog")}
+                    label="Z Up (Jog)"
+                  />
                 )}
 
                 <div className="h-8" />

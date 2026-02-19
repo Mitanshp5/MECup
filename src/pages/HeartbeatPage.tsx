@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Activity, Camera, Lightbulb, Move, Cpu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Activity, Camera, Lightbulb, Move, Cpu, RotateCcw } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api-config";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label } from 'recharts';
@@ -23,12 +24,29 @@ interface AxisStats {
   max_time: string | null;
 }
 
-const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats }) => {
+const AxisChart = ({ title, dataKey, color, data, unit, stats, connected }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats, connected?: boolean }) => {
   // Stats are passed from backend (Daily Min/Max)
   const minVal = stats?.min_val;
   const maxVal = stats?.max_val;
   const minTime = stats?.min_time ? new Date(stats.min_time).toLocaleTimeString() : "";
   const maxTime = stats?.max_time ? new Date(stats.max_time).toLocaleTimeString() : "";
+
+  // If disconnected, show --. Else show last value or -- if empty.
+  const currentValue = (connected && data.length > 0) ? data[data.length - 1][dataKey] : "--";
+
+  // Calculate Domain to include Min/Max
+  const allValues = data.map(d => d[dataKey]);
+  if (minVal !== undefined && minVal !== null) allValues.push(minVal);
+  if (maxVal !== undefined && maxVal !== null) allValues.push(maxVal);
+
+  // Default range if nothing exists
+  if (allValues.length === 0) allValues.push(0, 100);
+
+  const domainMin = Math.min(...allValues);
+  const domainMax = Math.max(...allValues);
+
+  // Add some padding
+  const padding = (domainMax - domainMin) * 0.1;
 
   return (
     <div className="h-64 industrial-panel p-4 bg-card/40 border border-border/50">
@@ -36,7 +54,7 @@ const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string
         <h4 className="text-sm font-medium text-muted-foreground">{title}</h4>
         <div className="text-right">
           <span className="text-xs font-mono text-foreground block">
-            Cur: {data.length > 0 ? data[data.length - 1][dataKey] : "--"} {unit}
+            Cur: {currentValue} {unit}
           </span>
         </div>
       </div>
@@ -46,7 +64,7 @@ const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string
           <XAxis dataKey="time" hide={true} domain={['dataMin', 'dataMax']} />
           <YAxis
             tick={{ fontSize: 10, fill: '#888' }}
-            domain={['auto', 'auto']}
+            domain={[domainMin - padding, domainMax + padding]}
             width={30}
           />
           <RechartsTooltip
@@ -63,12 +81,12 @@ const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string
             isAnimationActive={false}
             connectNulls={true}
           />
-          {minVal !== undefined && minVal !== null && (
+          {minVal !== undefined && minVal !== null && !(minVal === 0 && maxVal === 0) && (
             <ReferenceLine y={minVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
               <Label value={`Min: ${minVal} (${minTime})`} position="insideBottomLeft" fill={color} fontSize={10} />
             </ReferenceLine>
           )}
-          {maxVal !== undefined && maxVal !== null && (
+          {maxVal !== undefined && maxVal !== null && !(minVal === 0 && maxVal === 0) && (
             <ReferenceLine y={maxVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
               <Label value={`Max: ${maxVal} (${maxTime})`} position="insideTopLeft" fill={color} fontSize={10} />
             </ReferenceLine>
@@ -370,9 +388,26 @@ const HeartbeatPage = () => {
       <Dialog open={!!selectedAxis} onOpenChange={(open) => !open && setSelectedAxis(null)}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-background/95 backdrop-blur">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <Activity className="w-6 h-6 text-primary" />
-              {selectedAxis?.toUpperCase()}-Axis Real-time Monitoring
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2 justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-6 h-6 text-primary" />
+                {selectedAxis?.toUpperCase()}-Axis Real-time Monitoring
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await fetch(`${API_BASE_URL}/servo/history/reset`, { method: "POST" });
+                    setDailyStats({}); // Clear local
+                  } catch (e) {
+                    console.error("Reset failed", e);
+                  }
+                }}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset 24h Stats
+              </Button>
             </DialogTitle>
           </DialogHeader>
 
@@ -386,6 +421,7 @@ const HeartbeatPage = () => {
                   data={axisHistory[selectedAxis] || []}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.current}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Regenerative Load Ratio (%)"
@@ -394,6 +430,7 @@ const HeartbeatPage = () => {
                   data={axisHistory[selectedAxis] || []}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.load}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Effective Load Torque (%)"
@@ -402,6 +439,7 @@ const HeartbeatPage = () => {
                   data={axisHistory[selectedAxis] || []}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.torque}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Peak Torque Ratio (%)"
@@ -410,6 +448,7 @@ const HeartbeatPage = () => {
                   data={axisHistory[selectedAxis] || []}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.peak}
+                  connected={plcConnected}
                 />
               </div>
             </div>

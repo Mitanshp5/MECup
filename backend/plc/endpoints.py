@@ -325,7 +325,7 @@ def poll_plc_thread():
     
     last_health_log_time = time.time()
     
-    global critical_error_active
+    global critical_error_active, last_history_update, last_stats_save_time
     
     while True:
         try:
@@ -627,16 +627,10 @@ def poll_plc_thread():
                             check_stat(axis_char, metric, data[metric], current_time)
                             
                     if updates_needed:
-                        # Save to DB (Throttle this? maybe every 10s or 1min? To avoid disk hammering for noisy signals?)
-                        # But user wants "displayed even if backend restarts".
-                        # Immediate save is safest but costly. Let's do it. SQLite is fast enough for occasional peaks.
-                        # But if signal is rising fast, every polling cycle will trigger a new max.
-                        # Let's throttle DB saves to once every 5 seconds max if dirty.
-                        pass
-                    
-                    if updates_needed and (time.time() - last_stats_save_time > 5.0):
+                        # Save immediately to ensure persistence
                         save_daily_stats()
-                        last_stats_save_time = time.time()
+                        # last_stats_save_time = time.time() # Throttle removed for reliability
+                        logging.info(f"Updated daily stats: {servo_daily_stats}")
 
                             
             except Exception as e_mon:
@@ -702,6 +696,13 @@ def init_plc_system():
          pass
     except:
          pass
+    
+    # Initialize daily stats from DB immediately (so they are available even if PLC is disconnected)
+    try:
+        init_daily_stats()
+        print("[PLC INIT] Daily stats initialized from database.", flush=True)
+    except Exception as e:
+        print(f"[PLC INIT] Failed to init daily stats: {e}", flush=True)
 
 
 
@@ -818,7 +819,14 @@ def scan_start(username: str = "operator", req: ScanStartRequest = ScanStartRequ
         
         # Start/Resume Session
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        scan_session.start_new_scan(username, backend_dir, req.model_type)
+        # Returns (batch_folder, timestamp) in newer version of scan_session? 
+        # The line 821 just called it. Line 942 assigned result.
+        # Let's check scan_session.start_new_scan signature from line 942 usage: 
+        # current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir)
+        # Line 821 usage: scan_session.start_new_scan(username, backend_dir, req.model_type)
+        # I should probably use the assignment to get the folder.
+        
+        current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir, req.model_type)
         
         # Trigger explicit warmup/load of the selected model so user sees log immediately
         try:
@@ -843,9 +851,13 @@ def scan_start(username: str = "operator", req: ScanStartRequest = ScanStartRequ
 
         # Set M5 ON
         manager.write_bit("M5", [1])
+        
+        # Enable Click (Fix for missing click)
+        scan_session.set_click(1)
+        
         add_event(f"Scan Started ({req.model_type})", "success")
         
-        return {"success": True, "scan_id": scan_session.scan_id, "status": "RUNNING"}
+        return {"success": True, "scan_id": scan_session.scan_id, "status": "RUNNING", "batch_folder": current_batch_folder}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -870,8 +882,7 @@ def cycle_reset():
     try:
         # Pulse M120
         manager.write_bit("M120", [1])
-        time.sleep(0.1)
-        manager.write_bit("M120", [0])
+
         
         # Reset Backend State
         scan_session.reset_cycle()
@@ -932,48 +943,8 @@ def toggle_pulse(req: TogglePulseRequest):
 
 # ------------- Control Endpoints -------------
 
-@router.post("/plc/scan-start")
-def scan_start(username: str = "operator"):
-    """Start scan by setting M5 to ON and creating a new batch folder."""
-    # Global vars removed, using scan_session
-    try:
-        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        
-        # Use ScanSession to initialize
-        current_batch_folder, timestamp = scan_session.start_new_scan(username, backend_dir)
+# Duplicate scan_start removed
 
-        # NOTE: DB Record for Scan will be created lazily when first image is captured
-        # This prevents empty scans from appearing in the database
-        
-        # Save Scan Metadata having scanned_by (Legacy JSON support)
-        try:
-            import json
-            meta_file = os.path.join(current_batch_folder, "scan_info.json")
-            with open(meta_file, 'w') as f:
-                json.dump({
-                    "scanned_by": username,
-                    "start_time": timestamp,
-                    "role": "operator"
-                }, f, indent=2)
-        except Exception as ex:
-            logging.error(f"Failed to save scan info: {ex}")
-
-        time.sleep(0.1)
-        manager.write_bit("M5", [1])
-        time.sleep(0.1)
-        scan_session.set_click(1)
-        add_event("Scan started", "success")
-        return {"success": True, "message": "Scan Started (M5 ON)", "batch_folder": current_batch_folder}
-    except Exception as e:
-        import traceback
-        logging.error(f"SCAN START ERROR: {e}")
-        try:
-            # Also keep the file logging for now as a backup/legacy expectation
-            with open("C:/MyStuff/VS/MECup/backend/error_log.txt", "a") as log:
-                traceback.print_exc(file=log)
-        except:
-             logging.error("Failed to write to legacy error log file")
-        return {"success": False, "error": str(e)}
 
 @router.post("/plc/grid-one")
 def grid_one():
@@ -986,19 +957,8 @@ def grid_one():
         logging.error(f"Grid One Error: {e}")
         return {"success": False, "error": str(e)}
 
-@router.post("/plc/cycle-reset")
-def cycle_reset():
-    """Reset cycle by setting M120 to ON and clearing batch folder."""
-    try:
-        manager.write_bit("M120", [1])
-        # Use ScanSession to reset
-        scan_session.reset_cycle()
-        
-        add_event("Cycle reset completed", "info")
-        return {"success": True, "message": "Cycle Reset (M120 ON) - Batch cleared"}
-    except Exception as e:
-        logging.error(f"Cycle Reset Error: {e}")
-        return {"success": False, "error": str(e)}
+# Duplicate cycle_reset removed
+
 
 @router.post("/plc/homing-start")
 def homing_start():
@@ -1031,6 +991,10 @@ def get_control_status():
         
         # Read M190 separately for reliable servo status
         m190 = manager.read_bit("M190", 1)
+        
+        # Read M599 for Global Emergency
+        m599 = manager.read_bit("M599", 1)
+
         
         # Read Coordinates D21-D28 in one block of 4 DWORDs (D21, D23, D25, D27)
         # D21=Y, D25=X, D27=Z
@@ -1071,7 +1035,8 @@ def get_control_status():
             "m46": get_bit(46), # Homing Done Flag
             "x_pos": x_mm,
             "y_pos": y_mm,
-            "z_pos": z_mm
+            "z_pos": z_mm,
+            "m599": m599[0] if m599 else None
         }
 
     except Exception as e:
