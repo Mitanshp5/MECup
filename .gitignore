@@ -29,6 +29,7 @@ MVSPython/
 captured_images/
 result_images/
 
+backend/inference/openvino_model/
 backend/inference/openvino_models/
 *.bin
 *.blob

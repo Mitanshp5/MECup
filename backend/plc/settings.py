@@ -30,5 +30,31 @@ def load_plc_settings():
                     'mm2_per_pixel': data.get('mm2_per_pixel', 0.0037)
                 }
             except json.JSONDecodeError:
+                return None
+    return None
+
+def save_stitch_scale(scale):
+    """Save stitching scale (pixels per mm) to settings."""
+    settings = {}
+    if os.path.exists(SETTINGS_FILE):
+        with open(SETTINGS_FILE, 'r') as f:
+            try:
+                settings = json.load(f)
+            except json.JSONDecodeError:
                 pass
-    return {'ip': None, 'port': None, 'mm2_per_pixel': 0.0037}
+    
+    settings['stitch_scale'] = scale
+    
+    with open(SETTINGS_FILE, 'w') as f:
+        json.dump(settings, f, indent=4)
+
+def load_stitch_scale():
+    """Load stitching scale from settings, default to 18.0 px/mm."""
+    if os.path.exists(SETTINGS_FILE):
+        with open(SETTINGS_FILE, 'r') as f:
+            try:
+                data = json.load(f)
+                return data.get('stitch_scale', 18.0)
+            except json.JSONDecodeError:
+                return 18.0
+    return 18.0
