@@ -29,21 +29,24 @@ FETCH_K = 16  # Larger candidate pool for better selection
 # Hardcoded error codes extracted from servo manual PDFs
 # Hardcoded error codes extracted from servo manual PDFs
 # Hardcoded error codes extracted from servo manual PDFs
+# Hardcoded error codes extracted from servo manual PDFs
 ERROR_CODE_DATABASE = {
     "10": {
         "name": "Undervoltage",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 10 - Undervoltage:  The voltage of the control circuit power supply has dropped.  The voltage of the main circuit power supply has dropped</p>
+    <p>Alarm 10 - Undervoltage: The voltage of the control circuit power supply has dropped. The voltage of the main circuit power supply has dropped</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -53,14 +56,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 11 - Switch setting error:  The setting of the axis selection rotary switch or auxiliary axis number setting switch is incorrect.</p>
+    <p>Alarm 11 - Switch setting error: The setting of the axis selection rotary switch or auxiliary axis number setting switch is incorrect</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -70,15 +76,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 12 - Memory error 1 (RAM):  A part (RAM) in the servo amplifier is failure</p>
+    <p>Alarm 12 - Memory error 1 (RAM): A part (RAM) in the servo amplifier is failure</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -88,15 +96,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 13 - Clock error:  A part in the servo amplifier is failure.  A clock error transmitted from the controller occurred.  [RJ010]: MR-J3-T10 came off</p>
+    <p>Alarm 13 - Clock error: A part in the servo amplifier is failure. A clock error transmitted from the controller occurred. [RJ010]: MR-J3-T10 came off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check method: Check res...</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -106,14 +116,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 14 - Control process error:  The process did not complete within the specified time.</p>
+    <p>Alarm 14 - Control process error: The process did not complete within the specified time</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -123,13 +136,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 15 - Memory error 2 (EEP-ROM):  A part (EEP-ROM) in the servo amplifier is failure.  [RJ010]: MR-J3-T10 came off</p>
+    <p>Alarm 15 - Memory error 2 (EEP-ROM): A part (EEP-ROM) in the servo amplifier is failure. [RJ010]: MR-J3-T10 came off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -139,15 +156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16 - Encoder initial communication error 1:  An error occurred in the communication between an encoder and servo amplifier</p>
+    <p>Alarm 16 - Encoder initial communication error 1: An error occurred in the communication between an encoder and servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -157,15 +176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17 - Board error:  A part in the servo amplifier is malfunctioning</p>
+    <p>Alarm 17 - Board error: A part in the servo amplifier is malfunctioning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Power off the servo amplifier and disconnect all cables except the control circuit power supply.</li>
+      <li>Power on with only the control circuit connected and check if the alarm still occurs.</li>
+      <li>If the alarm persists with minimal connections, the servo amplifier has an internal fault.</li>
+      <li>If the alarm clears, reconnect cables one at a time to identify which connection triggers the fault.</li>
+      <li>Check the surrounding environment for sources of electrical noise, excessive heat, or vibration.</li>
+      <li>If the amplifier is confirmed faulty, replace it with the same model and transfer parameter settings.</li>
     </ol>
   </div>
 </div>"""
@@ -175,15 +196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 19 - Memory error 3 (Flash-ROM):  A part (Flash-ROM) in the servo amplifier is failure</p>
+    <p>Alarm 19 - Memory error 3 (Flash-ROM): A part (Flash-ROM) in the servo amplifier is failure</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -193,15 +216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20 - Encoder normal communication error 1:  An error occurred in the communication between an encoder and servo amplifier</p>
+    <p>Alarm 20 - Encoder normal communication error 1: An error occurred in the communication between an encoder and servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -211,15 +236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21 - Encoder normal communication error 2:  The encoder detected an error signal</p>
+    <p>Alarm 21 - Encoder normal communication error 2: The encoder detected an error signal</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -229,15 +256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 24 - Main circuit error:  A ground fault occurred on the servo motor power lines.</p>
+    <p>Alarm 24 - Main circuit error: A ground fault occurred on the servo motor power lines</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -247,13 +276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 25 - Absolute position erased:  The absolute position data is faulty.</p>
+    <p>Alarm 25 - Absolute position erased: The absolute position data is faulty</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -263,14 +296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27 - Initial magnetic pole detection error:  The initial magnetic pole detection was not completed properly</p>
+    <p>Alarm 27 - Initial magnetic pole detection error: The initial magnetic pole detection was not completed properly</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -280,15 +316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 28 - Linear encoder error 2:  Working environment of linear encoder is not normal</p>
+    <p>Alarm 28 - Linear encoder error 2: Working environment of linear encoder is not normal</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -298,13 +336,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 30 - Regenerative error:  Permissible regenerative power of the built-in regenerative resistor or regenerative option is exceeded.</p>
+    <p>Alarm 30 - Regenerative error: Permissible regenerative power of the built-in regenerative resistor or regenerative option is exceeded</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -314,14 +356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 31 - Overspeed:  The servo motor speed has exceeded the instantaneous permissible speed.</p>
+    <p>Alarm 31 - Overspeed: The servo motor speed has exceeded the instantaneous permissible speed</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -331,15 +376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 32 - Overcurrent:  A current higher than the permissible current was applied to the servo amplifier</p>
+    <p>Alarm 32 - Overcurrent: A current higher than the permissible current was applied to the servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -349,15 +396,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 33 - Overvoltage:  The value of the bus voltage exceeded the prescribed value.</p>
+    <p>Alarm 33 - Overvoltage: The value of the bus voltage exceeded the prescribed value</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -367,13 +416,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34 - SSCNET receive error 1:  An error occurred in SSCNET /H communication. (continuous communication error with 3.5 ms interval)</p>
+    <p>Alarm 34 - SSCNET receive error 1: An error occurred in SSCNET /H communication. (continuous communication error with 3.5 ms interval)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -383,14 +436,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 35 - Command frequency error:  Input pulse frequency of command pulse is too high</p>
+    <p>Alarm 35 - Command frequency error: Input pulse frequency of command pulse is too high</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -400,13 +456,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 36 - SSCNET receive error 2:  An error occurred in SSCNET /H communication. (intermittent communication error with about 70 ms interval)</p>
+    <p>Alarm 36 - SSCNET receive error 2: An error occurred in SSCNET /H communication. (intermittent communication error with about 70 ms interval)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -416,14 +476,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 37 - Parameter error:  Parameter setting is incorrect.  Point table setting is incorrect</p>
+    <p>Alarm 37 - Parameter error: Parameter setting is incorrect. Point table setting is incorrect</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -433,14 +496,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 39 - Program error:  A program used for the program operation is incorrect</p>
+    <p>Alarm 39 - Program error: A program used for the program operation is incorrect</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -450,14 +516,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42 - Servo control error (for linear servo motor and direct drive motor):  A servo control error occurred</p>
+    <p>Alarm 42 - Servo control error (for linear servo motor and direct drive motor): A servo control error occurred</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -467,13 +536,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 45 - Main circuit device overheat:  Inside of the servo amplifier overheated</p>
+    <p>Alarm 45 - Main circuit device overheat: Inside of the servo amplifier overheated</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -483,15 +556,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46 - Servo motor overheat:  The servo motor overheated</p>
+    <p>Alarm 46 - Servo motor overheat: The servo motor overheated</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -501,15 +576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 47 - Cooling fan error:  The speed of the servo amplifier cooling fan decreased.  Or the fan speed decreased to the alarm occurrence level or less</p>
+    <p>Alarm 47 - Cooling fan error: The speed of the servo amplifier cooling fan decreased. Or the fan speed decreased to the alarm occurrence level or less</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -519,15 +596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50 - Overload 1:  Load exceeded overload protection characteristic of servo amplifier</p>
+    <p>Alarm 50 - Overload 1: Load exceeded overload protection characteristic of servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -537,14 +616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 51 - Overload 2:  Maximum output current flowed continuously due to machine collision or the like</p>
+    <p>Alarm 51 - Overload 2: Maximum output current flowed continuously due to machine collision or the like</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -554,15 +636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52 - Error excessive:  Droop pulses have exceeded the alarm occurrence level</p>
+    <p>Alarm 52 - Error excessive: Droop pulses have exceeded the alarm occurrence level</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -572,14 +656,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 54 - Oscillation detection:  An oscillation of the servo motor was detected</p>
+    <p>Alarm 54 - Oscillation detection: An oscillation of the servo motor was detected</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -589,14 +676,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 56 - Forced stop error:  The servo motor does not decelerate normally during forced stop deceleration</p>
+    <p>Alarm 56 - Forced stop error: The servo motor does not decelerate normally during forced stop deceleration</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -606,14 +696,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 61 - Operation error:  An operation of the positioning function failed</p>
+    <p>Alarm 61 - Operation error: An operation of the positioning function failed</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -623,14 +716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 63 - STO timing error:  STO input signal turns off while the servo motor is rotating</p>
+    <p>Alarm 63 - STO timing error: STO input signal turns off while the servo motor is rotating</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -640,15 +736,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 64 - Functional safety unit setting error:  A setting of the servo amplifier or functional safety unit was incorrect</p>
+    <p>Alarm 64 - Functional safety unit setting error: A setting of the servo amplifier or functional safety unit was incorrect</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Power off the servo amplifier and disconnect all cables except the control circuit power supply.</li>
+      <li>Power on with only the control circuit connected and check if the alarm still occurs.</li>
+      <li>If the alarm persists with minimal connections, the servo amplifier has an internal fault.</li>
+      <li>If the alarm clears, reconnect cables one at a time to identify which connection triggers the fault.</li>
+      <li>Check the surrounding environment for sources of electrical noise, excessive heat, or vibration.</li>
+      <li>If the amplifier is confirmed faulty, replace it with the same model and transfer parameter settings.</li>
     </ol>
   </div>
 </div>"""
@@ -658,14 +756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65 - Functional safety unit connection error:  Communication or signal between a functional safety unit and servo amplifier failed</p>
+    <p>Alarm 65 - Functional safety unit connection error: Communication or signal between a functional safety unit and servo amplifier failed</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -675,15 +776,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66 - Encoder initial communication error (safety observation function):  The connected encoder is not compatible with the servo amplifier.</p>
+    <p>Alarm 66 - Encoder initial communication error (safety observation function): The connected encoder is not compatible with the servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -693,15 +796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67 - Encoder normal communication error 1 (safety observation function):  An error has occurred in the communication between an encoder and servo amplifier</p>
+    <p>Alarm 67 - Encoder normal communication error 1 (safety observation function): An error has occurred in the communication between an encoder and servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -711,14 +816,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 68 - STO diagnosis error:  An error of STO input signal was detected</p>
+    <p>Alarm 68 - STO diagnosis error: An error of STO input signal was detected</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -728,14 +836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69 - Command error:  The command position exceeded 32 bits (-2147483648 to 2147483647) when the software limit is activated.</p>
+    <p>Alarm 69 - Command error: The command position exceeded 32 bits (-2147483648 to 2147483647) when the software limit is activated</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -745,15 +856,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70 - Load-side encoder initial communication error 1:  An error occurred in the initial communication between the load-side encoder and servo amplifier</p>
+    <p>Alarm 70 - Load-side encoder initial communication error 1: An error occurred in the initial communication between the load-side encoder and servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -763,15 +876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71 - Load-side encoder normal communication error 1:  An error occurred in the communication between the load-side encoder and servo amplifier</p>
+    <p>Alarm 71 - Load-side encoder normal communication error 1: An error occurred in the communication between the load-side encoder and servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -781,15 +896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72 - Load-side encoder normal communication error 2:  The load-side encoder detected an error signal</p>
+    <p>Alarm 72 - Load-side encoder normal communication error 2: The load-side encoder detected an error signal</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -799,14 +916,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74 - Option card error 1:  MR-J3-T10 came off.  MR-J3-T10 is not properly recognized</p>
+    <p>Alarm 74 - Option card error 1: MR-J3-T10 came off. MR-J3-T10 is not properly recognized</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -816,14 +936,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 75 - Option card error 2:  MR-J3-T10 came off</p>
+    <p>Alarm 75 - Option card error 2: MR-J3-T10 came off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -833,15 +956,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79 - Functional safety unit diagnosis error:  A diagnosis of the functional safety unit failed</p>
+    <p>Alarm 79 - Functional safety unit diagnosis error: A diagnosis of the functional safety unit failed</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -851,13 +976,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 82 - Master-slave operation error 1:  Driver communication error was detected</p>
+    <p>Alarm 82 - Master-slave operation error 1: Driver communication error was detected</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -867,13 +996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 84 - Network module initialization error:  The network module is not connected.  An error occurred at initialization of the network module</p>
+    <p>Alarm 84 - Network module initialization error: The network module is not connected. An error occurred at initialization of the network module</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -883,15 +1016,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 85 - Network module error:  The network module was disconnected.  An error occurred in the network module. (Refer to section 1.7.)</p>
+    <p>Alarm 85 - Network module error: The network module was disconnected. An error occurred in the network module. (Refer to section 1.7.)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -901,13 +1036,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 86 - Network communication error:  An error occurred in the network module.  An error occurred in the network communication</p>
+    <p>Alarm 86 - Network communication error: An error occurred in the network module. An error occurred in the network communication</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -917,14 +1056,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 90 - Home position return incomplete warning:  Home position return has not been finished.</p>
+    <p>Alarm 90 - Home position return incomplete warning: Home position return has not been finished</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -934,13 +1076,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 91 - Servo amplifier overheat warning:  The temperature inside of the servo amplifier reached a warning level</p>
+    <p>Alarm 91 - Servo amplifier overheat warning: The temperature inside of the servo amplifier reached a warning level</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -950,15 +1096,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 92 - Battery cable disconnection warning:  Battery voltage for absolute position detection system decreased</p>
+    <p>Alarm 92 - Battery cable disconnection warning: Battery voltage for absolute position detection system decreased</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -968,14 +1116,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 93 - ABS data transfer warning:  ABS data were not transferred</p>
+    <p>Alarm 93 - ABS data transfer warning: ABS data were not transferred</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -985,14 +1136,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95 - STO warning:  STO input signal turns off while the servo motor stops.</p>
+    <p>Alarm 95 - STO warning: STO input signal turns off while the servo motor stops</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1002,14 +1156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 96 - Home position setting warning:  Home position setting could not be made</p>
+    <p>Alarm 96 - Home position setting warning: Home position setting could not be made</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1019,14 +1176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 97 - Positioning specification warning:  How to specify a positioning is incorrect for the positioning function</p>
+    <p>Alarm 97 - Positioning specification warning: How to specify a positioning is incorrect for the positioning function</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1036,14 +1196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 98 - Software limit warning:  A software limit set with the parameter was reached for the positioning function</p>
+    <p>Alarm 98 - Software limit warning: A software limit set with the parameter was reached for the positioning function</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1053,14 +1216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 99 - Stroke limit warning:  The stroke limit signal is off</p>
+    <p>Alarm 99 - Stroke limit warning: The stroke limit signal is off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1070,15 +1236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm e0 - Excessive regeneration warning]: • [AL. E1 Overload warning 1] • [AL.</p>
+    <p>Alarm e0 - Excessive regeneration warning]: [AL. E1 Overload warning 1] [AL</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -1088,15 +1256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm e1 - Overload warning 1]: • [AL. E2 Servo motor overheat warning] • [AL.</p>
+    <p>Alarm e1 - Overload warning 1]: [AL. E2 Servo motor overheat warning] [AL</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -1106,14 +1276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm e2 - Servo motor overheat warning]: • [AL. EC Overload warning 2] Warnings (except [AL.</p>
+    <p>Alarm e2 - Servo motor overheat warning]: [AL. EC Overload warning 2] Warnings (except [AL</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -1123,15 +1296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm e5 - .1].: E5.3 SON off during ABS data transfer Alarm No.: E6 Name: Servo forced stop warning Alarm content  EM2/EM1 (Forced stop) turned off.</p>
+    <p>Alarm e5 - .1].: E5.3 SON off during ABS data transfer Alarm No.: E6 Name: Servo forced stop warning Alarm content EM2/EM1 (Forced stop) turned off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Identify the cause: Check...</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1141,15 +1316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm e8 - .1].: Alarm No.: E9 Name: Main circuit off warning Alarm content  The servo-on command was inputted with main circuit power supply off.</p>
+    <p>Alarm e8 - .1].: Alarm No.: E9 Name: Main circuit off warning Alarm content The servo-on command was inputted with main circuit power supply off</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -1164,9 +1341,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1176,13 +1356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm f0 - Tough drive warning]) are not recorded in the alarm: history. • [AL. 8D.1 CC-Link IE communication error 1] and [AL.</p>
+    <p>Alarm f0 - Tough drive warning]) are not recorded in the alarm: history. [AL. 8D.1 CC-Link IE communication error 1] and [AL</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -1192,14 +1376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm f3 - ]) do not have alarm codes. The alarm codes in the following: table will be outputted when they occur.</p>
+    <p>Alarm f3 - ]) do not have alarm codes. The alarm codes in the following: table will be outputted when they occur</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1214,26 +1401,32 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "0.1": {
-        "name": "Excessive regeneration warning  Common ",
+        "name": "Excessive regeneration warning  Common ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 0.1 - Excessive regeneration warning  Common : Alarm 0.1: Excessive regeneration warning  Common </p>
+    <p>Alarm 0.1 - Excessive regeneration warning  Common : Alarm 0.1: Excessive regeneration warning Common</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -1243,30 +1436,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 0.2 - s or less.): Check if the motor was accelerated suddenly to r/ min by an external force.</p>
+    <p>Alarm 0.2 - s or less.): Check if the motor was accelerated suddenly to r/ min by an external force</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "0.3": {
-        "name": "Vibration tough drive warning  Each axis ",
+        "name": "Vibration tough drive warning  Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 0.3 - Vibration tough drive warning  Each axis : F2 Drive recorder - Miswriting warning F</p>
+    <p>Alarm 0.3 - Vibration tough drive warning  Each axis : F2 Drive recorder - Miswriting warning F</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1276,66 +1476,77 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 0.5 - pulses hold by the Simple Motion module/Motion: module is cleared to 0 at start and not carried to next positioning.</p>
+    <p>Alarm 0.5 - pulses hold by the Simple Motion module/Motion: module is cleared to 0 at start and not carried to next positioning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "1.0": {
-        "name": "[m] and movement for 2.5 [m] is executed two times.",
+        "name": "[m] and movement for 2.5 [m] is executed two times.",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 1.0 - [m] and movement for 2.5 [m] is executed two times.:  Conversion to command pulses: 2.5 [m]/1.0 = 2.5 [pulse] When the \\"reference axis speed\\" is set in 2- to 4-axis fixed-feed control, set so the major axis side becomes the reference axis.</p>
+    <p>Alarm 1.0 - [m] and movement for 2.5 [m] is executed two times.: Conversion to command pulses: 2.5 [m]/1.0 = 2.5 [pulse] When the \\"reference axis speed\\" is set in 2- to 4-axis fixed-feed control, set so the major axis side becomes the reference axis</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
     },
     "1.8": {
-        "name": "Thermal overload error 4 during a stop  Each axis ",
+        "name": "Thermal overload error 4 during a stop  Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 1.8 - Thermal overload error 4 during a stop  Each axis : E2 Servo motor overheat warning E</p>
+    <p>Alarm 1.8 - Thermal overload error 4 during a stop  Each axis : E2 Servo motor overheat warning E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
     },
     "2.5": {
-        "name": "[m]/1.0 = 2.5 [pulse]",
+        "name": "[m]/1.0 = 2.5 [pulse]",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 2.5 - [m]/1.0 = 2.5 [pulse]: When the \\"reference axis speed\\" is set in 2- to 4-axis fixed-feed control, set so the major axis side becomes the reference axis.</p>
+    <p>Alarm 2.5 - [m]/1.0 = 2.5 [pulse]: When the \\"reference axis speed\\" is set in 2- to 4-axis fixed-feed control, set so the major axis side becomes the reference axis</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -1345,15 +1556,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 2.8 - [Pr. PT34] of: J4-_A_-RJ Servo Amplifier Instruction Manual (Positioning Mode)\\") [A] It was changed by mistake.</p>
+    <p>Alarm 2.8 - [Pr. PT34] of: J4-_A_-RJ Servo Amplifier Instruction Manual (Positioning Mode)\\") [A] It was changed by mistake</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1363,15 +1576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 2.9 - [Pr.: PT34] of \\"MR-J4-_A_- RJ Servo Amplifier Instruction Manual (Positioning Mode)\\" MR-J4-_GF_(-RJ) Servo Amplifier Instruction Manual (I/O Mode) • Section 7.2.4 [Pr.</p>
+    <p>Alarm 2.9 - [Pr.: PT34] of \\"MR-J4-_A_- RJ Servo Amplifier Instruction Manual (Positioning Mode)\\" MR-J4-_GF_(-RJ) Servo Amplifier Instruction Manual (I/O Mode) Section 7.2.4 [Pr</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1381,15 +1596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3.0 - V DC. Replace the battery.: It is 3.0 V DC or more. Check (2).</p>
+    <p>Alarm 3.0 - V DC. Replace the battery.: It is 3.0 V DC or more. Check (2)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>If issue persists, replace battery, then check the repeatability.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1399,13 +1616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3.2 - V or less.: [Operation status at warning occurrence] The synchronous encoder control continues.</p>
+    <p>Alarm 3.2 - V or less.: [Operation status at warning occurrence] The synchronous encoder control continues</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>If issue persists, replace battery.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -1415,14 +1636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3.5 - Encoder absolute positioning counter: warning   E4 Parameter warning E</p>
+    <p>Alarm 3.5 - Encoder absolute positioning counter: warning E4 Parameter warning E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -1432,14 +1656,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 4.6 - Acceleration time constant setting range: error warning  F</p>
+    <p>Alarm 4.6 - Acceleration time constant setting range: error warning F</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1449,31 +1676,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 4.7 - Deceleration time constant setting range: error warning  F</p>
+    <p>Alarm 4.7 - Deceleration time constant setting range: error warning F</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "4.9": {
-        "name": "Home position return type error warning ",
+        "name": "Home position return type error warning ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 4.9 - Home position return type error warning : Warning Detail</p>
+    <p>Alarm 4.9 - Home position return type error warning : Warning Detail</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1483,14 +1716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 5.7 - (2) of: \\"MR-J4-_GF_(-RJ) SERVO AMPLIFIER INSTRUCTION MANUAL (CC-Link IE Field Network Basic)\\" Or set a larger setting value to \\"in-position range\\".</p>
+    <p>Alarm 5.7 - (2) of: \\"MR-J4-_GF_(-RJ) SERVO AMPLIFIER INSTRUCTION MANUAL (CC-Link IE Field Network Basic)\\" Or set a larger setting value to \\"in-position range\\"</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -1500,65 +1736,77 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 6.3 - SS1 forced stop warning 2 (safety: observation function) SD  E7 Controller forced stop warning E</p>
+    <p>Alarm 6.3 - SS1 forced stop warning 2 (safety: observation function) SD E7 Controller forced stop warning E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "6.4": {
-        "name": "Cam control data setting range error ",
+        "name": "Cam control data setting range error ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 6.4 - Cam control data setting range error : Cam control data setting range error </p>
+    <p>Alarm 6.4 - Cam control data setting range error : Cam control data setting range error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "6.5": {
-        "name": "Cam No. external error ",
+        "name": "Cam No. external error ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 6.5 - Cam No. external error : Cam No. external error </p>
+    <p>Alarm 6.5 - Cam No. external error : Cam No. external error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "6.6": {
-        "name": "Cam control inactive ",
+        "name": "Cam control inactive ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 6.6 - Cam control inactive : F7 Machine diagnosis warning F</p>
+    <p>Alarm 6.6 - Cam control inactive : F7 Machine diagnosis warning F</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1573,9 +1821,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -1590,26 +1841,32 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "9.4": {
-        "name": "Converter unit forced stop DB ",
+        "name": "Converter unit forced stop DB ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 9.4 - Converter unit forced stop DB : EA ABS servo-on warning EA.1 ABS servo-on warning  EB The other axis error warning EB.1 The other axis error warning EC Overload warning 2 EC.1.</p>
+    <p>Alarm 9.4 - Converter unit forced stop DB : EA ABS servo-on warning EA.1 ABS servo-on warning EB The other axis error warning EB.1 The other axis error warning EC Overload warning 2 EC.1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -1619,14 +1876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 12.1 - Precautions for Creating Program: 12 PROGRAMMING [FX5-SSC-S] This chapter describes the programs required to carry out positioning control with the Simple Motion module.</p>
+    <p>Alarm 12.1 - Precautions for Creating Program: 12 PROGRAMMING [FX5-SSC-S] This chapter describes the programs required to carry out positioning control with the Simple Motion module</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1641,9 +1901,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1658,9 +1921,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1675,43 +1941,52 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
     },
     "12.5": {
-        "name": "RAM error 5 DB   Common All axes",
+        "name": "RAM error 5 DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 12.5 - RAM error 5 DB   Common All axes: 12.6 RAM error 6     13 Clock error</p>
+    <p>Alarm 12.5 - RAM error 5 DB   Common All axes: 12.6 RAM error 6 13 Clock error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
     },
     "12.6": {
-        "name": "RAM error 6 DB    ",
+        "name": "RAM error 6 DB    ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 12.6 - RAM error 6 DB    : 13 Clock error</p>
+    <p>Alarm 12.6 - RAM error 6 DB    : 13 Clock error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1721,14 +1996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 13.1 - Precautions for Creating Program: 13 PROGRAMMING [FX5-SSC-G] This chapter describes the programs required to carry out positioning control with the Motion module.</p>
+    <p>Alarm 13.1 - Precautions for Creating Program: 13 PROGRAMMING [FX5-SSC-G] This chapter describes the programs required to carry out positioning control with the Motion module</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1743,9 +2021,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1760,9 +2041,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1777,9 +2061,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1794,9 +2081,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1811,9 +2101,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1828,9 +2121,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1845,9 +2141,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1857,14 +2156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 14.6 - Control process: error 6  </p>
+    <p>Alarm 14.6 - Control process: error 6</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1874,14 +2176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 14.7 - Control process: error 7  </p>
+    <p>Alarm 14.7 - Control process: error 7</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1891,14 +2196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 14.8 - Control process: error 8  </p>
+    <p>Alarm 14.8 - Control process: error 8</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1908,14 +2216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 14.9 - Control process: error 9  </p>
+    <p>Alarm 14.9 - Control process: error 9</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -1925,15 +2236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 15.1 - EEP-ROM error: at power on   C o m m o n A l l a x e s 15.2 EEP-ROM error during operation  </p>
+    <p>Alarm 15.1 - EEP-ROM error: at power on C o m m o n A l l a x e s 15.2 EEP-ROM error during operation</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1943,14 +2256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 15.2 - EEP-ROM error: during operation  </p>
+    <p>Alarm 15.2 - EEP-ROM error: during operation</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -1960,14 +2276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 15.4 - Home position: information read error    </p>
+    <p>Alarm 15.4 - Home position: information read error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -1977,14 +2296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.1 - Encoder initial: communication - Receive data error 1  </p>
+    <p>Alarm 16.1 - Encoder initial: communication - Receive data error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -1994,14 +2316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.2 - Encoder initial: communication - Receive data error 2  </p>
+    <p>Alarm 16.2 - Encoder initial: communication - Receive data error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2011,14 +2336,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.3 - Encoder initial: communication - Receive data error 3  </p>
+    <p>Alarm 16.3 - Encoder initial: communication - Receive data error 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2028,14 +2356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.4 - Encoder initial: communication - Encoder malfunction  </p>
+    <p>Alarm 16.4 - Encoder initial: communication - Encoder malfunction</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2045,14 +2376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.5 - Encoder initial: communication - Transmission data error 1  </p>
+    <p>Alarm 16.5 - Encoder initial: communication - Transmission data error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2062,14 +2396,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.6 - Encoder initial: communication - Transmission data error 2  </p>
+    <p>Alarm 16.6 - Encoder initial: communication - Transmission data error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2079,14 +2416,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.7 - Encoder initial: communication - Transmission data error 3  </p>
+    <p>Alarm 16.7 - Encoder initial: communication - Transmission data error 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2096,150 +2436,177 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 16.8 - Encoder initial: communication - Incompatible encoder  </p>
+    <p>Alarm 16.8 - Encoder initial: communication - Incompatible encoder</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.1": {
-        "name": "Board error 1 DB   C o m m o n A l l  a x e s 0000",
+        "name": "Board error 1 DB   C o m m o n A l l  a x e s 0000",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.1 - Board error 1 DB   C o m m o n A l l  a x e s 0000: Board error 1 DB   C o m m o n A l l  a x e s 0000</p>
+    <p>Alarm 17.1 - Board error 1 DB   C o m m o n A l l  a x e s 0000: Board error 1 DB C o m m o n A l l a x e s 0000</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.3": {
-        "name": "Board error 2 DB   Common All axes",
+        "name": "Board error 2 DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.3 - Board error 2 DB   Common All axes: Board error 2 DB   Common All axes</p>
+    <p>Alarm 17.3 - Board error 2 DB   Common All axes: Board error 2 DB Common All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.4": {
-        "name": "Board error 3 DB   Common All axes",
+        "name": "Board error 3 DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.4 - Board error 3 DB   Common All axes: Board error 3 DB   Common All axes</p>
+    <p>Alarm 17.4 - Board error 3 DB   Common All axes: Board error 3 DB Common All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.5": {
-        "name": "Board error 4 DB   Common All axes",
+        "name": "Board error 4 DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.5 - Board error 4 DB   Common All axes: Board error 4 DB   Common All axes</p>
+    <p>Alarm 17.5 - Board error 4 DB   Common All axes: Board error 4 DB Common All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.6": {
-        "name": "Board error 5 DB   Common All axes",
+        "name": "Board error 5 DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.6 - Board error 5 DB   Common All axes: Board error 5 DB   Common All axes</p>
+    <p>Alarm 17.6 - Board error 5 DB   Common All axes: Board error 5 DB Common All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.7": {
-        "name": "Board error 7 DB    ",
+        "name": "Board error 7 DB    ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.7 - Board error 7 DB    : Board error 7 DB    </p>
+    <p>Alarm 17.7 - Board error 7 DB    : Board error 7 DB</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.8": {
-        "name": "Board error 6 *6 EDB   Common All axes",
+        "name": "Board error 6 *6 EDB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.8 - Board error 6 *6 EDB   Common All axes: Board error 6 *6 EDB   Common All axes</p>
+    <p>Alarm 17.8 - Board error 6 *6 EDB   Common All axes: Board error 6 *6 EDB Common All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "17.9": {
-        "name": "Board error 8 DB    ",
+        "name": "Board error 8 DB    ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 17.9 - Board error 8 DB    : 19 Memory error 3 (Flash-ROM)</p>
+    <p>Alarm 17.9 - Board error 8 DB    : 19 Memory error 3 (Flash-ROM)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -2249,14 +2616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 19.1 - Flash-ROM: error 1   C o m m o n A l l a x e s</p>
+    <p>Alarm 19.1 - Flash-ROM: error 1 C o m m o n A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -2266,14 +2636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 19.2 - Flash-ROM: error 2  </p>
+    <p>Alarm 19.2 - Flash-ROM: error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -2283,14 +2656,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 19.3 - Flash-ROM: error 3     1A Servo motor combination error 1A.1 Servo motor combination error 1   1A.2 Servo motor control mode combination error  </p>
+    <p>Alarm 19.3 - Flash-ROM: error 3 1A Servo motor combination error 1A.1 Servo motor combination error 1 1A.2 Servo motor control mode combination error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -2300,14 +2676,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.1 - Encoder normal: communication - Receive data error 1 E  </p>
+    <p>Alarm 20.1 - Encoder normal: communication - Receive data error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2317,14 +2696,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.2 - Encoder normal: communication - Receive data error 2 E  </p>
+    <p>Alarm 20.2 - Encoder normal: communication - Receive data error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2334,14 +2716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.3 - Encoder normal: communication - Receive data error 3 E  </p>
+    <p>Alarm 20.3 - Encoder normal: communication - Receive data error 3 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2351,14 +2736,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.5 - Encoder normal: communication - Transmission data error 1 E  </p>
+    <p>Alarm 20.5 - Encoder normal: communication - Transmission data error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2368,14 +2756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.6 - Encoder normal: communication - Transmission data error 2 E  </p>
+    <p>Alarm 20.6 - Encoder normal: communication - Transmission data error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2385,14 +2776,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.7 - Encoder normal: communication - Transmission data error 3 E  </p>
+    <p>Alarm 20.7 - Encoder normal: communication - Transmission data error 3 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2402,14 +2796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 20.9 - Encoder normal: communication - Receive data error 4 E  </p>
+    <p>Alarm 20.9 - Encoder normal: communication - Receive data error 4 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2419,15 +2816,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.1 - Encoder data: error 1 E  </p>
+    <p>Alarm 21.1 - Encoder data: error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2437,15 +2836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.2 - Encoder data: update error E  </p>
+    <p>Alarm 21.2 - Encoder data: update error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2455,15 +2856,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.3 - Encoder data: waveform error E  </p>
+    <p>Alarm 21.3 - Encoder data: waveform error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2473,15 +2876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.4 - Encoder non-: signal error E  </p>
+    <p>Alarm 21.4 - Encoder non-: signal error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2491,15 +2896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.5 - Encoder: hardware error 1 E  </p>
+    <p>Alarm 21.5 - Encoder: hardware error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2509,15 +2916,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.6 - Encoder: hardware error 2 E  </p>
+    <p>Alarm 21.6 - Encoder: hardware error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2527,14 +2936,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 21.9 - Encoder data: error 2 E   24 Main circuit error</p>
+    <p>Alarm 21.9 - Encoder data: error 2 E 24 Main circuit error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2544,14 +2956,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 24.1 - Ground fault: detected by hardware detection circuit   E a c h a x i s A l l a x e s</p>
+    <p>Alarm 24.1 - Ground fault: detected by hardware detection circuit E a c h a x i s A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier and disconnect all cables except the control circuit power supply.</li>
+      <li>Power on with only the control circuit connected and check if the alarm still occurs.</li>
+      <li>If the alarm persists with minimal connections, the servo amplifier has an internal fault.</li>
+      <li>If the alarm clears, reconnect cables one at a time to identify which connection triggers the fault.</li>
+      <li>Check the surrounding environment for sources of electrical noise, excessive heat, or vibration.</li>
+      <li>If the amplifier is confirmed faulty, replace it with the same model and transfer parameter settings.</li>
     </ol>
   </div>
 </div>"""
@@ -2561,14 +2976,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 24.2 - Ground fault: detected by software detection function   All axes</p>
+    <p>Alarm 24.2 - Ground fault: detected by software detection function All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2578,15 +2996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 25.1 - Servo motor: encoder - Absolute position erased  </p>
+    <p>Alarm 25.1 - Servo motor: encoder - Absolute position erased</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2596,15 +3016,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 25.2 - Scale: measurement encoder - Absolute position erased   27 Initial magnetic pole detection error</p>
+    <p>Alarm 25.2 - Scale: measurement encoder - Absolute position erased 27 Initial magnetic pole detection error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2614,14 +3036,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 25.4 - = mm setting: value. If interpolation control units are \\"inch\\", positioning is contro lled by calculating position commands from the address, travel value,.</p>
+    <p>Alarm 25.4 - = mm setting: value. If interpolation control units are \\"inch\\", positioning is contro lled by calculating position commands from the address, travel value</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -2631,14 +3056,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.1 - Initial magnetic: pole detection - Abnormal termination  </p>
+    <p>Alarm 27.1 - Initial magnetic: pole detection - Abnormal termination</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2648,14 +3076,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.2 - Initial magnetic: pole detection - Time out error  </p>
+    <p>Alarm 27.2 - Initial magnetic: pole detection - Time out error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2665,14 +3096,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.3 - Initial magnetic: pole detection - Limit switch error  </p>
+    <p>Alarm 27.3 - Initial magnetic: pole detection - Limit switch error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2682,14 +3116,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.4 - Initial magnetic: pole detection - Estimated error  </p>
+    <p>Alarm 27.4 - Initial magnetic: pole detection - Estimated error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2699,14 +3136,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.5 - Initial magnetic: pole detection - Speed deviation error  </p>
+    <p>Alarm 27.5 - Initial magnetic: pole detection - Speed deviation error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -2716,15 +3156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.6 - Initial magnetic: pole detection - Position deviation error  </p>
+    <p>Alarm 27.6 - Initial magnetic: pole detection - Position deviation error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -2734,15 +3176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 27.7 - Initial magnetic: pole detection - Current error   28 Linear encoder error 2</p>
+    <p>Alarm 27.7 - Initial magnetic: pole detection - Current error 28 Linear encoder error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2752,15 +3196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 28.1 - Linear encoder -: Environment error E   2A Linear encoder error 1 2A.1 Linear encoder error 1-1 E   2A.2 Linear encoder error 1-2 E   Eac</p>
+    <p>Alarm 28.1 - Linear encoder -: Environment error E 2A Linear encoder error 1 2A.1 Linear encoder error 1-1 E 2A.2 Linear encoder error 1-2 E Eac</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -2770,15 +3216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 29.0 - (Device input polarity 1): 1h: Dog detection: 1h: Dog detection: with on [Operation status at error occurrence] Current value restoration is not performed for the relevant servo amplifier.</p>
+    <p>Alarm 29.0 - (Device input polarity 1): 1h: Dog detection: 1h: Dog detection: 1h: Dog detection: with on [Operation status at error occurrence] Current value restoration is not performed for the relevant servo amplifier</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Power off the servo amplifier and disconnect all cables except the control circuit power supply.</li>
+      <li>Power on with only the control circuit connected and check if the alarm still occurs.</li>
+      <li>If the alarm persists with minimal connections, the servo amplifier has an internal fault.</li>
+      <li>If the alarm clears, reconnect cables one at a time to identify which connection triggers the fault.</li>
+      <li>Check the surrounding environment for sources of electrical noise, excessive heat, or vibration.</li>
+      <li>If the amplifier is confirmed faulty, replace it with the same model and transfer parameter settings.</li>
     </ol>
   </div>
 </div>"""
@@ -2788,14 +3236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 30.1 - Regeneration: heat error    C o m m o n A l l a x e s</p>
+    <p>Alarm 30.1 - Regeneration: heat error C o m m o n A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2805,14 +3256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 30.2 - Regeneration: signal error   </p>
+    <p>Alarm 30.2 - Regeneration: signal error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -2822,14 +3276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 30.3 - Regeneration: feedback signal error    31 Overspeed</p>
+    <p>Alarm 30.3 - Regeneration: feedback signal error 31 Overspeed</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -2839,14 +3296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 31.1 - Abnormal motor: speed SD   32 Overcurrent</p>
+    <p>Alarm 31.1 - Abnormal motor: speed SD 32 Overcurrent</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -2856,14 +3316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 32.1 - Overcurrent: detected at hardware detection circuit (during operation)   E a c h a x i s A l l a x e s</p>
+    <p>Alarm 32.1 - Overcurrent: detected at hardware detection circuit (during operation) E a c h a x i s A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -2873,14 +3336,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 32.2 - Overcurrent: detected at software detection function (during operation)   All axes</p>
+    <p>Alarm 32.2 - Overcurrent: detected at software detection function (during operation) All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -2890,14 +3356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 32.3 - Overcurrent: detected at hardware detection circuit (during a stop)   All axes</p>
+    <p>Alarm 32.3 - Overcurrent: detected at hardware detection circuit (during a stop) All axes</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -2907,15 +3376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 32.4 - Overcurrent: detected at software detection function (during a stop)   All axes 33 Overvoltage</p>
+    <p>Alarm 32.4 - Overcurrent: detected at software detection function (during a stop) All axes 33 Overvoltage</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -2925,15 +3396,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 33.1 - Main circuit: voltage error E   C o m m o n A l l a x e s 34 SSCNET receive error 1 34.1 SSCNET receive data error SD    34.2 SSCNET connector connection.</p>
+    <p>Alarm 33.1 - Main circuit: voltage error E C o m m o n A l l a x e s 34 SSCNET receive error 1 34.1 SSCNET receive data error SD 34.2 SSCNET connector connection</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -2943,13 +3416,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.1 - SSCNET: receive data error SD    34.2 SSCNET connector connection error SD    34.3 SSCNET communication data error SD  </p>
+    <p>Alarm 34.1 - SSCNET: receive data error SD 34.2 SSCNET connector connection error SD 34.3 SSCNET communication data error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -2959,13 +3436,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.2 - SSCNET: connector connection error SD    34.3 SSCNET communication data error SD   </p>
+    <p>Alarm 34.2 - SSCNET: connector connection error SD 34.3 SSCNET communication data error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -2975,13 +3456,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.3 - SSCNET: communication data error SD   </p>
+    <p>Alarm 34.3 - SSCNET: communication data error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -2991,13 +3476,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.4 - Hardware error: signal detection SD    34.5 SSCNET receive data error (safety observation function) SD     34.6 SSCNET communication data error.</p>
+    <p>Alarm 34.4 - Hardware error: signal detection SD 34.5 SSCNET receive data error (safety observation function) SD 34.6 SSCNET communication data error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3007,13 +3496,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.5 - SSCNET: receive data error (safety observation function) SD     34.6 SSCNET communication data error (safety observation function) SD    .</p>
+    <p>Alarm 34.5 - SSCNET: receive data error (safety observation function) SD 34.6 SSCNET communication data error (safety observation function) SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3023,13 +3516,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 34.6 - SSCNET: communication data error (safety observation function) SD     35 Command frequency error</p>
+    <p>Alarm 34.6 - SSCNET: communication data error (safety observation function) SD 35 Command frequency error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3039,14 +3536,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 35.1 - Command: frequency error SD  </p>
+    <p>Alarm 35.1 - Command: frequency error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3056,13 +3556,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 36.1 - Continuous: communication data error SD   </p>
+    <p>Alarm 36.1 - Continuous: communication data error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3072,13 +3576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 36.2 - Continuous: communication data error (safety observation function) SD     37 Parameter error</p>
+    <p>Alarm 36.2 - Continuous: communication data error (safety observation function) SD 37 Parameter error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3088,14 +3596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 37.1 - Parameter: setting range error  </p>
+    <p>Alarm 37.1 - Parameter: setting range error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3105,14 +3616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 37.2 - Parameter: combination error  </p>
+    <p>Alarm 37.2 - Parameter: combination error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3122,31 +3636,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 37.3 - Point table: setting error     39 Program error</p>
+    <p>Alarm 37.3 - Point table: setting error 39 Program error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
     },
     "39.1": {
-        "name": "Program error DB     0000",
+        "name": "Program error DB     0000",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 39.1 - Program error DB     0000: Program error DB     0000</p>
+    <p>Alarm 39.1 - Program error DB     0000: Program error DB 0000</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3156,14 +3676,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 39.2 - Instruction: argument external error    </p>
+    <p>Alarm 39.2 - Instruction: argument external error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3173,14 +3696,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 39.3 - Register No.: error    </p>
+    <p>Alarm 39.3 - Register No.: error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3190,14 +3716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 39.4 - Non-: correspondence instruction error     3A Inrush current suppression circuit error 3A.1 Inrush current suppression circuit error E   C o m m o.</p>
+    <p>Alarm 39.4 - Non-: correspondence instruction error 3A Inrush current suppression circuit error 3A.1 Inrush current suppression circuit error E C o m m o</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3207,14 +3736,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 41.2 - (Limit switch enabled status selection): 1h: 1h: • PD41.3 (Sensor input method selection): 1h (Input from controller (FLS/RLS/DOG)) • PD60 (DI pin polarity selection): 00000000h • PT01.1.</p>
+    <p>Alarm 41.2 - (Limit switch enabled status selection): 1h: 1h: 1h: PD41.3 (Sensor input method selection): 1h (Input from controller (FLS/RLS/DOG)) PD60 (DI pin polarity selection): 00000000h PT01.1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3224,14 +3756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 41.3 - (Sensor input method selection): 1h (Input: 1h (Input: from controller (FLS/RLS/DOG)) • PD60 (DI pin polarity selection): 00000000h • PT01.1 (Speed/acceleration/deceleration unit selection): 0h.</p>
+    <p>Alarm 41.3 - (Sensor input method selection): 1h (Input: 1h (Input: 1h (Input: from controller (FLS/RLS/DOG)) PD60 (DI pin polarity selection): 00000000h PT01.1 (Speed/acceleration/deceleration unit selection): 0h</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -3241,14 +3776,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42.1 - Servo control: error by position deviation E </p>
+    <p>Alarm 42.1 - Servo control: error by position deviation E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -3258,14 +3796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42.2 - Servo control: error by speed deviation E </p>
+    <p>Alarm 42.2 - Servo control: error by speed deviation E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -3275,14 +3816,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42.3 - Servo control: error by torque/ thrust deviation E  Fully closed loop control error (for fully closed loop control)</p>
+    <p>Alarm 42.3 - Servo control: error by torque/ thrust deviation E Fully closed loop control error (for fully closed loop control)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -3292,14 +3836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42.8 - Fully closed: loop control error by position deviation E </p>
+    <p>Alarm 42.8 - Fully closed: loop control error by position deviation E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -3309,14 +3856,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 42.9 - Fully closed: loop control error by speed deviation E </p>
+    <p>Alarm 42.9 - Fully closed: loop control error by speed deviation E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -3326,15 +3876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 45.1 - Main circuit: device overheat error 1 SD    C o m m o n A l l a x e s</p>
+    <p>Alarm 45.1 - Main circuit: device overheat error 1 SD C o m m o n A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3344,15 +3896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 45.2 - Main circuit: device overheat error 2 SD    46 Servo motor overheat</p>
+    <p>Alarm 45.2 - Main circuit: device overheat error 2 SD 46 Servo motor overheat</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3362,14 +3916,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.1 - Abnormal: temperature of servo motor 1 SD   </p>
+    <p>Alarm 46.1 - Abnormal: temperature of servo motor 1 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3379,14 +3936,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.2 - Abnormal: temperature of servo motor 2 SD   </p>
+    <p>Alarm 46.2 - Abnormal: temperature of servo motor 2 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3396,14 +3956,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.3 - Thermistor: disconnected error SD   </p>
+    <p>Alarm 46.3 - Thermistor: disconnected error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3413,15 +3976,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.4 - Thermistor: circuit error SD   </p>
+    <p>Alarm 46.4 - Thermistor: circuit error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3431,15 +3996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.5 - Abnormal: temperature of servo motor 3   </p>
+    <p>Alarm 46.5 - Abnormal: temperature of servo motor 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3449,15 +4016,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 46.6 - Abnormal: temperature of servo motor 4    47 Cooling fan error</p>
+    <p>Alarm 46.6 - Abnormal: temperature of servo motor 4 47 Cooling fan error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3467,14 +4036,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 47.1 - Cooling fan stop: error SD   C o m m o n A l l a x e s</p>
+    <p>Alarm 47.1 - Cooling fan stop: error SD C o m m o n A l l a x e s</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3484,14 +4056,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 47.2 - Cooling fan: speed reduction error SD  </p>
+    <p>Alarm 47.2 - Cooling fan: speed reduction error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -3501,14 +4076,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.1 - Thermal: overload error 1 during operation SD   </p>
+    <p>Alarm 50.1 - Thermal: overload error 1 during operation SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3518,14 +4096,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.2 - Thermal: overload error 2 during operation SD   </p>
+    <p>Alarm 50.2 - Thermal: overload error 2 during operation SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3535,14 +4116,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.3 - Thermal: overload error 4 during operation SD   </p>
+    <p>Alarm 50.3 - Thermal: overload error 4 during operation SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3552,14 +4136,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.4 - Thermal: overload error 1 during a stop SD   </p>
+    <p>Alarm 50.4 - Thermal: overload error 1 during a stop SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3569,14 +4156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.5 - Thermal: overload error 2 during a stop SD   </p>
+    <p>Alarm 50.5 - Thermal: overload error 2 during a stop SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3586,14 +4176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 50.6 - Thermal: overload error 4 during a stop SD    51 Overload 2</p>
+    <p>Alarm 50.6 - Thermal: overload error 4 during a stop SD 51 Overload 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3603,14 +4196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 51.1 - Thermal: overload error 3 during operation   </p>
+    <p>Alarm 51.1 - Thermal: overload error 3 during operation</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3620,14 +4216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 51.2 - Thermal: overload error 3 during a stop    52 Error excessive</p>
+    <p>Alarm 51.2 - Thermal: overload error 3 during a stop 52 Error excessive</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3637,14 +4236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52.1 - Excess droop: pulse 1 SD  </p>
+    <p>Alarm 52.1 - Excess droop: pulse 1 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3654,14 +4256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52.3 - Excess droop: pulse 2 SD  </p>
+    <p>Alarm 52.3 - Excess droop: pulse 2 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3671,14 +4276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52.4 - Error excessive: during 0 torque limit SD  </p>
+    <p>Alarm 52.4 - Error excessive: during 0 torque limit SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3688,14 +4296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52.5 - Excess droop: pulse 3 E  </p>
+    <p>Alarm 52.5 - Excess droop: pulse 3 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3705,14 +4316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 52.6 - Excess droop: pulse during servo-off SD   54 Oscillation detection</p>
+    <p>Alarm 52.6 - Excess droop: pulse during servo-off SD 54 Oscillation detection</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -3722,14 +4336,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 54.1 - Oscillation: detection error E   56 Forced stop error</p>
+    <p>Alarm 54.1 - Oscillation: detection error E 56 Forced stop error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3739,14 +4356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 56.2 - Over speed: during forced stop E  </p>
+    <p>Alarm 56.2 - Over speed: during forced stop E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -3756,14 +4376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 56.3 - Estimated: distance over during forced stop E  </p>
+    <p>Alarm 56.3 - Estimated: distance over during forced stop E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3773,14 +4396,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 56.4 - Forced stop: start error E   61 Operation error</p>
+    <p>Alarm 56.4 - Forced stop: start error E 61 Operation error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3790,48 +4416,57 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 61.1 - Point table: setting range error     63 STO timing error 63.1 STO1 off   C o m m o n A l l a x e s 63.2 STO2 off   63.5 STO by functional safety unit.</p>
+    <p>Alarm 61.1 - Point table: setting range error 63 STO timing error 63.1 STO1 off C o m m o n A l l a x e s 63.2 STO2 off 63.5 STO by functional safety unit</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "63.1": {
-        "name": "STO1 off DB   C o m m o n A l l  a x e s 0110",
+        "name": "STO1 off DB   C o m m o n A l l  a x e s 0110",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 63.1 - STO1 off DB   C o m m o n A l l  a x e s 0110: 63.2 STO2 off   63.5 STO by functional safety unit    </p>
+    <p>Alarm 63.1 - STO1 off DB   C o m m o n A l l  a x e s 0110: 63.2 STO2 off 63.5 STO by functional safety unit</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "63.2": {
-        "name": "STO2 off DB   Common All axes",
+        "name": "STO2 off DB   Common All axes",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 63.2 - STO2 off DB   Common All axes: 63.5 STO by functional safety unit    </p>
+    <p>Alarm 63.2 - STO2 off DB   Common All axes: 63.5 STO by functional safety unit</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3841,30 +4476,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 63.5 - STO by: functional safety unit    </p>
+    <p>Alarm 63.5 - STO by: functional safety unit</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "64.1": {
-        "name": "STO input error DB     1000",
+        "name": "STO input error DB     1000",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 64.1 - STO input error DB     1000: STO input error DB     1000</p>
+    <p>Alarm 64.1 - STO input error DB     1000: STO input error DB 1000</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3874,13 +4516,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 64.2 - Compatibility: mode setting error    </p>
+    <p>Alarm 64.2 - Compatibility: mode setting error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3890,13 +4536,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 64.3 - Operation mode: setting error     65 Functional safety unit connection error</p>
+    <p>Alarm 64.3 - Operation mode: setting error 65 Functional safety unit connection error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -3906,13 +4556,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.1 - Functional: safety unit communication error 1 SD    </p>
+    <p>Alarm 65.1 - Functional: safety unit communication error 1 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3922,13 +4576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.2 - Functional: safety unit communication error 2 SD    </p>
+    <p>Alarm 65.2 - Functional: safety unit communication error 2 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3938,13 +4596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.3 - Functional: safety unit communication error 3 SD    </p>
+    <p>Alarm 65.3 - Functional: safety unit communication error 3 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3954,13 +4616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.4 - Functional: safety unit communication error 4 SD    </p>
+    <p>Alarm 65.4 - Functional: safety unit communication error 4 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3970,13 +4636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.5 - Functional: safety unit communication error 5 SD    </p>
+    <p>Alarm 65.5 - Functional: safety unit communication error 5 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -3986,13 +4656,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.6 - Functional: safety unit communication error 6 SD    </p>
+    <p>Alarm 65.6 - Functional: safety unit communication error 6 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -4002,13 +4676,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.7 - Functional: safety unit communication error 7 SD    </p>
+    <p>Alarm 65.7 - Functional: safety unit communication error 7 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -4018,14 +4696,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.8 - Functional: safety unit shut- off signal error 1    </p>
+    <p>Alarm 65.8 - Functional: safety unit shut- off signal error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4035,14 +4716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 65.9 - Functional: safety unit shut- off signal error 2    </p>
+    <p>Alarm 65.9 - Functional: safety unit shut- off signal error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4052,14 +4736,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66.1 - Encoder initial: communication - Receive data error 1 (safety observation function)    </p>
+    <p>Alarm 66.1 - Encoder initial: communication - Receive data error 1 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4069,14 +4756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66.2 - Encoder initial: communication - Receive data error 2 (safety observation function)    </p>
+    <p>Alarm 66.2 - Encoder initial: communication - Receive data error 2 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4086,14 +4776,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66.3 - Encoder initial: communication - Receive data error 3 (safety observation function)    </p>
+    <p>Alarm 66.3 - Encoder initial: communication - Receive data error 3 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4103,14 +4796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66.7 - Encoder initial: communication - Transmission data error 1 (safety observation function)    </p>
+    <p>Alarm 66.7 - Encoder initial: communication - Transmission data error 1 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4120,14 +4816,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 66.9 - Encoder initial: communication - Process error 1 (safety observation function)     67 Encoder normal communication error 1 (safety observation function)</p>
+    <p>Alarm 66.9 - Encoder initial: communication - Process error 1 (safety observation function) 67 Encoder normal communication error 1 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4137,14 +4836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67.1 - Encoder normal: communication - Receive data error 1 (safety observation function)    </p>
+    <p>Alarm 67.1 - Encoder normal: communication - Receive data error 1 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4154,14 +4856,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67.2 - Encoder normal: communication - Receive data error 2 (safety observation function)    </p>
+    <p>Alarm 67.2 - Encoder normal: communication - Receive data error 2 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4171,14 +4876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67.3 - Encoder normal: communication - Receive data error 3 (safety observation function)    </p>
+    <p>Alarm 67.3 - Encoder normal: communication - Receive data error 3 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4188,14 +4896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67.4 - Encoder normal: communication - Receive data error 4 (safety observation function)    </p>
+    <p>Alarm 67.4 - Encoder normal: communication - Receive data error 4 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4210,8 +4921,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4221,13 +4936,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 67.7 - Encoder normal: communication - Transmission data error 1 (safety observation function)     68 STO diagnosis error</p>
+    <p>Alarm 67.7 - Encoder normal: communication - Transmission data error 1 (safety observation function) 68 STO diagnosis error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4237,14 +4956,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 68.1 - Mismatched: STO signal error   C o m m o n C o m m o n</p>
+    <p>Alarm 68.1 - Mismatched: STO signal error C o m m o n C o m m o n</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4254,14 +4976,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.1 - Forward: rotation-side software limit detection - Command excess error SD    </p>
+    <p>Alarm 69.1 - Forward: rotation-side software limit detection - Command excess error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -4271,14 +4996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.2 - Reverse: rotation-side software limit detection - Command excess error SD    </p>
+    <p>Alarm 69.2 - Reverse: rotation-side software limit detection - Command excess error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -4288,14 +5016,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.3 - Forward rotation: stroke end detection - Command excess error SD    </p>
+    <p>Alarm 69.3 - Forward rotation: stroke end detection - Command excess error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -4305,14 +5036,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.4 - Reverse: rotation stroke end detection - Command excess error SD    </p>
+    <p>Alarm 69.4 - Reverse: rotation stroke end detection - Command excess error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -4322,14 +5056,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.5 - Upper stroke: limit detection - Command excess error SD    </p>
+    <p>Alarm 69.5 - Upper stroke: limit detection - Command excess error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -4339,14 +5076,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 69.6 - Lower stroke: limit detection - Command excess error SD     70 Load-side encoder initial communication error 1</p>
+    <p>Alarm 69.6 - Lower stroke: limit detection - Command excess error SD 70 Load-side encoder initial communication error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4356,14 +5096,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.1 - Load-side: encoder initial communication - Receive data error 1  </p>
+    <p>Alarm 70.1 - Load-side: encoder initial communication - Receive data error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4373,14 +5116,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.2 - Load-side: encoder initial communication - Receive data error 2  </p>
+    <p>Alarm 70.2 - Load-side: encoder initial communication - Receive data error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4390,14 +5136,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.3 - Load-side: encoder initial communication - Receive data error 3  </p>
+    <p>Alarm 70.3 - Load-side: encoder initial communication - Receive data error 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4407,14 +5156,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.4 - Load-side: encoder initial communication - Encoder malfunction  </p>
+    <p>Alarm 70.4 - Load-side: encoder initial communication - Encoder malfunction</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4424,14 +5176,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.5 - Load-side: encoder initial communication - Transmission data error 1  </p>
+    <p>Alarm 70.5 - Load-side: encoder initial communication - Transmission data error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4441,14 +5196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.6 - Load-side: encoder initial communication - Transmission data error 2  </p>
+    <p>Alarm 70.6 - Load-side: encoder initial communication - Transmission data error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4458,14 +5216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.7 - Load-side: encoder initial communication - Transmission data error 3  </p>
+    <p>Alarm 70.7 - Load-side: encoder initial communication - Transmission data error 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4475,14 +5236,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 70.8 - Load-side: encoder initial communication - Incompatible encoder  </p>
+    <p>Alarm 70.8 - Load-side: encoder initial communication - Incompatible encoder</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4492,14 +5256,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.1 - Load-side: encoder normal communication - Receive data error 1 E  </p>
+    <p>Alarm 71.1 - Load-side: encoder normal communication - Receive data error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4509,14 +5276,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.2 - Load-side: encoder normal communication - Receive data error 2 E  </p>
+    <p>Alarm 71.2 - Load-side: encoder normal communication - Receive data error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4526,14 +5296,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.3 - Load-side: encoder normal communication - Receive data error 3 E  </p>
+    <p>Alarm 71.3 - Load-side: encoder normal communication - Receive data error 3 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4543,14 +5316,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.5 - Load-side: encoder normal communication - Transmission data error 1 E  </p>
+    <p>Alarm 71.5 - Load-side: encoder normal communication - Transmission data error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4560,14 +5336,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.6 - Load-side: encoder normal communication - Transmission data error 2 E  </p>
+    <p>Alarm 71.6 - Load-side: encoder normal communication - Transmission data error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4577,14 +5356,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.7 - Load-side: encoder normal communication - Transmission data error 3 E  </p>
+    <p>Alarm 71.7 - Load-side: encoder normal communication - Transmission data error 3 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4594,14 +5376,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 71.9 - Load-side: encoder normal communication - Receive data error 4 E  </p>
+    <p>Alarm 71.9 - Load-side: encoder normal communication - Receive data error 4 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4611,15 +5396,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.1 - Load-side: encoder data error 1 E  </p>
+    <p>Alarm 72.1 - Load-side: encoder data error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4629,15 +5416,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.2 - Load-side: encoder data update error E  </p>
+    <p>Alarm 72.2 - Load-side: encoder data update error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4647,15 +5436,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.3 - Load-side: encoder data waveform error E  </p>
+    <p>Alarm 72.3 - Load-side: encoder data waveform error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4665,15 +5456,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.4 - Load-side: encoder non- signal error E  </p>
+    <p>Alarm 72.4 - Load-side: encoder non- signal error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4683,15 +5476,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.5 - Load-side: encoder hardware error 1 E  </p>
+    <p>Alarm 72.5 - Load-side: encoder hardware error 1 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4701,15 +5496,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.6 - Load-side: encoder hardware error 2 E  </p>
+    <p>Alarm 72.6 - Load-side: encoder hardware error 2 E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4719,15 +5516,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 72.9 - Load-side: encoder data error 2 E   74 Option card error 1</p>
+    <p>Alarm 72.9 - Load-side: encoder data error 2 E 74 Option card error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
@@ -4737,14 +5536,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74.1 - Option card: error 1    </p>
+    <p>Alarm 74.1 - Option card: error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4754,14 +5556,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74.2 - Option card: error 2    </p>
+    <p>Alarm 74.2 - Option card: error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4771,14 +5576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74.3 - Option card: error 3    </p>
+    <p>Alarm 74.3 - Option card: error 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4788,13 +5596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74.4 - Option card: error 4    </p>
+    <p>Alarm 74.4 - Option card: error 4</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4804,13 +5616,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 74.5 - Option card: error 5     75 Option card error 2</p>
+    <p>Alarm 74.5 - Option card: error 5 75 Option card error 2</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4820,13 +5636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 75.3 - Option card: connection error E    </p>
+    <p>Alarm 75.3 - Option card: connection error E</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4836,14 +5656,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 75.4 - Option card: disconnected    </p>
+    <p>Alarm 75.4 - Option card: disconnected</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Verify power supply voltage is within specifications.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4853,14 +5676,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.0 - (DI status read selection): Eh: Eh: • PD41.2 (Limit switch enabled status selection): 1h • PD41.3 (Sensor input method selection): 1h (Input from controller (FLS/RLS/DOG)) • PD60.</p>
+    <p>Alarm 79.0 - (DI status read selection): Eh: Eh: Eh: PD41.2 (Limit switch enabled status selection): 1h PD41.3 (Sensor input method selection): 1h (Input from controller (FLS/RLS/DOG)) PD60</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -4870,13 +5696,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.1 - Functional: safety unit power voltage error    </p>
+    <p>Alarm 79.1 - Functional: safety unit power voltage error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Measure the main circuit power supply voltage at the servo amplifier input terminals using a multimeter.</li>
+      <li>Verify the voltage is within the rated range specified for your servo amplifier model (typically 200-230V AC or 380-480V AC).</li>
+      <li>Check for voltage drops by measuring during motor operation - look for sags below the minimum threshold.</li>
+      <li>Inspect the power supply wiring for loose connections, damaged cables, or corroded terminals.</li>
+      <li>If using a shared power supply, check if other equipment on the same circuit is causing voltage fluctuations.</li>
+      <li>Consider installing a voltage stabilizer or dedicated power line if voltage instability is recurring.</li>
     </ol>
   </div>
 </div>"""
@@ -4886,13 +5716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.2 - Functional: safety unit internal error    </p>
+    <p>Alarm 79.2 - Functional: safety unit internal error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4902,13 +5736,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.3 - Abnormal: temperature of functional safety unit SD    </p>
+    <p>Alarm 79.3 - Abnormal: temperature of functional safety unit SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -4918,14 +5756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.4 - Servo amplifier: error SD    </p>
+    <p>Alarm 79.4 - Servo amplifier: error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Disconnect cables except control circuit power supply and check repeatability.</li>
-      <li>If repeatable, replace the servo amplifier.</li>
-      <li>If not repeatable, check surrounding environment (noise, temperature).</li>
+      <li>Power off the servo amplifier and disconnect all cables except the control circuit power supply.</li>
+      <li>Power on with only the control circuit connected and check if the alarm still occurs.</li>
+      <li>If the alarm persists with minimal connections, the servo amplifier has an internal fault.</li>
+      <li>If the alarm clears, reconnect cables one at a time to identify which connection triggers the fault.</li>
+      <li>Check the surrounding environment for sources of electrical noise, excessive heat, or vibration.</li>
+      <li>If the amplifier is confirmed faulty, replace it with the same model and transfer parameter settings.</li>
     </ol>
   </div>
 </div>"""
@@ -4935,14 +5776,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.5 - Input device: error SD    </p>
+    <p>Alarm 79.5 - Input device: error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4952,14 +5796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.6 - Output device: error SD    </p>
+    <p>Alarm 79.6 - Output device: error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4969,14 +5816,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.7 - Mismatched: input signal error SD    </p>
+    <p>Alarm 79.7 - Mismatched: input signal error SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -4986,14 +5836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 79.8 - Position: feedback fixing error     7A Parameter setting error (safety observation function) 7A.1 Parameter verification error (safety observation.</p>
+    <p>Alarm 79.8 - Position: feedback fixing error 7A Parameter setting error (safety observation function) 7A.1 Parameter verification error (safety observation</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5003,13 +5856,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 82.1 - Master-slave: operation error 1 E     84 Network module initialization error</p>
+    <p>Alarm 82.1 - Master-slave: operation error 1 E 84 Network module initialization error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5019,13 +5876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 84.1 - Network module: undetected error    </p>
+    <p>Alarm 84.1 - Network module: undetected error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5035,13 +5896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 84.2 - Network module: initialization error 1    </p>
+    <p>Alarm 84.2 - Network module: initialization error 1</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5051,13 +5916,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 84.3 - Network module: initialization error 2     85 Network module error</p>
+    <p>Alarm 84.3 - Network module: initialization error 2 85 Network module error</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5067,13 +5936,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 85.1 - Network module: error 1 SD    </p>
+    <p>Alarm 85.1 - Network module: error 1 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5083,13 +5956,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 85.2 - Network module: error 2 SD    </p>
+    <p>Alarm 85.2 - Network module: error 2 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5099,15 +5976,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 85.3 - Network module: error 3 SD    </p>
+    <p>Alarm 85.3 - Network module: error 3 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify power supply voltage is within specifications.</li>
-      <li>Check all communication cables and connectors.</li>
-      <li>Verify network module is properly seated.</li>
-      <li>Check communication parameter settings match the controller.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5117,13 +5996,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 86.1 - Network: communication error 1 SD    </p>
+    <p>Alarm 86.1 - Network: communication error 1 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5133,13 +6016,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 86.2 - Network: communication error 2 SD    </p>
+    <p>Alarm 86.2 - Network: communication error 2 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5149,13 +6036,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 86.3 - Network: communication error 3 SD    </p>
+    <p>Alarm 86.3 - Network: communication error 3 SD</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5165,86 +6056,97 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 86.4 - Network: communication error 4 SD     8A USB communication time-out error/ serial communication time-out error/ Modbus RTU communication time-out.</p>
+    <p>Alarm 86.4 - Network: communication error 4 SD 8A USB communication time-out error/ serial communication time-out error/ Modbus RTU communication time-out</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
     },
     "90.1": {
-        "name": "Home position return incomplete ",
+        "name": "Home position return incomplete ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 90.1 - Home position return incomplete : Home position return incomplete </p>
+    <p>Alarm 90.1 - Home position return incomplete : Home position return incomplete</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "90.2": {
-        "name": "Home position return abnormal termination ",
+        "name": "Home position return abnormal termination ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 90.2 - Home position return abnormal termination : 90.5 Z-phase unpassed  91 Servo amplifier overheat warning</p>
+    <p>Alarm 90.2 - Home position return abnormal termination : 90.5 Z-phase unpassed 91 Servo amplifier overheat warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
     },
     "90.5": {
-        "name": "Z-phase unpassed ",
+        "name": "Z-phase unpassed ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 90.5 - Z-phase unpassed : 91 Servo amplifier overheat warning</p>
+    <p>Alarm 90.5 - Z-phase unpassed : 91 Servo amplifier overheat warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Check the servo amplifier for faults.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
-      <li>Check ambient temperature and ensure adequate ventilation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
     },
     "91.1": {
-        "name": "Main circuit device overheat warning  Common ",
+        "name": "Main circuit device overheat warning  Common ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 91.1 - Main circuit device overheat warning  Common : 92 Battery cable disconnection warning</p>
+    <p>Alarm 91.1 - Main circuit device overheat warning  Common : 92 Battery cable disconnection warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check all cable connections for damage or loose contacts.</li>
-      <li>Disconnect and reconnect cables to ensure proper seating.</li>
-      <li>Inspect encoder connections and verify encoder operation.</li>
+      <li>Check the ambient temperature around the servo amplifier - it should be within 0-55C (32-131F).</li>
+      <li>Ensure adequate ventilation and airflow around the amplifier. Clean any dust from cooling fans and heat sinks.</li>
+      <li>Verify that the installation spacing between amplifiers meets the minimum clearance requirements.</li>
+      <li>Check if the cooling fan on the amplifier is operating. Replace the fan if it has stopped or is noisy.</li>
+      <li>Review the duty cycle - continuous high-torque operation may exceed thermal limits.</li>
+      <li>If in an enclosed cabinet, verify the cabinet cooling system (fan, air conditioner) is functioning properly.</li>
     </ol>
   </div>
 </div>"""
@@ -5254,31 +6156,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 92.1 - Encoder battery cable disconnection: warning  </p>
+    <p>Alarm 92.1 - Encoder battery cable disconnection: warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Check encoder cable connections at both ends.</li>
-      <li>Inspect encoder cable for damage or wear.</li>
-      <li>If issue persists after cable check, replace the encoder.</li>
+      <li>Power off the servo amplifier and disconnect the encoder cable from both the motor and amplifier ends.</li>
+      <li>Inspect the encoder cable for physical damage, bent pins, or loose connectors. Replace the cable if any damage is found.</li>
+      <li>Reconnect the encoder cable securely, ensuring all pins are properly seated.</li>
+      <li>Verify the encoder type matches the servo amplifier configuration. Check parameter settings for encoder compatibility.</li>
+      <li>Power on and check if the alarm clears. If the alarm persists, the encoder unit may need replacement.</li>
+      <li>If using an absolute position encoder, perform a home position return after resolving the issue.</li>
     </ol>
   </div>
 </div>"""
     },
     "92.3": {
-        "name": "Battery degradation  Each axis ",
+        "name": "Battery degradation  Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 92.3 - Battery degradation  Each axis : 93 ABS data transfer warning 93.1 ABS data transfer requirement warning during magnetic pole detection  95 STO warning 95.1 STO1 off detection.</p>
+    <p>Alarm 92.3 - Battery degradation  Each axis : 93 ABS data transfer warning 93.1 ABS data transfer requirement warning during magnetic pole detection 95 STO warning 95.1 STO1 off detection</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5288,14 +6196,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 93.1 - ABS data transfer requirement warning: during magnetic pole detection  95 STO warning 95.1 STO1 off detection 95.2 STO2 off detection 95.3 STO warning 1 (safety observation function) .</p>
+    <p>Alarm 93.1 - ABS data transfer requirement warning: during magnetic pole detection 95 STO warning 95.1 STO1 off detection 95.2 STO2 off detection 95.3 STO warning 1 (safety observation function)</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5305,14 +6216,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95.1 - STO1 off detection DB Common All axes: 95.2 STO2 off detection 95.3 STO warning 1 (safety observation function)  95.4 STO warning 2 (safety observation function)  95.5 STO warning 3.</p>
+    <p>Alarm 95.1 - STO1 off detection DB Common All axes: 95.2 STO2 off detection 95.3 STO warning 1 (safety observation function) 95.4 STO warning 2 (safety observation function) 95.5 STO warning 3</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5322,82 +6236,97 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95.2 - STO2 off detection DB Common All axes: 95.3 STO warning 1 (safety observation function)  95.4 STO warning 2 (safety observation function)  95.5 STO warning 3 (safety observation.</p>
+    <p>Alarm 95.2 - STO2 off detection DB Common All axes: 95.3 STO warning 1 (safety observation function) 95.4 STO warning 2 (safety observation function) 95.5 STO warning 3 (safety observation</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "95.3": {
-        "name": "STO warning 1 (safety observation function) DB ",
+        "name": "STO warning 1 (safety observation function) DB ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95.3 - STO warning 1 (safety observation function) DB : 95.4 STO warning 2 (safety observation function)  95.5 STO warning 3 (safety observation function)  96 Home position setting warning</p>
+    <p>Alarm 95.3 - STO warning 1 (safety observation function) DB : 95.4 STO warning 2 (safety observation function) 95.5 STO warning 3 (safety observation function) 96 Home position setting warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "95.4": {
-        "name": "STO warning 2 (safety observation function) DB ",
+        "name": "STO warning 2 (safety observation function) DB ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95.4 - STO warning 2 (safety observation function) DB : 95.5 STO warning 3 (safety observation function)  96 Home position setting warning</p>
+    <p>Alarm 95.4 - STO warning 2 (safety observation function) DB : 95.5 STO warning 3 (safety observation function) 96 Home position setting warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "95.5": {
-        "name": "STO warning 3 (safety observation function) DB ",
+        "name": "STO warning 3 (safety observation function) DB ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 95.5 - STO warning 3 (safety observation function) DB : 96 Home position setting warning</p>
+    <p>Alarm 95.5 - STO warning 3 (safety observation function) DB : 96 Home position setting warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "96.1": {
-        "name": "In-position warning at home positioning  Each axis ",
+        "name": "In-position warning at home positioning  Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 96.1 - In-position warning at home positioning  Each axis : In-position warning at home positioning  Each axis </p>
+    <p>Alarm 96.1 - In-position warning at home positioning  Each axis : In-position warning at home positioning Each axis</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -5407,31 +6336,37 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 96.2 - Command input warning at home: positioning  </p>
+    <p>Alarm 96.2 - Command input warning at home: positioning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "96.3": {
-        "name": "Servo off warning at home positioning ",
+        "name": "Servo off warning at home positioning ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 96.3 - Servo off warning at home positioning : Servo off warning at home positioning </p>
+    <p>Alarm 96.3 - Servo off warning at home positioning : Servo off warning at home positioning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -5441,48 +6376,57 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 96.4 - Home positioning warning during magnetic: pole detection  97 Positioning specification warning</p>
+    <p>Alarm 96.4 - Home positioning warning during magnetic: pole detection 97 Positioning specification warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
     },
     "97.1": {
-        "name": "Program operation disabled warning ",
+        "name": "Program operation disabled warning ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 97.1 - Program operation disabled warning : Program operation disabled warning </p>
+    <p>Alarm 97.1 - Program operation disabled warning : Program operation disabled warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
     },
     "97.2": {
-        "name": "Next station position warning ",
+        "name": "Next station position warning ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 97.2 - Next station position warning : 98 Software limit warning</p>
+    <p>Alarm 97.2 - Next station position warning : 98 Software limit warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -5492,14 +6436,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 98.1 - Forward rotation-side software stroke limit: reached </p>
+    <p>Alarm 98.1 - Forward rotation-side software stroke limit: reached</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -5509,82 +6456,97 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 98.2 - Reverse rotation-side software stroke limit: reached  99 Stroke limit warning</p>
+    <p>Alarm 98.2 - Reverse rotation-side software stroke limit: reached 99 Stroke limit warning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
     },
     "99.1": {
-        "name": "Forward rotation stroke end off *4*7 ",
+        "name": "Forward rotation stroke end off *4*7 ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 99.1 - Forward rotation stroke end off *4*7 : Forward rotation stroke end off *4*7 </p>
+    <p>Alarm 99.1 - Forward rotation stroke end off *4*7 : Forward rotation stroke end off *4*7</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
     },
     "99.2": {
-        "name": "Reverse rotation stroke end off *4*7 ",
+        "name": "Reverse rotation stroke end off *4*7 ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 99.2 - Reverse rotation stroke end off *4*7 : Reverse rotation stroke end off *4*7 </p>
+    <p>Alarm 99.2 - Reverse rotation stroke end off *4*7 : Reverse rotation stroke end off *4*7</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
     },
     "99.4": {
-        "name": "Upper stroke limit off *7 Each axis ",
+        "name": "Upper stroke limit off *7 Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 99.4 - Upper stroke limit off *7 Each axis : Upper stroke limit off *7 Each axis </p>
+    <p>Alarm 99.4 - Upper stroke limit off *7 Each axis : Upper stroke limit off *7 Each axis</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "99.5": {
-        "name": "Lower stroke limit off *7 Each axis ",
+        "name": "Lower stroke limit off *7 Each axis ",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 99.5 - Lower stroke limit off *7 Each axis : 9A Optional unit input data error warning 9A.1 Optional unit input data sign error  9A.2 Optional unit BCD input data error  9B Error excessive.</p>
+    <p>Alarm 99.5 - Lower stroke limit off *7 Each axis : 9A Optional unit input data error warning 9A.1 Optional unit input data sign error 9A.2 Optional unit BCD input data error 9B Error excessive</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical load on the motor - look for binding, excessive friction, or jammed mechanisms.</li>
+      <li>Verify the motor sizing is adequate for the application load and duty cycle.</li>
+      <li>Inspect the coupling between the motor and the mechanical load for misalignment or damage.</li>
+      <li>Check the acceleration/deceleration time settings - increase them if they are too aggressive for the load.</li>
+      <li>Monitor the motor current during operation to identify when the overload condition occurs.</li>
+      <li>Reduce the load or upgrade to a higher-capacity servo motor/amplifier if the system is undersized.</li>
     </ol>
   </div>
 </div>"""
@@ -5599,9 +6561,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5611,13 +6576,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 337.5 - Error code: (Hexadecimal) [FX5-SSC-S] Error name Error details and causes Remedy 3022H System bus error Communication with CPU module did not complete properly.</p>
+    <p>Alarm 337.5 - Error code: (Hexadecimal) [FX5-SSC-S] Error name Error details and causes Remedy 3022H System bus error Communication with CPU module did not complete properly</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Verify network/communication cable connections.</li>
-      <li>Check for communication parameter settings.</li>
+      <li>Check all communication cables between the servo amplifier and the controller for secure connections.</li>
+      <li>Inspect cables for physical damage, electromagnetic interference sources, or excessive cable length.</li>
+      <li>Verify the communication parameters (baud rate, station number, protocol) match between controller and amplifier.</li>
+      <li>Check that the network module or communication board is properly seated in the amplifier.</li>
+      <li>Try swapping the communication cable with a known good cable to isolate the issue.</li>
+      <li>If using a network topology (e.g., SSCNET), verify all stations in the chain are powered and configured correctly.</li>
     </ol>
   </div>
 </div>"""
@@ -5627,14 +6596,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 4.000 - 0.4 to 4.5 0 to 4.0 0 to 4.0 12.0 to 12.2 0 to 4.0 Follows: parameters Standby Position control Standby t1 t2 t3 t4 t5 t2 t6 [Cd.184] Positioning start [Md.141] BUSY Positioning complete signal ([Md.31].</p>
+    <p>Alarm 4.000 - 0.4 to 4.5 0 to 4.0 0 to 4.0 12.0 to 12.2 0 to 4.0 Follows: parameters Standby Position control Standby t1 t2 t3 t4 t5 t2 t6 [Cd.184] Positioning start [Md.141] BUSY Positioning complete signal ([Md.31]</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5649,9 +6621,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5661,14 +6636,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 88888 - Watchdog:  [RJ010]: MR-J3-T10 came off.  A part such as CPU is malfunctioning</p>
+    <p>Alarm 88888 - Watchdog: [RJ010]: MR-J3-T10 came off. A part such as CPU is malfunctioning</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5678,48 +6656,57 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3076.7 - r/min: • When CMX > , N < .7 - (CMX × 0.1) r/min • When (CMX/CDV) is reduced to its lowest terms, CMX  15900 The operation was out of conditions.</p>
+    <p>Alarm 3076.7 - r/min: When CMX > , N < .7 - (CMX 0.1) r/min When (CMX/CDV) is reduced to its lowest terms, CMX 15900 The operation was out of conditions</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "3276.7": {
-        "name": "- (CMX × 0.1)",
+        "name": "- (CMX  0.1)",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3276.7 - - (CMX × 0.1): r/min • When (CMX/CDV) is reduced to its lowest terms, CMX  15900 The operation was out of conditions.</p>
+    <p>Alarm 3276.7 - - (CMX  0.1): r/min When (CMX/CDV) is reduced to its lowest terms, CMX 15900 The operation was out of conditions</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
     },
     "5000.0": {
-        "name": "m",
+        "name": "m",
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 5000.0 - m: • Set the following data. (Set using the program referring to the start time chart.) n: Axis No.</p>
+    <p>Alarm 5000.0 - m: Set the following data. (Set using the program referring to the start time chart.) n: Axis No</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5729,14 +6716,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 3000.00 - mm/min (Speed is limited at a ratio of an axis 1 command speed to an axis 2 command speed.): Operation runs at speed 1 when a reference axis speed is less than 1 as a result of speed limit.</p>
+    <p>Alarm 3000.00 - mm/min (Speed is limited at a ratio of an axis 1 command speed to an axis 2 command speed.): Operation runs at speed 1 when a reference axis speed is less than 1 as a result of speed limit</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -5751,9 +6741,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5763,14 +6756,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 31500.1 - Synchronization flag Buffer memory accessible: U1\\G2417.C  M code ON signal M code outputting U1\\G</p>
+    <p>Alarm 31500.1 - Synchronization flag Buffer memory accessible: U1\\G2417.C M code ON signal M code outputting U1\\G</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5785,9 +6781,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5797,14 +6796,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 4000.00 - mm/min (Speed is limited by [Pr.8].): • Axis 2: .00 mm/min (Speed is limited at a ratio of an axis 1 command speed to an axis 2 command speed.) Operation runs at speed 1 when a reference.</p>
+    <p>Alarm 4000.00 - mm/min (Speed is limited by [Pr.8].): Axis 2: .00 mm/min (Speed is limited at a ratio of an axis 1 command speed to an axis 2 command speed.) Operation runs at speed 1 when a reference</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the speed command signal for noise or instability using an oscilloscope if available.</li>
+      <li>Verify the speed feedback from the encoder is stable and matches the commanded speed.</li>
+      <li>Review the speed loop gain parameters and adjust if oscillation or instability is observed.</li>
+      <li>Check for mechanical resonance that may cause speed fluctuations at certain RPM ranges.</li>
+      <li>Inspect the motor and encoder connections for intermittent contact issues.</li>
+      <li>If using analog speed command, verify the signal voltage range and check for ground loops.</li>
     </ol>
   </div>
 </div>"""
@@ -5819,9 +6821,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5831,14 +6836,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 631500.1 - Synchronization flag Buffer memory accessible: Simple Motion module U1\\62417.C | — M code ON signal M code outputting U1\\</p>
+    <p>Alarm 631500.1 - Synchronization flag Buffer memory accessible: Simple Motion module U1\\62417.C | M code ON signal M code outputting U1\\</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier.</li>
-      <li>If alarm recurs, the internal memory may be corrupted.</li>
-      <li>Replace the servo amplifier if the error persists.</li>
+      <li>Cycle power to the servo amplifier: turn off, wait 30 seconds, then turn back on.</li>
+      <li>If the alarm recurs after power cycling, the internal memory (RAM/ROM) may be corrupted.</li>
+      <li>Try resetting the servo amplifier to factory default parameters if accessible.</li>
+      <li>Check if the firmware version is up to date and compatible with your system configuration.</li>
+      <li>If the error persists after reset, the servo amplifier has an internal hardware failure and must be replaced.</li>
+      <li>Contact your equipment supplier for warranty replacement if applicable.</li>
     </ol>
   </div>
 </div>"""
@@ -5853,9 +6861,12 @@ ERROR_CODE_DATABASE = {
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -5865,14 +6876,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 270.00000 - [degree]): t V [Cd.184] Positioning start OFF ON [Da.8] Command speed [Md.141] BUSY OFF ON Positioning complete signal ([Md.31] Status: b15) OFF ON.</p>
+    <p>Alarm 270.00000 - [degree]): t V [Cd.184] Positioning start OFF ON [Da.8] Command speed [Md.141] BUSY OFF ON Positioning complete signal ([Md.31] Status: b15) OFF ON</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -5882,14 +6896,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 359.99999 - [degree]).: [Operation status at warning occurrence] The target position change is not carried out.</p>
+    <p>Alarm 359.99999 - [degree]).: [Operation status at warning occurrence] The target position change is not carried out</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Check the mechanical system for backlash, loose couplings, or worn components that affect positioning.</li>
+      <li>Verify the position feedback device (encoder/resolver) is functioning correctly and securely mounted.</li>
+      <li>Review the position loop gain parameters - they may need tuning for your specific mechanical system.</li>
+      <li>Check for mechanical interference or obstructions in the travel path.</li>
+      <li>Verify the electronic gear ratio and position command settings match the mechanical configuration.</li>
+      <li>Perform a test move at reduced speed to isolate whether the error occurs at specific positions.</li>
     </ol>
   </div>
 </div>"""
@@ -5899,14 +6916,17 @@ ERROR_CODE_DATABASE = {
         "content": """<div class="troubleshoot-response">
   <div class="issue-section">
     <strong>Issue Identified:</strong>
-    <p>Alarm 360.00000 - or less or: 360.00000 or more using INC instruction, where the control unit is set to \\"degree\\" and \\"[Pr.12] Software stroke limit upper limit value\\" is.</p>
+    <p>Alarm 360.00000 - or less or: 360.00000 or more using INC instruction, where the control unit is set to \\"degree\\" and \\"[Pr.12] Software stroke limit upper limit value\\" is</p>
   </div>
   <div class="steps-section">
     <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>Cycle power to the servo amplifier and check if alarm clears.</li>
-      <li>If alarm persists, check related components and wiring.</li>
-      <li>Consult the servo manual for detailed diagnostics.</li>
+      <li>Power off the servo amplifier, wait 30 seconds, then power back on to attempt alarm reset.</li>
+      <li>Check all cable connections to the servo amplifier for secure fit and no visible damage.</li>
+      <li>Review the alarm history to determine if this is a recurring issue or a one-time event.</li>
+      <li>Verify the servo amplifier parameters are correctly configured for your motor and application.</li>
+      <li>Check the operating environment for abnormal conditions (temperature, humidity, vibration, electrical noise).</li>
+      <li>If the alarm persists after basic checks, consult the detailed troubleshooting section of the servo manual or contact technical support.</li>
     </ol>
   </div>
 </div>"""
@@ -6145,44 +7165,36 @@ class ProductionRAGAgent:
             
             # Select prompt template based on query type
             if query_type == "error_code":
-                prompt = f"""You are a technical troubleshooting expert. Answer ONLY using the provided documentation below.
+                prompt = f"""You are a Technical Support Specialist for an industrial paint job defect detection system. Your role is to troubleshoot system problems using comprehensive component documentation including vision cameras, defect detection algorithms, PLC controllers, and maintenance procedures.
 
-User Query: {query}
+User's Issue: {query}
 
-=== DOCUMENTATION (YOU MUST USE THIS EXACT TEXT) ===
+Reference Documentation from System Components:
 {context_text}
-=== END DOCUMENTATION ===
 
-CRITICAL INSTRUCTIONS:
-1. You MUST quote or paraphrase the exact text from the documentation above
-2. DO NOT make up information or use general knowledge
-3. If the documentation doesn't contain the answer, say "The provided documentation does not contain information about this error code"
-4. Extract specific details, numbers, steps, and procedures directly from the documentation
-5. Your answer must be traceable back to the documentation text
+IMPORTANT: Format your response as HTML with the following structure:
 
-Provide your response in HTML format:
-
-<div class="error-response">
-  <div class="error-details">
-    <strong>Error Code:</strong>
-    <p>[Extract exact error code and description from documentation]</p>
+<div class="troubleshoot-response">
+  <div class="issue-section">
+    <strong>Issue Identified:</strong>
+    <p>[Brief description of the error code and what it means based on documentation]</p>
   </div>
-  <div class="cause">
-    <strong>Possible Cause:</strong>
-    <p>[Quote or closely paraphrase the cause from documentation]</p>
-  </div>
-  <div class="solution">
-    <strong>Solution Steps:</strong>
+  <div class="steps-section">
+    <strong>Troubleshooting Steps:</strong>
     <ol>
-      <li>[Extract step 1 from documentation]</li>
-      <li>[Extract step 2 from documentation]</li>
-      <li>[Extract step 3 from documentation]</li>
+      <li>[First step extracted from documentation - one sentence]</li>
+      <li>[Second step extracted from documentation - one sentence]</li>
+      <li>[Third step extracted from documentation - one sentence]</li>
+      <li>[Fourth step if available in documentation]</li>
+      <li>[Fifth step if available in documentation]</li>
+      <li>[Sixth step if available in documentation]</li>
     </ol>
   </div>
-  <div class="source-ref">Source: {source_text}</div>
 </div>
 
-REMEMBER: Use ONLY the documentation text above. Do not add generic advice."""
+Keep each step concise (one sentence). Extract steps directly from the documentation. If information is not in the documentation, say you don't have specific information and suggest consulting the manual.
+
+ONLY return the HTML, no other text."""
             
             elif query_type == "troubleshooting":
                 prompt = f"""You are a technical troubleshooting expert. Answer ONLY using the provided documentation below.
