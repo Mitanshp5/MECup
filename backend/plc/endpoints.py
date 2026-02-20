@@ -879,14 +879,28 @@ def cycle_reset():
     if not manager.connected:
         return {"success": False, "error": "PLC Not Connected"}
     try:
+        # Get current scan_id before reset (for report generation)
+        state = scan_session.get_state()
+        completed_scan_id = state.get("scan_id")
+        
         # Pulse M120
         manager.write_bit("M120", [1])
         
         # Reset Backend State
         scan_session.reset_cycle()
         
-        add_event("Cycle Reset", "info")
-        return {"success": True}
+        # Trigger background report generation for the completed cycle
+        if completed_scan_id:
+            threading.Thread(
+                target=_generate_report_background,
+                args=(completed_scan_id,),
+                daemon=True
+            ).start()
+            add_event(f"Cycle Reset - Report generation started for {completed_scan_id}", "info")
+        else:
+            add_event("Cycle Reset", "info")
+        
+        return {"success": True, "report_generation_started": bool(completed_scan_id)}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -1438,40 +1452,79 @@ def get_stitched_image(scan_id: str):
     
     return FileResponse(stitched_path, media_type="image/jpeg")
 
+def _generate_report_background(scan_id: str):
+    """Background worker function to generate report without blocking the main thread."""
+    try:
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
+        
+        if not os.path.exists(scan_folder):
+            logging.error(f"[Report Gen] Scan folder not found: {scan_id}")
+            return
+        
+        logging.info(f"[Report Gen] Starting background generation for {scan_id}")
+        scale = load_stitch_scale()
+        
+        # Generate stitched image
+        stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+        if not os.path.exists(stitched_path):
+            logging.info(f"[Report Gen] Stitching images for {scan_id}...")
+            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
+            if result_path:
+                logging.info(f"[Report Gen] Stitching complete: {scan_id}")
+            else:
+                logging.error(f"[Report Gen] Stitching failed: {scan_id}")
+        
+        # Generate heatmap
+        heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
+        if not os.path.exists(heatmap_path):
+            logging.info(f"[Report Gen] Generating heatmap for {scan_id}...")
+            result_path = generate_heatmap(scan_folder, scale)
+            if result_path:
+                logging.info(f"[Report Gen] Heatmap complete: {scan_id}")
+            else:
+                logging.error(f"[Report Gen] Heatmap failed: {scan_id}")
+        
+        logging.info(f"[Report Gen] Background generation finished for {scan_id}")
+    except Exception as e:
+        logging.error(f"[Report Gen] Error for {scan_id}: {str(e)}")
+
 @router.post("/scans/{scan_id}/generate-report")
-def generate_scan_report(scan_id: str):
-    """Generate stitched image and heatmap for a scan."""
+def generate_scan_report(scan_id: str, background_tasks: BackgroundTasks):
+    """Generate stitched image and heatmap for a scan (non-blocking)."""
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     scan_folder = os.path.join(backend_dir, "captured_images", scan_id)
     
     if not os.path.exists(scan_folder):
         raise HTTPException(status_code=404, detail="Scan folder not found")
     
-    try:
-        scale = load_stitch_scale()
-        
-        # Generate stitched image
-        stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
-        if not os.path.exists(stitched_path):
-            result_path = stitch_images(scan_folder, "stitched_result.jpg", scale)
-            if result_path is None:
-                raise HTTPException(status_code=500, detail="Failed to stitch images")
-        
-        # Generate heatmap
-        heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
-        if not os.path.exists(heatmap_path):
-            result_path = generate_heatmap(scan_folder, scale)
-            if result_path is None:
-                raise HTTPException(status_code=500, detail="Failed to generate heatmap")
-        
+    # Check if already generated
+    stitched_path = os.path.join(scan_folder, "stitched_result.jpg")
+    heatmap_path = os.path.join(scan_folder, "heatmap_result.jpg")
+    
+    already_exists = os.path.exists(stitched_path) and os.path.exists(heatmap_path)
+    
+    if already_exists:
         return {
             "success": True,
-            "message": "Report generated successfully",
-            "stitched_available": os.path.exists(stitched_path),
-            "heatmap_available": os.path.exists(heatmap_path)
+            "message": "Report already exists",
+            "stitched_available": True,
+            "heatmap_available": True
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Report generation error: {str(e)}")
+    
+    # Start background generation
+    threading.Thread(
+        target=_generate_report_background,
+        args=(scan_id,),
+        daemon=True
+    ).start()
+    
+    return {
+        "success": True,
+        "message": "Report generation started in background",
+        "stitched_available": os.path.exists(stitched_path),
+        "heatmap_available": os.path.exists(heatmap_path)
+    }
 
 @router.get("/scans/{scan_id}/heatmap")
 def get_heatmap_image(scan_id: str):
