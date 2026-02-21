@@ -312,7 +312,7 @@ const AutomaticMode = () => {
   const handleStartScan = async () => {
     if (MOCK_MODE) {
       setIsScanning(true);
-      toast.success("Mock Scan Started", { description: "Simulating M5 ON" });
+      toast.success("Mock Scan Started", { description: "Simulating Scan Start" });
       return;
     }
 
@@ -332,7 +332,7 @@ const AutomaticMode = () => {
         setTotalDefectCount(0);
         setResultImageUrl(null);
         sessionStorage.removeItem("mecup-defects"); // Clear persistent store
-        toast.success("Scan Started", { description: "M5 set to ON" });
+        toast.success("Scan Started", { description: "Scan Initiated" });
       } else {
         toast.error("Failed to start scan", { description: data.error || "PLC Error" });
       }
@@ -346,7 +346,7 @@ const AutomaticMode = () => {
     if (MOCK_MODE) {
       setIsScanning(false);
       setGridTriggered(false);
-      toast.info("Mock Scan Stopped", { description: "Simulating M5 OFF" });
+      toast.info("Mock Scan Stopped", { description: "Simulating Scan Stop" });
       return;
     }
 
@@ -361,7 +361,7 @@ const AutomaticMode = () => {
       if (data.success) {
         setIsScanning(false);
         setGridTriggered(false); // Reset grid state on stop
-        toast.info("Scan Stopped", { description: "M5 set to OFF" });
+        toast.info("Scan Stopped", { description: "Scan Stopped" });
       } else {
         toast.error("Failed to stop scan", { description: data.error || "PLC Error" });
       }
@@ -376,7 +376,7 @@ const AutomaticMode = () => {
   const handleGridOne = async () => {
     if (MOCK_MODE) {
       setGridTriggered(true);
-      toast.success("Mock Grid One", { description: "Simulated M4 ON" });
+      toast.success("Mock Grid One", { description: "Simulated Grid Trigger" });
       return;
     }
 
@@ -385,7 +385,7 @@ const AutomaticMode = () => {
       const data = await res.json();
       if (data.success) {
         setGridTriggered(true);
-        toast.success("Grid One Triggered", { description: "M4 set to ON" });
+        toast.success("Grid One Triggered", { description: "Grid Triggered" });
       } else {
         toast.error("Grid One Failed", { description: data.error || "PLC Error" });
       }
@@ -408,7 +408,7 @@ const AutomaticMode = () => {
       const res = await fetch(`${API_BASE_URL}/plc/cycle-reset`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        toast.success("Cycle Reset", { description: "M120 set to ON" });
+        toast.success("Cycle Reset", { description: "Reset Initiated" });
       } else {
         toast.error("Cycle Reset Failed", { description: data.error || "PLC Error" });
       }
@@ -428,7 +428,7 @@ const AutomaticMode = () => {
       const res = await fetch(`${API_BASE_URL}/plc/homing-start`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        toast.success("Homing Started", { description: "M1 set to ON" });
+        toast.success("Homing Started", { description: "Homing Initiated" });
       } else {
         toast.error("Homing Failed", { description: data.error || "PLC Error" });
       }

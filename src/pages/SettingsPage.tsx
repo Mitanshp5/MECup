@@ -92,7 +92,7 @@ const SettingsPage = () => {
               ip: plcSettings.ip,
               port: parseInt(plcSettings.port),
               timeout: parseInt(plcSettings.timeout),
-              mm2_per_pixel: parseFloat(plcSettings.mm2_per_pixel)
+              mm2_per_pixel: 0.1 / parseFloat(stitchSettings.scale)
             }),
           });
           const data = await res.json();
@@ -209,16 +209,7 @@ const SettingsPage = () => {
                 className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">MM2 Per Pixel</label>
-              <input
-                type="number"
-                step="0.0001"
-                value={plcSettings.mm2_per_pixel}
-                onChange={(e) => setPlcSettings(prev => ({ ...prev, mm2_per_pixel: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-secondary border border-border rounded-md text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
+
           </div>
         </div>
 

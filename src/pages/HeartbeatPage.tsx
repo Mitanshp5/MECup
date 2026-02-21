@@ -393,7 +393,7 @@ const HeartbeatPage = () => {
                 <Activity className="w-6 h-6 text-primary" />
                 {selectedAxis?.toUpperCase()}-Axis Real-time Monitoring
               </div>
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 onClick={async () => {
@@ -407,7 +407,7 @@ const HeartbeatPage = () => {
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Reset 24h Stats
-              </Button>
+              </Button> */}
             </DialogTitle>
           </DialogHeader>
 

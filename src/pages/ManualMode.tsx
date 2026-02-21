@@ -417,7 +417,7 @@ const ManualMode = () => {
                     ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse'
                     : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20'
                     }`}
-                  title="Start Homing (M1)"
+                  title="Start Homing"
                 >
                   <Home className={`w-5 h-5 mx-auto ${isHomingActive ? 'animate-spin-slow' : ''}`} />
                 </button>
@@ -557,7 +557,7 @@ const ManualMode = () => {
               <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
                 <div className="flex items-center gap-3">
                   <Zap className={`w-4 h-4 ${servoEnabled ? "text-success" : "text-destructive"}`} />
-                  <span className="text-sm text-foreground">Servo Power (M190)</span>
+                  <span className="text-sm text-foreground">Servo Power</span>
                 </div>
                 <span className={`text-xs font-medium ${servoEnabled ? "text-success" : "text-destructive"}`}>
                   {servoEnabled ? "ENABLED" : "DISABLED"}
@@ -578,7 +578,7 @@ const ManualMode = () => {
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md font-medium text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all shadow-sm"
               >
                 <AlertCircle className="w-3 h-3" />
-                <span>ERROR RESET (M15)</span>
+                <span>ERROR RESET</span>
               </button>
             </div>
           </div>

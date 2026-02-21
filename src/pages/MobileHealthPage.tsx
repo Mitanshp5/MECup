@@ -59,23 +59,42 @@ const MobileHealthPage = () => {
     };
   }, []);
 
-  // Fetch Daily Stats (One-off or Periodic)
+  // Poll History & Stats (Every 2s - matches backend update rate)
   useEffect(() => {
-    const fetchStats = async () => {
+    let intervalId: NodeJS.Timeout;
+    const fetchHistoryAndStats = async () => {
+      if (!isMounted.current) return;
       try {
         const res = await fetch(`${API_BASE_URL}/servo/history`);
         const data = await res.json();
-        if (isMounted.current && data.stats) {
+
+        if (data.history) {
+          const formatted: Record<string, any[]> = { x: [], y: [], z: [] };
+
+          data.history.forEach((snap: any) => {
+            const timeStr = new Date(snap.time).toLocaleTimeString();
+            ['x', 'y', 'z'].forEach(axis => {
+              if (snap[axis]) {
+                formatted[axis].push({
+                  time: timeStr,
+                  ...snap[axis]
+                });
+              }
+            });
+          });
+          setAxisHistory(formatted);
+        }
+        if (data.stats) {
           setDailyStats(data.stats);
         }
       } catch (e) {
-        console.error("Stats fetch error:", e);
+        console.error("History fetch error:", e);
       }
     };
-    fetchStats();
-    // Refresh stats every 30s
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
+
+    fetchHistoryAndStats();
+    intervalId = setInterval(fetchHistoryAndStats, 2000);
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -102,22 +121,7 @@ const MobileHealthPage = () => {
 
         setPlcConnected(plcStatusData.connected);
 
-        if (plcData.axis_data) {
-          const now = new Date().toLocaleTimeString();
-          const axisData = plcData.axis_data;
-
-          setAxisHistory(prev => {
-            const updateHistory = (key: string, data: any) => {
-              const newHistory = [...(prev[key] || []), { time: now, ...data }];
-              return newHistory.slice(-50);
-            };
-            return {
-              x: updateHistory("x", axisData.x),
-              y: updateHistory("y", axisData.y),
-              z: updateHistory("z", axisData.z)
-            };
-          });
-        }
+        // Axis data appending removed - handled by fetchHistoryAndStats separate effect
 
         setComponents(prev => prev.map(comp => {
           if (comp.id === "camera") {
@@ -394,6 +398,7 @@ const MobileHealthPage = () => {
                   data={axisHistory[selectedAxis]}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.current}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Regenerative Load Ratio (%)"
@@ -402,6 +407,7 @@ const MobileHealthPage = () => {
                   data={axisHistory[selectedAxis]}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.load}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Effective Load Torque (%)"
@@ -410,6 +416,7 @@ const MobileHealthPage = () => {
                   data={axisHistory[selectedAxis]}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.torque}
+                  connected={plcConnected}
                 />
                 <AxisChart
                   title="Peak Torque Ratio (%)"
@@ -418,6 +425,7 @@ const MobileHealthPage = () => {
                   data={axisHistory[selectedAxis]}
                   unit="%"
                   stats={dailyStats[selectedAxis]?.peak}
+                  connected={plcConnected}
                 />
               </div>
             </div>
@@ -546,29 +554,50 @@ const MobileResourceBar = ({ label, value }: { label: string; value: number }) =
   </div>
 );
 
-const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats }) => {
+const AxisChart = ({ title, dataKey, color, data, unit, stats, connected }: { title: string, dataKey: string, color: string, data: any[], unit: string, stats?: AxisStats, connected?: boolean }) => {
   // Stats are passed from backend (Daily Min/Max)
   const minVal = stats?.min_val;
   const maxVal = stats?.max_val;
   const minTime = stats?.min_time ? new Date(stats.min_time).toLocaleTimeString() : "";
   const maxTime = stats?.max_time ? new Date(stats.max_time).toLocaleTimeString() : "";
 
+  // If disconnected, show --. Else show last value or -- if empty.
+  // Note: mobile doesn't have 'connected' prop passed in yet, we will fix usage next.
+  // For now, use data check.
+  const currentValue = (data.length > 0) ? data[data.length - 1][dataKey] : "--";
+
+  // Calculate Domain to include Min/Max
+  const allValues = data.map(d => d[dataKey]);
+  if (minVal !== undefined && minVal !== null) allValues.push(minVal);
+  if (maxVal !== undefined && maxVal !== null) allValues.push(maxVal);
+
+  // Default range if nothing exists
+  if (allValues.length === 0) allValues.push(0, 100);
+
+  const domainMin = Math.min(...allValues);
+  const domainMax = Math.max(...allValues);
+
+  // Add some padding
+  const padding = (domainMax - domainMin) * 0.1;
+
   return (
     <div className="bg-card/40 border border-border/50 rounded-lg p-3">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-sm font-medium">{title}</h4>
-        <span className="text-xs font-mono">
-          {data.length > 0 ? data[data.length - 1][dataKey] : "--"} {unit}
-        </span>
+        <div className="text-right">
+          <span className="text-xs font-mono block">
+            Cur: {currentValue} {unit}
+          </span>
+        </div>
       </div>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#888" />
-            <XAxis hide />
+            <XAxis dataKey="time" hide={true} domain={['dataMin', 'dataMax']} />
             <YAxis
               tick={{ fontSize: 10, fill: '#888' }}
-              domain={['auto', 'auto']}
+              domain={[domainMin - padding, domainMax + padding]}
               width={30}
             />
             <RechartsTooltip
@@ -585,12 +614,12 @@ const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string
               isAnimationActive={false}
               connectNulls={true}
             />
-            {minVal !== undefined && minVal !== null && (
+            {minVal !== undefined && minVal !== null && !(minVal === 0 && maxVal === 0) && (
               <ReferenceLine y={minVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
                 <Label value={`Min: ${minVal}`} position="insideBottomLeft" fill={color} fontSize={10} />
               </ReferenceLine>
             )}
-            {maxVal !== undefined && maxVal !== null && (
+            {maxVal !== undefined && maxVal !== null && !(minVal === 0 && maxVal === 0) && (
               <ReferenceLine y={maxVal} stroke={color} strokeDasharray="3 3" opacity={0.5}>
                 <Label value={`Max: ${maxVal}`} position="insideTopLeft" fill={color} fontSize={10} />
               </ReferenceLine>
@@ -599,7 +628,7 @@ const AxisChart = ({ title, dataKey, color, data, unit, stats }: { title: string
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 };
 
 export default MobileHealthPage;

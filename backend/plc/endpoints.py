@@ -171,6 +171,38 @@ def save_daily_stats():
     finally:
         db.close()
 
+def save_servo_health():
+    """Save current axis monitoring data to the ServoHealth table."""
+    db = SessionLocal()
+    try:
+        health_record = plc_models.ServoHealth(
+            timestamp=datetime.datetime.utcnow(),
+            # X Axis
+            x_health=axis_monitoring_data["x"]["health"],
+            x_current=axis_monitoring_data["x"]["current"],
+            x_load=axis_monitoring_data["x"]["load"],
+            x_torque=axis_monitoring_data["x"]["torque"],
+            x_peak=axis_monitoring_data["x"]["peak"],
+            # Y Axis
+            y_health=axis_monitoring_data["y"]["health"],
+            y_current=axis_monitoring_data["y"]["current"],
+            y_load=axis_monitoring_data["y"]["load"],
+            y_torque=axis_monitoring_data["y"]["torque"],
+            y_peak=axis_monitoring_data["y"]["peak"],
+            # Z Axis
+            z_health=axis_monitoring_data["z"]["health"],
+            z_current=axis_monitoring_data["z"]["current"],
+            z_load=axis_monitoring_data["z"]["load"],
+            z_torque=axis_monitoring_data["z"]["torque"],
+            z_peak=axis_monitoring_data["z"]["peak"],
+        )
+        db.add(health_record)
+        db.commit()
+    except Exception as e:
+        logging.error(f"Failed to save servo health: {e}")
+    finally:
+        db.close()
+
 
 
 def save_inference_callback(future):
@@ -570,6 +602,9 @@ def poll_plc_thread():
                         servo_history.append(snapshot)
                         if len(servo_history) > 30: # 30 points * 2s = 60s
                              servo_history.pop(0)
+
+                        # Save to DB for Mobile Companion Status
+                        save_servo_health()
 
                     # 2. Update Daily Stats (Peaks/Lows) - Check every cycle (fast) or every 2s?
                     # Real-time peak detection is better done every cycle.

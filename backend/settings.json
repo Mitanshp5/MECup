@@ -1,7 +1,9 @@
 {
-    "plc_ip": "192.168.1.30",
-    "plc_port": 5000,
     "camera_exposure": 5000.0,
     "camera_gain": 0.0,
-    "camera_auto_exposure": true
+    "camera_auto_exposure": false,
+    "plc_ip": "192.168.1.30",
+    "plc_port": 5000,
+    "mm2_per_pixel": 0.005555555555555556,
+    "stitch_scale": 18.0
 }

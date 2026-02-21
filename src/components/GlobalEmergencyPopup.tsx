@@ -77,7 +77,7 @@ const GlobalEmergencyPopup = () => {
                                 EMERGENCY STOP
                             </h1>
                             <p className="text-xl font-medium text-red-100/90">
-                                SYSTEM HALTED (M599 ACTIVE)
+                                SYSTEM HALTED
                             </p>
                             <p className="text-sm text-red-200/70">
                                 The machine has been stopped due to an emergency condition.
@@ -98,7 +98,7 @@ const GlobalEmergencyPopup = () => {
                             `}
                         >
                             <RotateCcw className={`w-8 h-8 ${isResetting ? 'animate-spin' : ''}`} />
-                            {isResetting ? 'RESETTING...' : 'RESET SYSTEM (M120)'}
+                            {isResetting ? 'RESETTING...' : 'RESET SYSTEM'}
                         </button> */}
 
                     </motion.div>
