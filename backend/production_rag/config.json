@@ -5,7 +5,9 @@
     "llm_model": "phi3",
     "llm_size": "3.8B",
     "search_strategy": "mmr",
-    "hybrid_search": false
+    "hybrid_search": false,
+    "corpus_size": "500 pages",
+    "optimized_for": "speed_and_accuracy"
   },
   "performance_metrics": {
     "load_time_seconds": 3.84,
@@ -17,11 +19,19 @@
   "optimization_details": {
     "selected_from": "24 tested configurations",
     "ranking": "1st place",
+    "corpus_optimization": "Optimized for 500-page corpus (reduced from 1200 pages)",
+    "chunk_size": 400,
+    "chunk_overlap": 100,
+    "top_k_retrieval": 8,
+    "relevance_threshold": 0.1,
+    "fetch_k": 16,
+    "num_predict": 500,
     "key_advantages": [
-      "Fastest overall response time",
-      "Best balance of load time and query performance",
-      "CPU-optimized for production deployment",
-      "100% success rate on test queries"
+      "Faster retrieval with smaller, precise chunks",
+      "Better accuracy with increased top_k coverage",
+      "Lower threshold for more inclusive results",
+      "Optimized response generation speed",
+      "CPU-optimized for production deployment"
     ]
   },
   "hardware_requirements": {

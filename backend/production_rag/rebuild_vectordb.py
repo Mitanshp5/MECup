@@ -137,9 +137,9 @@ def rebuild_database():
 
     text_splitter = RecursiveCharacterTextSplitter(
 
-        chunk_size=600,  # Increased from 400 for more context per chunk
+        chunk_size=400,  # Optimized for 500-page corpus - smaller chunks for precision
 
-        chunk_overlap=150,  # Increased from 80 for better continuity
+        chunk_overlap=100,  # Balanced overlap for context continuity and speed
 
         separators=["\n======", "\n\n", "\n", ". ", " ", ""],
 
