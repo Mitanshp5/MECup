@@ -118,12 +118,37 @@ def rebuild_database():
     
 
     for file_path in DATA_DIR.glob("*.pdf"):
-
         print(f"   Loading: {file_path.name}")
-
-        loader = PyPDFLoader(str(file_path))
-
-        documents.extend(loader.load())
+        try:
+            loader = PyPDFLoader(str(file_path))
+            documents.extend(loader.load())
+        except Exception as e:
+            print(f"   ⚠️  Standard load failed: {str(e)[:100]}...")
+            print(f"   🔄 Attempting page-by-page recovery...")
+            
+            # Fallback for corrupted/complex PDFs: try loading page by page
+            try:
+                loader = PyPDFLoader(str(file_path))
+                pages_loaded = 0
+                pages_failed = 0
+                
+                # lazy_load allows us to iterate through pages and handle errors per page
+                for doc in loader.lazy_load():
+                    try:
+                        # Test if content is accessible (this triggers the pypdf extraction)
+                        _ = doc.page_content
+                        documents.append(doc)
+                        pages_loaded += 1
+                    except Exception as page_err:
+                        pages_failed += 1
+                        continue
+                
+                if pages_loaded > 0:
+                    print(f"   ✓ Recovered {pages_loaded} pages (skipped {pages_failed} problematic pages)")
+                else:
+                    print(f"   ❌ Failed to recover any pages from {file_path.name}")
+            except Exception as recovery_err:
+                print(f"   ❌ Critical failure during recovery: {str(recovery_err)[:100]}")
 
     
 
