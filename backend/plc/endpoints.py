@@ -340,9 +340,11 @@ MOTION_COMMANDS = {
 
     # --- JOG MODE (M46=0) ---
     "x_left_jog": "M10",
-    # "x_right_jog": "M???", # User didn't specify right jog, assuming not needed or M200?
+    "x_right_jog": "M6001",
     "y_back_jog": "M20",
+    "y_fwd_jog": "M6000",
     "z_down_jog": "M30",
+    "z_up_jog": "M6002",
     
     # Legacy/Misc
     "home_cmd": "M1"
