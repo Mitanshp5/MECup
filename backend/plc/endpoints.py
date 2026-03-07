@@ -381,122 +381,123 @@ def poll_plc_thread():
                     # Rising Edge (0 -> 1)
                     if (current_Y14 == 1 and last_Y14 == 0) or (current_Y15 == 1 and last_Y15 == 0) or (click_state == 1):
                         scan_session.set_click(0)
-                        time.sleep(0.3)
-                        manager.write_bit("M77", [1])
 
-                        x0_resp = manager.read_bit("X0", 1)
-                        if x0_resp and x0_resp[0] == 1:
-                            scan_session.set_click(1)
-                            time.sleep(1)
+                        time.sleep(0.1)
+                        # manager.write_bit("M77", [1])
+
+                        # x0_resp = manager.read_bit("X0", 1)
+                        # if x0_resp and x0_resp[0] == 1:
+                        #     scan_session.set_click(1)
+                        #     time.sleep(1)
                         
-                    #     current_m101 = manager.read_bit("M101", 1)
-                    #     if current_m101 and last_m101 != current_m101[0]:
-                    #         scan_session.increment_county()
-                    #         last_m101 = current_m101[0]
+                        current_m101 = manager.read_bit("M101", 1)
+                        if current_m101 and last_m101 != current_m101[0]:
+                            scan_session.increment_county()
+                            last_m101 = current_m101[0]
                             
-                    #     # Refresh state after updates
-                    #     state = scan_session.get_state()
-                    #     current_batch = state["batch_folder"]
+                        # Refresh state after updates
+                        state = scan_session.get_state()
+                        current_batch = state["batch_folder"]
                         
-                    #     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    #     save_dir = current_batch
+                        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                        save_dir = current_batch
 
-                    #     # Use batch folder if set, otherwise create one (Fallback)
-                    #     if not save_dir:
-                    #         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                    #         save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
-                    #         os.makedirs(save_dir, exist_ok=True)
+                        # Use batch folder if set, otherwise create one (Fallback)
+                        if not save_dir:
+                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                            save_dir = os.path.join(backend_dir, "captured_images", f"scan_{timestamp}")
+                            os.makedirs(save_dir, exist_ok=True)
 
 
 
                         
-                    #     # --- Grid Location Logging ---
-                    #     try:
-                    #         # Read Coordinates (D25=X, D21=Y, D27=Z) - 1 Angstrom = 1e-4 mm
-                    #         loc_raw = manager.read_sign_dword("D21", 10) # Read block covering D21-D30 to get D21, D25, D27
+                        # --- Grid Location Logging ---
+                        try:
+                            # Read Coordinates (D25=X, D21=Y, D27=Z) - 1 Angstrom = 1e-4 mm
+                            loc_raw = manager.read_sign_dword("D21", 10) # Read block covering D21-D30 to get D21, D25, D27
                             
-                    #         # Let's read individually to be safe and consistent with get_control_status
-                    #         x_raw = manager.read_sign_dword("D25", 1)
-                    #         y_raw = manager.read_sign_dword("D21", 1)
-                    #         z_raw = manager.read_sign_dword("D27", 1)
+                            # Let's read individually to be safe and consistent with get_control_status
+                            x_raw = manager.read_sign_dword("D25", 1)
+                            y_raw = manager.read_sign_dword("D21", 1)
+                            z_raw = manager.read_sign_dword("D27", 1)
                             
-                    #         def to_mm(raw_list):
-                    #             return round(raw_list[0] * 1e-4, 2) if raw_list else 0.0
+                            def to_mm(raw_list):
+                                return round(raw_list[0] * 1e-4, 2) if raw_list else 0.0
                                 
-                    #         x_mm = to_mm(x_raw)
-                    #         y_mm = to_mm(y_raw)
-                    #         z_mm = to_mm(z_raw)
+                            x_mm = to_mm(x_raw)
+                            y_mm = to_mm(y_raw)
+                            z_mm = to_mm(z_raw)
                             
-                    #         grid_csv = os.path.join(save_dir, "grid_locations.csv")
-                    #         file_exists = os.path.exists(grid_csv)
+                            grid_csv = os.path.join(save_dir, "grid_locations.csv")
+                            file_exists = os.path.exists(grid_csv)
                             
-                    #         with open(grid_csv, 'a', newline='') as f:
-                    #             writer = csv.writer(f)
-                    #             if not file_exists:
-                    #                 writer.writerow(["Filename", "Grid_Y", "Grid_X", "X", "Y", "Z", "Timestamp"])
+                            with open(grid_csv, 'a', newline='') as f:
+                                writer = csv.writer(f)
+                                if not file_exists:
+                                    writer.writerow(["Filename", "Grid_Y", "Grid_X", "X", "Y", "Z", "Timestamp"])
                                 
-                    #             filename = f"grid_{state['county']}_{state['count']}.jpg"
-                    #             writer.writerow([
-                    #                 filename, 
-                    #                 state['county'], 
-                    #                 state['count'], 
-                    #                 x_mm, 
-                    #                 y_mm, 
-                    #                 z_mm,
-                    #                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    #             ])
-                    #     except Exception as loc_err:
-                    #         logging.error(f"Failed to log grid location: {loc_err}")
-                    #     # -----------------------------
+                                filename = f"grid_{state['county']}_{state['count']}.jpg"
+                                writer.writerow([
+                                    filename, 
+                                    state['county'], 
+                                    state['count'], 
+                                    x_mm, 
+                                    y_mm, 
+                                    z_mm,
+                                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                ])
+                        except Exception as loc_err:
+                            logging.error(f"Failed to log grid location: {loc_err}")
+                        # -----------------------------
 
-                    #     filepath = os.path.join(save_dir, f"grid_{state['county']}_{state['count']}.jpg")
+                        filepath = os.path.join(save_dir, f"grid_{state['county']}_{state['count']}.jpg")
                         
-                    #     if camera_manager:
-                    #         try:
-                    #             if camera_manager.save_current_frame(filepath):
-                    #                 # Run inference on captured image
-                    #                 if get_predictor is not None:
-                    #                     try:
-                    #                         result_dir = os.path.join(save_dir, "results")
-                    #                         os.makedirs(result_dir, exist_ok=True)
+                        if camera_manager:
+                            try:
+                                if camera_manager.save_current_frame(filepath):
+                                    # Run inference on captured image
+                                    if get_predictor is not None:
+                                        try:
+                                            result_dir = os.path.join(save_dir, "results")
+                                            os.makedirs(result_dir, exist_ok=True)
                                             
-                    #                         scan_id = os.path.basename(save_dir)
+                                            scan_id = os.path.basename(save_dir)
                                             
-                    #                         future = inference_executor.submit(
-                    #                              run_inference_wrapper, 
-                    #                              filepath, 
-                    #                              result_dir, 
-                    #                              True, 
-                    #                              scan_id,
-                    #                              scan_session.model_type,
-                    #                              current_mm2_per_pixel
-                    #                         )
+                                            future = inference_executor.submit(
+                                                 run_inference_wrapper, 
+                                                 filepath, 
+                                                 result_dir, 
+                                                 True, 
+                                                 scan_id,
+                                                 scan_session.model_type,
+                                                 current_mm2_per_pixel
+                                            )
                                             
-                    #                         future.add_done_callback(save_inference_callback)
+                                            future.add_done_callback(save_inference_callback)
                                             
-                    #                     except Exception as ie:
-                    #                         logging.error(f"Inference submission failed: {ie}")
+                                        except Exception as ie:
+                                            logging.error(f"Inference submission failed: {ie}")
                                     
-                    #                 try:
-                    #                     time.sleep(0.1) 
-                    #                     manager.write_bit("M77", [1])
-                    #                     scan_session.increment_counters()
+                                    try:
+                                        time.sleep(0.1) 
+                                        manager.write_bit("M77", [1])
+                                        scan_session.increment_counters()
                                         
-                    #                     try:
-                    #                         x0_resp = manager.read_bit("X0", 1)
-                    #                         if x0_resp and x0_resp[0] == 1:
-                    #                             scan_session.set_click(1)
-                    #                             time.sleep(1)
-                    #                     except Exception as xe:
-                    #                         logging.error(f"Error reading X0: {xe}")
+                                        try:
+                                            x0_resp = manager.read_bit("X0", 1)
+                                            if x0_resp and x0_resp[0] == 1:
+                                                scan_session.set_click(1)
+                                                time.sleep(1)
+                                        except Exception as xe:
+                                            logging.error(f"Error reading X0: {xe}")
                                             
-                    #                 except Exception as we:
-                    #                     logging.error(f"Failed to write M77: {we}")
-                    #         except Exception as came:
-                    #             logging.error(f"Camera save frame failed: {came}")
+                                    except Exception as we:
+                                        logging.error(f"Failed to write M77: {we}")
+                            except Exception as came:
+                                logging.error(f"Camera save frame failed: {came}")
                     
-                    # last_Y14 = current_Y14
-                    # last_Y15 = current_Y15
+                    last_Y14 = current_Y14
+                    last_Y15 = current_Y15
                 
                 
             # --- Axis Data Monitoring (D40 - D80) ---

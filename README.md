@@ -77,7 +77,6 @@ Everything runs **100% locally** — no internet, no cloud, no data leaves the f
 - **RAG Chatbot** — Natural language troubleshooting assistant embedded in the UI
 - **Local LLM** — Phi-3 running via Ollama, completely offline
 - **Vector Search** — ChromaDB with BGE embeddings indexes technical manuals and error code documentation
-- **345 Hardcoded Error Codes** — Instant lookup for known servo alarm codes with structured troubleshooting steps
 - **Conversation History** — Session-based multi-turn conversations with context preservation
 
 ### Reporting & Analytics
@@ -93,9 +92,9 @@ Everything runs **100% locally** — no internet, no cloud, no data leaves the f
 - **Component Status** — Camera, lights, motors, PLC connection health at a glance
 - **Global Emergency Popup** — Full-screen alert when emergency stop is triggered
 
-### Mobile Companion
-- **Responsive Mobile UI** — Dedicated pages optimized for tablets and phones on the factory floor
-- **Remote Monitoring** — View system health, scan reports, and defect details from any device on the LAN
+### Remote Companion
+- **Responsive Tablet UI** — Dedicated pages optimized for tablets on the factory floor
+- **Remote Monitoring** — View system health, scan reports, and defect details from any device on the Network
 - **Mobile Authentication** — Secure login with the same JWT-based auth system
 
 ---
@@ -104,39 +103,39 @@ Everything runs **100% locally** — no internet, no cloud, no data leaves the f
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    ELECTRON DESKTOP APP                      │
+│                    ELECTRON DESKTOP APP                     │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │              React 18 + TypeScript Frontend            │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
-│  │  │Dashboard │ │Automatic │ │  Manual  │ │ Scans &  │ │  │
-│  │  │  + 3D    │ │   Mode   │ │   Mode   │ │ Reports  │ │  │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
-│  │  │Heartbeat │ │ Settings │ │  Users   │ │ Chatbot  │ │  │
-│  │  │  Health  │ │  Panel   │ │  Mgmt    │ │  (RAG)   │ │  │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
+│  │              React 18 + TypeScript Frontend           │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │  │
+│  │  │Dashboard │ │Automatic │ │  Manual  │ │ Scans &  │  │  │
+│  │  │  + 3D    │ │   Mode   │ │   Mode   │ │ Reports  │  │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘  │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │  │
+│  │  │Heartbeat │ │ Settings │ │  Users   │ │ Chatbot  │  │  │
+│  │  │  Health  │ │  Panel   │ │  Mgmt    │ │  (RAG)   │  │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘  │  │
 │  └──────────────────────┬────────────────────────────────┘  │
-│                         │ REST API (port 5001)               │
+│                         │ REST API                          │
 │  ┌──────────────────────▼────────────────────────────────┐  │
-│  │               FastAPI Python Backend                   │  │
-│  │  ┌──────┐ ┌──────────┐ ┌────────┐ ┌───────────────┐  │  │
-│  │  │ Auth │ │   PLC    │ │ Camera │ │   Inference    │  │  │
-│  │  │ JWT  │ │MC Proto  │ │MVS SDK │ │  OpenVINO +   │  │  │
-│  │  │ RBAC │ │ Polling  │ │ GigE   │ │  DINOv2 ViT   │  │  │
-│  │  └──────┘ └──────────┘ └────────┘ └───────────────┘  │  │
+│  │               FastAPI Python Backend                  │  │
+│  │  ┌──────┐ ┌──────────┐ ┌────────┐ ┌───────────────┐   │  │
+│  │  │ Auth │ │   PLC    │ │ Camera │ │  Inference    │   │  │
+│  │  │ JWT  │ │MC Proto  │ │MVS SDK │ │  OpenVINO +   │   │  │
+│  │  │ RBAC │ │ Polling  │ │ GigE   │ │  DINOv2 ViT   │   │  │
+│  │  └──────┘ └──────────┘ └────────┘ └───────────────┘   │  │
 │  │  ┌──────────────┐  ┌──────────────────────────────┐   │  │
 │  │  │  RAG Agent   │  │     Utils & Services         │   │  │
 │  │  │ Phi-3 + BGE  │  │ Stitcher, Heatmap, Reports   │   │  │
-│  │  │  ChromaDB    │  │ Background Thread Workers     │   │  │
+│  │  │  ChromaDB    │  │ Background Thread Workers    │   │  │
 │  │  └──────────────┘  └──────────────────────────────┘   │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
-         │                    │                    │
-    ┌────▼────┐         ┌────▼────┐          ┌────▼────┐
-    │Mitsubishi│         │HIKROBOT │          │  SQLite │
-    │  PLC    │         │ Camera  │          │   DB    │
-    │(MC TCP) │         │ (GigE)  │          │ (Local) │
-    └─────────┘         └─────────┘          └─────────┘
+         │                     │                    │
+    ┌────▼──────┐         ┌────▼────┐          ┌────▼────┐
+    │Mitshubishi│         │ HIKROBOT│          │  SQLite │
+    │    PLC    │         │ Camera  │          │   DB    │
+    │  (MC TCP) │         │ (GigE)  │          │ (Local) │
+    └───────────┘         └─────────┘          └─────────┘
 ```
 
 ---
@@ -209,22 +208,21 @@ Input Image (518x518)
       │   │   │  Skip connections
       ▼   ▼   ▼
 ┌─────────────────────┐
-│  Multi-Scale Decoder │  Trainable CNN decoder
+│  Multi-Scale Decoder│  Trainable CNN decoder
 │  [256, 128, 64] ch  │  Progressive upsampling with skip fusion
 │  + Dropout (0.1)    │
 └─────────┬───────────┘
           │
           ▼
 ┌─────────────────────┐
-│  Segmentation Head   │  Per-pixel classification
-│  4 classes:          │  Background | Dust | Rundown | Scratch
+│  Segmentation Head  │  Per-pixel classification
 └─────────────────────┘
 ```
 
 ### Inference Pipeline
-1. **Capture** — Industrial camera captures 518x518px image at grid position
-2. **Preprocess** — Resize, normalize (ImageNet stats), layout conversion (NHWC→NCHW)
-3. **Infer** — OpenVINO compiled model runs on GPU (preferred) or CPU with latency optimization
+1. **Capture** — Industrial camera captures 1440x51080px image at grid position
+2. **Preprocess** — Resize to 518x518px, normalize (ImageNet stats), layout conversion (NHWC→NCHW)
+3. **Infer** — OpenVINO compiled model runs on intel iGPU
 4. **Postprocess** — Argmax segmentation mask + softmax confidence maps
 5. **Analyze** — Connected component analysis counts individual defect instances, calculates area ratios
 6. **Report** — JSON report with per-class pixel counts, area percentages, severity ratings, and overlay images
@@ -252,7 +250,7 @@ Input Image (518x518)
 | **Settings** | PLC connection config (IP/Port), camera settings (Exposure/Gain), stitch scale, theme toggle |
 | **User Management** | Admin panel for creating/editing/deleting users with role assignment (Admin/Operator/Viewer) |
 
-### Mobile Companion
+### Remote Companion
 
 | Page | Description |
 |:---|:---|
@@ -283,7 +281,7 @@ MECup/
 │   ├── hooks/                   # Custom React hooks
 │   └── lib/                     # API config, utilities
 ├── backend/
-│   ├── main.py                  # FastAPI app entrypoint (port 5001)
+│   ├── main.py                  # FastAPI app entrypoint
 │   ├── mobile_main.py           # Standalone mobile API server
 │   ├── database.py              # SQLAlchemy engine + session
 │   ├── auth/                    # JWT auth module (router, models, security)
@@ -360,7 +358,7 @@ npm run dev
 
 ```bash
 # Development mode (with hot reload)
-npm run electron
+npm run dev
 
 # Production build
 npm run electron:build
@@ -386,31 +384,22 @@ cd backend/production_rag
 python rebuild_vectordb.py
 ```
 
----
-
-## Hardware Requirements
-
-### Minimum (Development)
-- **CPU**: Intel i5 8th Gen or equivalent
-- **RAM**: 8 GB
-- **GPU**: Intel UHD 630 (for OpenVINO inference)
-- **Storage**: 2 GB free
-
-### Recommended (Production)
-- **CPU**: Intel i7 12th Gen or newer
-- **RAM**: 16 GB
-- **GPU**: Intel Iris Xe or Arc (OpenVINO GPU acceleration)
-- **Storage**: 10 GB+ (for scan image storage)
-- **PLC**: Mitsubishi FX5U or compatible (MC Protocol TCP)
-- **Camera**: HIKROBOT GigE industrial camera
-- **Network**: Gigabit Ethernet (for PLC and camera communication)
-
----
-
 ## Contributors
 
 <table>
   <tr>
+    <td align="center">
+      <a href="https://github.com/Mitanshp5">
+        <strong>Mitansh Prajapati</strong>
+      </a>
+      <br />
+    </td>
+    <td align="center">
+      <a href="https://github.com/Neal006">
+        <strong>Neal Daftary</strong>
+      </a>
+      <br />
+    </td>
       <td align="center">
       <a href="https://github.com/Priyanshu-byte-coder">
         <strong>Priyanshu Doshi</strong>
@@ -418,8 +407,8 @@ python rebuild_vectordb.py
       <br />
     </td>
     <td align="center">
-      <a href="https://github.com/Mitanshp5">
-        <strong>Mitansh Prajapati</strong>
+      <a href="https://github.com/Shyam-Sojitra-31">
+        <strong>Shyam Sojitra</strong>
       </a>
       <br />
     </td>
